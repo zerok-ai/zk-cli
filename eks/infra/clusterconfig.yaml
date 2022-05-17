@@ -8,7 +8,7 @@ metadata:
 managedNodeGroups:
   - name: anton-ng
     instanceType: t2.small
-    minSize: 1
+    minSize: 3
     maxSize: 6
     spot: true
 # fargateProfiles:
