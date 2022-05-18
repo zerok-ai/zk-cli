@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: load-test
+  # Change this to the namespace the Prometheus instance is running in
+  namespace: app
+  labels:
+    app: load-test
+    k8s-app: app
+spec:
+  selector:
+    matchLabels:
+      app: load-test
+  namespaceSelector:
+    matchNames:
+      - app
+  endpoints:
+  - port: metrics
+    interval: 15s

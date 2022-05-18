@@ -3,6 +3,7 @@
 ### 1. Apply namespace, deployment and services
 ```
 kubectl apply -f node-deployment.yaml
+kubectl apply -f services.yaml
 ```
 ### 2. Get the Ingress Controller's public IP address
 
@@ -16,11 +17,6 @@ Open app-ingress.yaml and put the IP printed in the previous step against the `-
 
 ```
 open app-ingress.yaml
-```
-
-### 4. Apply ingress object
-```
-kubectl apply -f app-ingress.yaml
 ```
 
 ### 4. Apply ingress object

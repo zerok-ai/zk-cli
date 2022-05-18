@@ -8,4 +8,4 @@ sh ./install-and-configure-kubernetes-addons.sh
 sh ./install-ingress-controller.sh
 
 # install prometheus and grafana
-sh install-prometheus-and-grafana.sh
+# sh install-prometheus-and-grafana.sh

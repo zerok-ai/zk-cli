@@ -1,8 +1,6 @@
 #create cluster
-eksctl create cluster -f clusterconfig.yaml
-
-#create a service account, a cluster admin and eks admin
-kubectl apply -f eks-admin-service-account.yaml
+eksctl create cluster -f ./yaml/cluster/clusterconfig.yaml
+eksctl create cluster -f ./yaml/cluster/eks-admin-service-account.yaml
 
 #------ give cluster access permissions to users #------ 
 # 1. Mudit
