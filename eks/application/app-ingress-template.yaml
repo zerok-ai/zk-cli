@@ -11,7 +11,7 @@ metadata:
 spec:
   rules:
     # change the IP address here
-  - host: a99c73755ffb149149ab01f08b36c71e-1311696564.us-east-2.elb.amazonaws.com
+  - host: <<ELB_HOSTNAME>>
     http:
       paths:
       # - backend:
