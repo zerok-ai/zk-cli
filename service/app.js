@@ -23,13 +23,24 @@ const client = require('prom-client');
 const collectDefaultMetrics = client.collectDefaultMetrics;
 // Probe every 5th second.
 collectDefaultMetrics({ timeout: 5000 });
-const counter = new client.Counter({
-  name: 'info1 - node_request_operations_total',
+
+const counter1 = new client.Counter({
+  name: 'info1_node_request_operations_total',
   help: 'The total number of processed requests'
 });
-const histogram = new client.Histogram({
-  name: 'info1 - node_request_duration_seconds',
-  help: 'Histogram for the duration in seconds.',
+const histogram1 = new client.Histogram({
+  name: 'info1_node_request_duration_seconds',
+  help: 'info1 Histogram for the duration in seconds.',
+  buckets: [1, 2, 5, 6, 10]
+});
+
+const counter2 = new client.Counter({
+  name: 'info2_node_request_operations_total',
+  help: 'The total number of processed requests'
+});
+const histogram2 = new client.Histogram({
+  name: 'info2_node_request_duration_seconds',
+  help: 'info2 Histogram for the duration in seconds.',
   buckets: [1, 2, 5, 6, 10]
 });
 
@@ -43,6 +54,17 @@ app.get('/info1', (req, res) =>
 	let ts = Date.now();
 	let date = new Date(ts);
 
+  //Simulate a sleep
+  var start = new Date()
+  var simulateTime = 1000
+
+  setTimeout(function(argument) {
+    // execution time simulated with setTimeout function
+      var end = new Date() - start
+      histogram1.observe(end / 1000); //convert to seconds
+  }, simulateTime)
+
+  counter1.inc();
 	let response = {
 		ipconfig,
 		hostname, 
@@ -51,18 +73,6 @@ app.get('/info1', (req, res) =>
 		"api": "info1"
 	};
 	
-	//Simulate a sleep
-	var start = new Date()
-	var simulateTime = 1000
-
-	setTimeout(function(argument) {
-		// execution time simulated with setTimeout function
-	    var end = new Date() - start
-	    histogram.observe(end / 1000); //convert to seconds
-	}, simulateTime)
-
-	counter.inc();
-
 	res.send(response);
 })
 
@@ -70,6 +80,18 @@ app.get('/info2', (req, res) =>
 {
 	let ts = Date.now();
 	let date = new Date(ts);
+
+  //Simulate a sleep
+  var start = new Date()
+  var simulateTime = 1000
+
+  setTimeout(function(argument) {
+    // execution time simulated with setTimeout function
+      var end = new Date() - start
+      histogram2.observe(end / 1000); //convert to seconds
+  }, simulateTime)
+
+  counter2.inc();
 
 	let response = {
 		ipconfig,
@@ -83,7 +105,7 @@ app.get('/info2', (req, res) =>
 })
 
 app.get('/', (req, res) => {
-	counter.inc();
+	
 	res.send({"Nothing to show here": true});
 });
 
