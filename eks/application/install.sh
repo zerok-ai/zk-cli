@@ -1,11 +1,13 @@
 #! /bin/bash
 
 ELB_HOSTNAME=$(kubectl get services --namespace ingress | grep 'app-ingress-ingress' | grep -v 'admission' | awk '{print $4}')
-sed 's/<<ELB_HOSTNAME>>/'"$ELB_HOSTNAME"'/g' app-ingress-template.yaml > app-ingress.yaml
+sed 's/<<ELB_HOSTNAME>>/'"$ELB_HOSTNAME"'/g' ingress-template.yaml > ingress.yaml
 
-kubectl apply -f node-deployment.yaml
+kubectl apply -f namespace.yaml
+kubectl apply -f deployment.yaml
 kubectl apply -f services.yaml
-kubectl apply -f app-ingress.yaml
+kubectl apply -f autoscaler.yaml
+kubectl apply -f ingress.yaml
 
 echo
 echo "Application deployed at:"

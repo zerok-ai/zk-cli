@@ -1,13 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: load-test-service
+  name: load-test-service-load-high
   namespace: app
   labels:
     app: load-test
+    load: high
 spec:
   selector:
-    load: any
+    load: high
   type: ClusterIP # LoadBalancer # NodePort # 
   ports:
     - protocol: TCP

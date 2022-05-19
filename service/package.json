@@ -13,8 +13,6 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.18.1",
-    "helmet": "^5.0.2",
-    "nodemon": "^2.0.16",
-    "prom-client": "9.1.1"
+    "helmet": "^5.0.2"
   }
 }

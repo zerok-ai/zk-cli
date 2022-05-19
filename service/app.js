@@ -18,33 +18,6 @@ for (const name of Object.keys(nets)) {
 	}
 }
 
-// Prometheus
-const client = require('prom-client');
-const collectDefaultMetrics = client.collectDefaultMetrics;
-// Probe every 5th second.
-collectDefaultMetrics({ timeout: 5000 });
-
-const counter1 = new client.Counter({
-  name: 'info1_node_request_operations_total',
-  help: 'The total number of processed requests'
-});
-const histogram1 = new client.Histogram({
-  name: 'info1_node_request_duration_seconds',
-  help: 'info1 Histogram for the duration in seconds.',
-  buckets: [1, 2, 5, 6, 10]
-});
-
-const counter2 = new client.Counter({
-  name: 'info2_node_request_operations_total',
-  help: 'The total number of processed requests'
-});
-const histogram2 = new client.Histogram({
-  name: 'info2_node_request_duration_seconds',
-  help: 'info2 Histogram for the duration in seconds.',
-  buckets: [1, 2, 5, 6, 10]
-});
-
-
 app.get('/hc', (req, res) => {
 	res.send({"success": true});
 });
@@ -54,17 +27,6 @@ app.get('/info1', (req, res) =>
 	let ts = Date.now();
 	let date = new Date(ts);
 
-  //Simulate a sleep
-  var start = new Date()
-  var simulateTime = 1000
-
-  setTimeout(function(argument) {
-    // execution time simulated with setTimeout function
-      var end = new Date() - start
-      histogram1.observe(end / 1000); //convert to seconds
-  }, simulateTime)
-
-  counter1.inc();
 	let response = {
 		ipconfig,
 		hostname, 
@@ -80,18 +42,6 @@ app.get('/info2', (req, res) =>
 {
 	let ts = Date.now();
 	let date = new Date(ts);
-
-  //Simulate a sleep
-  var start = new Date()
-  var simulateTime = 1000
-
-  setTimeout(function(argument) {
-    // execution time simulated with setTimeout function
-      var end = new Date() - start
-      histogram2.observe(end / 1000); //convert to seconds
-  }, simulateTime)
-
-  counter2.inc();
 
 	let response = {
 		ipconfig,
@@ -110,12 +60,6 @@ app.get('/', (req, res) => {
 });
 
 app.use(helmet())
-
-// Metrics endpoint
-app.get('/metrics', (req, res) => {
-  res.set('Content-Type', client.register.contentType)
-  res.end(client.register.metrics())
-})
 
 app.listen(port, () => 
 	console.log('Server ready at http://'+ hostname + ':' + port));

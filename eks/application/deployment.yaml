@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-test
+  namespace: app
+  labels:
+    app: load-test
+    load: any
+spec:
+  selector:
+    matchLabels:
+      app: load-test
+      load: any
+  template:
+    metadata:
+      labels:
+        app: load-test
+        load: any
+    spec:
+      containers:
+      - name: load-test
+        image: 301129966109.dkr.ecr.us-east-2.amazonaws.com/nodeexample
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+        resources: 
+          requests: 
+            cpu: 50m
+          limits: 
+            cpu: 100m
+

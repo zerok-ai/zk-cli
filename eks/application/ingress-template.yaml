@@ -14,20 +14,6 @@ spec:
   - host: <<ELB_HOSTNAME>>
     http:
       paths:
-      # - backend:
-      #     service:
-      #       name: load-test-service-load-high
-      #       port: 
-      #         number: 80
-      #   path: /info1
-      #   pathType: Prefix
-      # - backend:
-      #     service:
-      #       name: load-test-service-load-low
-      #       port: 
-      #         number: 80
-      #   path: /info2
-      #   pathType: Prefix
       - backend:
           service:
             name: load-test-service
