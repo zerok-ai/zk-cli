@@ -11,5 +11,6 @@ spec:
   type: ClusterIP # LoadBalancer # NodePort # 
   ports:
     - protocol: TCP
+      name: m-http  
       port: 80
       targetPort: 3000

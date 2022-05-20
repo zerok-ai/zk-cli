@@ -1,18 +1,17 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: load-test
+  name: load-test-service-monitor
   namespace: app
   labels:
     app: load-test
-    release: prometheus
 spec:
   selector:
     matchLabels:
       app: load-test
+  endpoints:
+  - port: m-http
+    path: /metrics
   namespaceSelector:
     matchNames:
       - app
-  endpoints:
-  - port: load-test-service
-    path: /metrics
