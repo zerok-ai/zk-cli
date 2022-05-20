@@ -1,9 +1,9 @@
-# This will install prometheus and grafana in monitoring namespace
-# install Prometheus 
-kubectl create -f ./yaml/prometheus-manifests/setup/
-kubectl create -f ./yaml/prometheus-manifests/
+# create namespace for monitoring stack
+kubectl create namespace monitoring
 
-# validate
-echo 'You can validate the cluster by running -- `kubectl get pods -n prometheus`'
-echo 'access the Prometheus dashboard through -- `http:\\localhost:9090`'
-echo 'and Grafana dashboard through -- `http:\\localhost:3000`'
+# add helm repo for prometheus
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update 
+
+# install kube-prometheus
+helm install prom prometheus-community/kube-prometheus-stack -n monitoring --values ./yaml/values/prometheus-grafana.yaml
