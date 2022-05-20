@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: load-test-high
+  name: load-test-highload
   namespace: app
   labels:
     app: load-test

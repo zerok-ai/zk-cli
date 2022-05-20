@@ -1,1 +1,2 @@
-app-ingress.yaml
+ingress.yaml
+highloadapp-ingress.yaml

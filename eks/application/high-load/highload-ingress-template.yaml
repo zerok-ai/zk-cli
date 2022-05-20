@@ -11,12 +11,12 @@ metadata:
 spec:
   rules:
     # change the IP address here
-  - host: a91d8bb2c6a8f404cbac9a4f85bda814-622073186.us-east-2.elb.amazonaws.com
+  - host: <<ELB_HOSTNAME>>
     http:
       paths:
       - backend:
           service:
-            name: load-test-service-load-high
+            name: load-test-service-highload
             port: 
               number: 80
         path: /info1

@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "k6": "^0.0.0"
+    "k6": "^0.0.0",
+    "uuid": "^8.3.2"
   },
   "name": "loadtest",
   "version": "1.0.0",
