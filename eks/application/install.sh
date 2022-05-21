@@ -2,7 +2,7 @@
 
 ELB_HOSTNAME=$(kubectl get services --namespace ingress | grep 'app-ingress-ingress' | grep -v 'admission' | awk '{print $4}')
 sed 's/<<ELB_HOSTNAME>>/'"$ELB_HOSTNAME"'/g' ingress-template.yaml > ingress.yaml
-sed 's/<<ELB_HOSTNAME>>/'"$ELB_HOSTNAME"'/g' highload-ingress-template.yaml > highload-ingress.yaml
+sed 's/<<ELB_HOSTNAME>>/'"$ELB_HOSTNAME"'/g' high-load/highload-ingress-template.yaml > high-load/highload-ingress.yaml
 
 kubectl apply -f namespace.yaml
 kubectl apply -f deployment.yaml
