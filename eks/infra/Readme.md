@@ -11,7 +11,28 @@ sh uninstall.sh
 
 # Monitoring
 
-### Installation
+### Kubernetes dashboard
+#####Start proxy
+```
+kubectl proxy
+```
+
+If you get the error `error: listen tcp 127.0.0.1:8001: bind: address already in use` run the following command and try to start the proxy again
+
+```
+kill -9 $(ps aux | grep "kubectl proxy" | grep -v "CVS" | awk '{print $2}')
+```
+#####Dashboard url
+```
+http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+```
+#####Dashboard token
+The following command will copy the token to clipboard
+```
+kubectl -n kube-system describe secret $(kubectl
+-n kube-system get secret |  awk '/^deployment-controller-token-/{print $1}') | grep 'token:' | awk '{print $2}' | pbcopy
+```
+### Install Prometheus-Grafana
 Run 
 ```
 sh install-prometheus-and-grafana.sh
