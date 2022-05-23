@@ -4,16 +4,29 @@ import { sleep } from 'k6';
 
 export const options = {
   stages: [
-    { duration: '1m', target: 30 },
-    { duration: '2m', target: 90 },
-    { duration: '2m', target: 150 },
-    { duration: '2m', target: 200 },
-    { duration: '3m', target: 230 },
-    { duration: '6m', target: 200 },
-    { duration: '2m', target: 100 },
-    { duration: '1m', target: 50 },
+    { duration: '1m', target: 300 },
+    { duration: '2m', target: 900 },
+    { duration: '2m', target: 1500 },
+    { duration: '2m', target: 2000 },
+    { duration: '3m', target: 2300 },
+    { duration: '6m', target: 2000 },
+    { duration: '2m', target: 1000 },
+    { duration: '1m', target: 500 },
     { duration: '1m', target: 0 }
   ],
+  ext: {
+    loadimpact: {
+      apm: [
+        {
+          provider: 'prometheus',
+          remoteWriteURL: 'http://localhost:9090/api/v1/write',
+          includeDefaultMetrics: true,
+          includeTestRunId: true,
+          resampleRate: 3,
+        },
+      ],
+    },
+  },
 };
 
 export default function () {
