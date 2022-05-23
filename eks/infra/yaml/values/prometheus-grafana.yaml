@@ -1,8 +1,10 @@
 prometheus:
   prometheusSpec:
+    podMonitorSelectorNilUsesHelmValues: false
     serviceMonitorSelectorNilUsesHelmValues: false
     serviceMonitorSelector: {}
     serviceMonitorNamespaceSelector: {}
+    enableRemoteWriteReceiver: true
 
 grafana:
   sidecar:

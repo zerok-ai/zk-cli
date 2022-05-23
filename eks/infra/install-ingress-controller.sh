@@ -6,9 +6,11 @@ helm repo update
 # Install the Helm (v3) chart for nginx ingress controller
 helm install app-ingress ingress-nginx/ingress-nginx \
 	--namespace ingress \
-	--create-namespace --set controller.replicaCount=2 \
+	--create-namespace --set controller.replicaCount=5 \
 	--set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
-	--set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux
+	--set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux \
+	--set controller.metrics.enabled=true \
+	--set controller.metrics.serviceMonitor.enabled=true 
 
 # Print the Ingress Controller public IP address
 kubectl get services --namespace ingress
