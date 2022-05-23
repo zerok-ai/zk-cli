@@ -1,6 +1,6 @@
 #! /bin/bash
 
-ELB_HOSTNAME=$(kubectl get services --namespace ingress | grep 'app-ingress-ingress' | grep -v 'admission' | awk '{print $4}')
+ELB_HOSTNAME=$(kubectl get services --namespace ingress | grep 'app-ingress-ingress' | grep 'LoadBalancer' | awk '{print $4}')
 sed 's/<<ELB_HOSTNAME>>/'"$ELB_HOSTNAME"'/g' ingress-template.yaml > ingress.yaml
 sed 's/<<ELB_HOSTNAME>>/'"$ELB_HOSTNAME"'/g' high-load/highload-ingress-template.yaml > high-load/highload-ingress.yaml
 
