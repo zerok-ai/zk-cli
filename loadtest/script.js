@@ -11,7 +11,7 @@ export const options = {
 };
 
 export default function () {
-  const res = http.get('http://af73403b39a704289af7dc2014fd202b-900425903.us-east-2.elb.amazonaws.com/info1');
+  const res = http.get('http://a8e0a85d68de643199a7d49f14969f6c-480821876.us-east-2.elb.amazonaws.com/info1');
   check(res, {
     'verify homepage text': (r) =>
       r.body.includes('info1'),

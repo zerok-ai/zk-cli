@@ -4,14 +4,20 @@ import { sleep } from 'k6';
 
 export const options = {
   stages: [
-    { duration: '1m', target: 60 },
-    { duration: '2m', target: 250 },
-    { duration: '2m', target: 250 }
+    { duration: '1m', target: 30 },
+    { duration: '2m', target: 90 },
+    { duration: '2m', target: 150 },
+    { duration: '2m', target: 200 },
+    { duration: '3m', target: 230 },
+    { duration: '6m', target: 200 },
+    { duration: '2m', target: 100 },
+    { duration: '1m', target: 50 },
+    { duration: '1m', target: 0 }
   ],
 };
 
 export default function () {
-  const res = http.get('http://a8b53a31b008142e9b6239cfc81bef31-1654016547.us-east-2.elb.amazonaws.com/info1');
+  const res = http.get('http://a1268da6f6ffb4780b47832ec41d452c-1058680272.us-east-2.elb.amazonaws.com/info1');
   check(res, {
     'verify homepage text': (r) =>
       r.body.includes('info1'),
