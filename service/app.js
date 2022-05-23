@@ -10,21 +10,27 @@ const app = express()
  * Prometheus
  */
 
+const apiMetrics = require('prometheus-api-metrics');
+app.use(apiMetrics({
+	metricsPrefix: "loadtest_"
+}));
+// const register = apiMetrics.register;
+// // const client = apiMetrics.HttpMetricsCollector;
 const client = require('prom-client');
-const register = client.register;
+// const register = client.register;
 
 // Enable collection of default metrics
-client.collectDefaultMetrics({
-	gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5], // These are the default buckets.
-});
-new client.Counter({
-	name: 'scrape_counter',
-	help: 'Number of scrapes (example of a counter with a collect fn)',
-	collect() {
-		// collect is invoked each time `register.metrics()` is called.
-		this.inc();
-	},
-});
+// client.collectDefaultMetrics({
+// 	gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5], // These are the default buckets.
+// });
+// new client.Counter({
+// 	name: 'scrape_counter',
+// 	help: 'Number of scrapes (example of a counter with a collect fn)',
+// 	collect() {
+// 		// collect is invoked each time `register.metrics()` is called.
+// 		this.inc();
+// 	},
+// });
 
 
 const Counter = client.Counter;
@@ -103,14 +109,14 @@ app.get('/info2', (req, res) =>
 })
 
 // Setup server to Prometheus scrapes:
-app.get('/metrics', async (req, res) => {
-	try {
-		res.set('Content-Type', register.contentType);
-		res.end(await register.metrics());
-	} catch (ex) {
-		res.status(500).end(ex);
-	}
-});
+// app.get('/metrics', async (req, res) => {
+// 	try {
+// 		res.set('Content-Type', register.contentType);
+// 		res.end(await register.metrics());
+// 	} catch (ex) {
+// 		res.status(500).end(ex);
+// 	}
+// });
 
 app.get('/', (req, res) => {
 	defCounter.inc({ code: 200 });
