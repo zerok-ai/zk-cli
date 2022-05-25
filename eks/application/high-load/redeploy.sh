@@ -12,3 +12,4 @@ kubectl apply -f ../deployment.yaml
 kubectl apply -f ../autoscaler.yaml
 kubectl apply -f highload-deployment.yaml
 kubectl apply -f highload-autoscaler.yaml
+kubectl apply -f highload-service-monitor.yaml

@@ -5,8 +5,10 @@ metadata:
   namespace: app
   labels:
     app: load-test
+    load: any
 spec:
   selector:
+    app: load-test
     load: any
   type: ClusterIP # LoadBalancer # NodePort # 
   ports:

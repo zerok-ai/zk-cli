@@ -11,6 +11,7 @@ managedNodeGroups:
     minSize: 3
     maxSize: 10
     spot: true
+    maxPodsPerNode: 35
 # fargateProfiles:
 #   - name: anton-fp-default
 #     selectors:
