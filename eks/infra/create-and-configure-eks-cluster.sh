@@ -18,3 +18,11 @@ eksctl create iamidentitymapping \
     --arn arn:aws:iam::301129966109:user/shivam \
     --group "system:masters" \
     --no-duplicate-arns
+
+# 3. loadTester
+eksctl create iamidentitymapping \
+    --cluster anton-test \
+    --region=us-east-2 \
+    --arn arn:aws:iam::301129966109:user/loadTester \
+    --group "system:masters" \
+    --no-duplicate-arns
