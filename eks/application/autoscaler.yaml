@@ -11,5 +11,5 @@ spec:
     kind: Deployment
     name: load-test
   minReplicas: 1
-  maxReplicas: 60
-  targetCPUUtilizationPercentage: 60
+  maxReplicas: 30
+  targetCPUUtilizationPercentage: 80
