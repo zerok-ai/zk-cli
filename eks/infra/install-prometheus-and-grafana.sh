@@ -10,7 +10,7 @@ helm repo update
 helm upgrade --install prom prometheus-community/kube-prometheus-stack -n monitoring --values ./yaml/values/prometheus-grafana.yaml
 
 # install Promtail
-helm upgrade --install promtail grafana/promtail -f ./yaml/values/promtail-values.yaml -n monitoring
+# helm upgrade --install promtail grafana/promtail -f ./yaml/values/promtail-values.yaml -n monitoring
 
 # install Loki 
-helm upgrade --install loki grafana/loki-distributed -n monitoring
+# helm upgrade --install loki grafana/loki-distributed -n monitoring
