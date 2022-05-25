@@ -22,10 +22,9 @@ spec:
         image: 301129966109.dkr.ecr.us-east-2.amazonaws.com/nodeexample
         imagePullPolicy: Always
         ports:
-        - containerPort: 3000
+        - name: m-http
+          containerPort: 3000
         resources: 
           requests: 
-            cpu: 50m
-          limits: 
-            cpu: 100m
-
+            cpu: 170m
+            memory: 130Mi
