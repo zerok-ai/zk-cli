@@ -7,7 +7,7 @@ metadata:
   version: "1.22"
 managedNodeGroups:
   - name: anton-ng
-    instanceType: t3.small
+    instanceType: t3.medium
     minSize: 3
     maxSize: 10
     spot: true
