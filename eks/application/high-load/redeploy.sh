@@ -6,7 +6,7 @@ kubectl delete -f ../autoscaler.yaml
 kubectl delete -f highload-deployment.yaml
 kubectl delete -f highload-autoscaler.yaml
 
-sleep 10
+sleep 2
 
 kubectl apply -f ../deployment.yaml
 kubectl apply -f ../autoscaler.yaml

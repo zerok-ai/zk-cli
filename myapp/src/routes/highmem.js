@@ -1,5 +1,6 @@
 var express = require('express');
-const { request } = require('../app');
+var { highmemCounter } = require('../utils/prometheus');
+
 var router = express.Router();
 var jsondata = require('../utils/dummy.json');
 
@@ -21,6 +22,7 @@ router.get('/', function(req, res, next) {
     let ts = Date.now();
     let date = new Date(ts);
 
+    highmemCounter.inc({ code: 200 });
     res.send({ 
         api: 'highmem',
         count: finalData.depth,

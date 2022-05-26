@@ -1,4 +1,6 @@
 var express = require('express');
+var { highcpuCounter } = require('../utils/prometheus');
+
 var router = express.Router();
 
 /* GET home page. */
@@ -14,6 +16,8 @@ router.get('/', function(req, res, next) {
 
     let ts = Date.now();
     let date = new Date(ts);
+
+    highcpuCounter.inc({ code: 200 });
 
     res.send({ 
         api: 'highcpu', 
