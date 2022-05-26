@@ -8,8 +8,8 @@ var prealloc = {
 	highcpu:  1500, // 300,
 	lowload:  1500, // 300
 };
-var highcpuCount = 200;
-var highmemCount = 20;
+var highcpuCount = 800;
+var highmemCount = 80;
 
 
 export const options = {
