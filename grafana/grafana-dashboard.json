@@ -125,6 +125,30 @@
           "legendFormat": "lowload",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "builder",
+          "expr": "avg(rate(loadtest__http_request_duration_seconds_count{route=\"/highcpu\"}[$__rate_interval]))",
+          "hide": false,
+          "legendFormat": "highcpu",
+          "range": true,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "builder",
+          "expr": "avg(rate(loadtest__http_request_duration_seconds_count{route=\"/highmem\"}[$__rate_interval]))",
+          "hide": false,
+          "legendFormat": "highmem",
+          "range": true,
+          "refId": "D"
         }
       ],
       "title": "API level latency",
@@ -288,12 +312,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
+        "h": 8,
         "w": 12,
         "x": 0,
         "y": 7
       },
-      "id": 7,
+      "id": 1,
       "options": {
         "legend": {
           "calcs": [],
@@ -311,9 +335,38 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
+          "editorMode": "code",
+          "expr": "round(sum(irate(nginx_ingress_controller_requests{controller_class=~\"k8s.io/ingress-nginx\",controller_namespace=~\"ingress\",ingress=~\"webapp-ingress\"}[2m])) by (ingress), 0.001)",
+          "hide": true,
+          "instant": true,
+          "key": "Q-e0632043-65ac-493d-b615-7f56d7b8761d-2",
+          "range": true,
+          "refId": "Ingress"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "round(sum(irate(highload_counter{service=\"load-test-service\"}[$__rate_interval])))",
+          "format": "time_series",
+          "hide": true,
+          "instant": true,
+          "key": "Q-2160e910-f8aa-4e85-8a57-8b2408c542bd-0",
+          "range": true,
+          "refId": "Application"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
           "editorMode": "builder",
-          "expr": "k6_http_req_duration_avg{status=\"200\"}",
-          "legendFormat": "Avg {{url}}",
+          "expr": "sum(lowload_counter)",
+          "hide": false,
+          "legendFormat": "lowload Counter",
           "range": true,
           "refId": "A"
         },
@@ -322,15 +375,39 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "editorMode": "code",
-          "expr": "k6_http_req_duration_p95{status=\"200\"}",
+          "editorMode": "builder",
+          "expr": "sum(highload_counter)",
           "hide": false,
-          "legendFormat": "P95  {{url}}",
+          "legendFormat": "highload Counter",
           "range": true,
           "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "builder",
+          "expr": "sum(highcpu_counter)",
+          "hide": false,
+          "legendFormat": "highcpu Counter",
+          "range": true,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "builder",
+          "expr": "sum(highmem_counter)",
+          "hide": false,
+          "legendFormat": "highmem Counter",
+          "range": true,
+          "refId": "D"
         }
       ],
-      "title": "Latency",
+      "title": "Data Inflow",
       "type": "timeseries"
     },
     {
@@ -389,7 +466,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
+        "h": 8,
         "w": 12,
         "x": 12,
         "y": 7
@@ -502,12 +579,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 0,
-        "y": 14
+        "y": 15
       },
-      "id": 1,
+      "id": 7,
       "options": {
         "legend": {
           "calcs": [],
@@ -525,38 +602,9 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "editorMode": "code",
-          "expr": "round(sum(irate(nginx_ingress_controller_requests{controller_class=~\"k8s.io/ingress-nginx\",controller_namespace=~\"ingress\",ingress=~\"webapp-ingress\"}[2m])) by (ingress), 0.001)",
-          "hide": true,
-          "instant": true,
-          "key": "Q-e0632043-65ac-493d-b615-7f56d7b8761d-2",
-          "range": true,
-          "refId": "Ingress"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "round(sum(irate(highload_counter{service=\"load-test-service\"}[$__rate_interval])))",
-          "format": "time_series",
-          "hide": true,
-          "instant": true,
-          "key": "Q-2160e910-f8aa-4e85-8a57-8b2408c542bd-0",
-          "range": true,
-          "refId": "Application"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
           "editorMode": "builder",
-          "expr": "sum(lowload_counter)",
-          "hide": false,
-          "legendFormat": "lowload Counter",
+          "expr": "k6_http_req_duration_avg{status=\"200\"}",
+          "legendFormat": "Avg {{url}}",
           "range": true,
           "refId": "A"
         },
@@ -565,15 +613,15 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "editorMode": "builder",
-          "expr": "sum(highload_counter)",
+          "editorMode": "code",
+          "expr": "k6_http_req_duration_p95{status=\"200\"}",
           "hide": false,
-          "legendFormat": "highload Counter",
+          "legendFormat": "P95  {{url}}",
           "range": true,
           "refId": "B"
         }
       ],
-      "title": "Data Inflow",
+      "title": "Latency",
       "type": "timeseries"
     },
     {
@@ -632,10 +680,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 10,
         "w": 12,
         "x": 12,
-        "y": 14
+        "y": 15
       },
       "id": 11,
       "options": {
@@ -693,6 +741,6 @@
   "timezone": "",
   "title": "Load-test Data",
   "uid": "uEWfFXX7k",
-  "version": 6,
+  "version": 5,
   "weekStart": ""
 }
