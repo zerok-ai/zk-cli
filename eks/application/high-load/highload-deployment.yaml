@@ -17,6 +17,9 @@ spec:
         app: load-test
         load: high
     spec:
+      nodeSelector: {
+        role: worker
+      }
       containers:
       - name: load-test
         image: 301129966109.dkr.ecr.us-east-2.amazonaws.com/nodeexample

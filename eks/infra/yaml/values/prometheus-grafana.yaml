@@ -5,12 +5,28 @@ prometheus:
     serviceMonitorSelector: {}
     serviceMonitorNamespaceSelector: {}
     enableRemoteWriteReceiver: true
+    nodeSelector: {
+      role: system
+    }
+
+alertmanager:
+  alertmanagerSpec: 
+    nodeSelector: {
+      role: system
+    }
 
 grafana:
   sidecar:
     datasources:
       defaultDatasourceEnabled: true
-  additionalDataSources:
-    - name: Loki
-      type: loki
-      url: http://loki-loki-distributed-query-frontend.monitoring:3100
+
+prometheusOperator:
+  alertmanagerSpec: 
+    nodeSelector: {
+      role: system
+    }
+  admissionWebhooks: 
+    patch:
+      nodeSelector: {
+        role: system
+      }

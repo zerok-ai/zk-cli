@@ -6,12 +6,25 @@ metadata:
   region: us-east-2
   version: "1.22"
 managedNodeGroups:
-  - name: anton-ng
+  - name: anton-ng-system
     instanceType: t3.medium
-    minSize: 3
+    minSize: 2
     maxSize: 10
     spot: true
     maxPodsPerNode: 35
+    labels: {
+      role: system
+    }
+  - name: anton-ng-workers
+    instanceType: t3.medium
+    minSize: 1
+    maxSize: 20
+    spot: true
+    maxPodsPerNode: 35
+    labels: {
+      role: worker
+    }
+
 # fargateProfiles:
 #   - name: anton-fp-default
 #     selectors:
