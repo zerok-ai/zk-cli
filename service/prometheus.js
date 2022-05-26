@@ -1,14 +1,14 @@
 const client = require('prom-client');
 
 const Counter = client.Counter;
-const info1Counter = new Counter({
-    name: 'info1_counter',
-    help: 'info1 access counter',
+const highloadCounter = new Counter({
+    name: 'highload_counter',
+    help: 'highload access counter',
     labelNames: ['code'],
 });
-const info2Counter = new Counter({
-    name: 'info2_counter',
-    help: 'info2 access counter',
+const lowloadCounter = new Counter({
+    name: 'lowload_counter',
+    help: 'lowload access counter',
     labelNames: ['code'],
 });
 const hcCounter = new Counter({
@@ -24,8 +24,8 @@ const defCounter = new Counter({
 
 
 module.exports = {
-    info1Counter,
-    info2Counter,
+    highloadCounter,
+    lowloadCounter,
     hcCounter,
     defCounter,
 };

@@ -11,10 +11,10 @@ export const options = {
 };
 
 export default function () {
-  const res = http.get('http://afcdb7908a66d4ebdad8531a29ccdc52-1591718493.us-east-2.elb.amazonaws.com/info2');
+  const res = http.get('http://afcdb7908a66d4ebdad8531a29ccdc52-1591718493.us-east-2.elb.amazonaws.com/lowload');
   check(res, {
     'verify homepage text': (r) =>
-      r.body.includes('info2'),
+      r.body.includes('lowload'),
   });
 
   sleep(1);

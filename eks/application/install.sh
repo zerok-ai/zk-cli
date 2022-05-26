@@ -13,7 +13,7 @@ kubectl apply -f service-monitor.yaml
 
 echo
 echo "Application deployed at:"
-echo "http://"$ELB_HOSTNAME"/info1"
+echo "http://"$ELB_HOSTNAME"/hc"
 echo
 echo "Fetching Pod info: "
 kubectl get pods --namespace app --show-labels

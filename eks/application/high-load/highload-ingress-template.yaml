@@ -19,7 +19,7 @@ spec:
             name: load-test-service-highload
             port: 
               number: 80
-        path: /info1
+        path: /highload
         pathType: Prefix
       - backend:
           service:

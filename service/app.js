@@ -25,7 +25,7 @@ app.get('/hc', (req, res) => {
 	res.send({"success": true});
 });
 
-app.get('/info1', (req, res) => 
+app.get('/highload', (req, res) => 
 {
 	let ts = Date.now();
 	let date = new Date(ts);
@@ -35,13 +35,13 @@ app.get('/info1', (req, res) =>
 		hostname: sysInfo.hostname, 
 		port,
 		date,
-		"api": "info1"
+		"api": "highload"
 	};
-	promCounters.info1Counter.inc({ code: 200 });
+	promCounters.highloadCounter.inc({ code: 200 });
 	res.send(response);
 })
 
-app.get('/info2', (req, res) => 
+app.get('/lowload', (req, res) => 
 {
 	let ts = Date.now();
 	let date = new Date(ts);
@@ -51,9 +51,9 @@ app.get('/info2', (req, res) =>
 		hostname: sysInfo.hostname, 
 		port,
 		date,
-		"api": "info2"
+		"api": "lowload"
 	};
-	promCounters.info2Counter.inc({ code: 200 });
+	promCounters.lowloadCounter.inc({ code: 200 });
 	res.send(response);
 })
 
