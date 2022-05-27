@@ -1,13 +1,16 @@
 #--------- Metrics server ---------
-kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+echo '---------------------- Installing metrics-server'
+kubectl apply -f ./yaml/cluster/metrics-server.yaml
 
 
 #--------- Kubernetes dashboard ---------
 
 #install kubernetes dashboard
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.5.0/aio/deploy/recommended.yaml
+echo '---------------------- Installing dashboard'
+kubectl apply -f ./yaml/cluster/dashboard.yaml
 
 #start commandline proxy in background
+echo '---------------------- Starting proxy'
 kill -9 $(ps aux | grep "kubectl proxy" | grep -v "CVS" | awk '{print $2}')
 kubectl proxy &
 
