@@ -2,59 +2,60 @@ import { check } from 'k6';
 import http from 'k6/http';
 import { sleep } from 'k6';
 
-var prealloc = {
-	highload: 0, // 11000,
-	highmem:  250, // 300,
-	highcpu:  250, // 300,
-	lowload:  0, // 300
-};
-var highcpuCount = 800;
-var highmemCount = 80;
+/* scenario specs */
+const preallocVUs = 2;
+const maxVUs = 50;
+const timeUnit = '1m';
+const highcpuCount = 800; // Count variable to control CPU consumed by each highcpu API call.
+const highmemCount = 80;  // Count variable to control Mem consumed by each highmem API call.
 
+const scenarioStages = {
+  'highload' : [
+    { duration: '1m', target: 100 },
+    { duration: '3m', target: 300 },
+    { duration: '30s', target: 0 }  
+  ],
+  'highmem' : [
+    { duration: '1m', target: 100 },
+    { duration: '3m', target: 300 },
+    { duration: '30s', target: 0 }  
+  ],
+  'highcpu' : [
+    { duration: '1m', target: 100 },
+    { duration: '3m', target: 300 },
+    { duration: '30s', target: 0 }  
+  ],
+  'lowload' : [
+    { duration: '1m', target: 100 },
+    { duration: '3m', target: 300 },
+    { duration: '30s', target: 0 }  
+  ]
+}
+
+/* End scenario specs */
+
+function generateScenarioObj(scenarioName) {
+  return {
+    executor: 'ramping-arrival-rate',
+    exec: scenarioName,
+    preAllocatedVUs: preallocVUs,
+    timeUnit,
+    maxVUs,
+    startRate: scenarioStages[scenarioName][0].target,
+    stages: scenarioStages[scenarioName]
+  }
+}
+
+function generateScenarios() {
+  var scenarios = {};
+  Object.keys(scenarioStages).forEach(element => {
+    scenarios[element] = generateScenarioObj(element);
+  });
+  return scenarios;
+}
 
 export const options = {
-  scenarios: {
-    highload: {
-      executor: 'ramping-arrival-rate',
-      exec: 'highload',
-      preAllocatedVUs: prealloc.highload,
-      stages: [
-        { duration: '1m', target: 100 },
-        { duration: '3m', target: prealloc.highload },
-        { duration: '30s', target: 0 }
-      ]    
-    },
-    highmem: {
-      executor: 'ramping-arrival-rate',
-      exec: 'highmem',
-      preAllocatedVUs: prealloc.highmem,
-      stages: [
-        { duration: '1m', target: 100 },
-        { duration: '3m', target: prealloc.highmem },
-        { duration: '30s', target: 0 }
-      ]
-    },
-    highcpu: {
-      executor: 'ramping-arrival-rate',
-      exec: 'highcpu',
-      preAllocatedVUs: prealloc.highcpu,
-      stages: [
-        { duration: '1m', target: 100 },
-        { duration: '3m', target: prealloc.highcpu },
-        { duration: '30s', target: 0 }
-      ]
-    },
-    lowload: {
-      executor: 'ramping-arrival-rate',
-      exec: 'lowload',
-      preAllocatedVUs: prealloc.lowload,
-      stages: [
-        { duration: '1m', target: 100 },
-        { duration: '3m', target: prealloc.lowload },
-        { duration: '30s', target: 0 }
-      ]
-    }
-  },
+  scenarios: generateScenarios(),
   ext: {
     loadimpact: {
       apm: [
