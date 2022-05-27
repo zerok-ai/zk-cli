@@ -20,7 +20,7 @@ managedNodeGroups:
     minSize: 1
     maxSize: 20
     spot: true
-    maxPodsPerNode: 35
+    maxPodsPerNode: 10
     labels: {
       role: worker
     }
