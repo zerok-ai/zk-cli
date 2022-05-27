@@ -52,7 +52,6 @@ function generateScenarios() {
     module.exports[element] = prepareExecFn(element);
     scenarios[element] = generateScenarioObj(element);
   });
-  console.log(scenarios)
   return scenarios;
 }
 
