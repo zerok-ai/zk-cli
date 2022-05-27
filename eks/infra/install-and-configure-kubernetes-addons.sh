@@ -6,8 +6,8 @@ kubectl apply -f ./yaml/cluster/metrics-server.yaml
 #--------- Kubernetes dashboard ---------
 
 #install kubernetes dashboard
-echo '---------------------- Installing dashboard'
-kubectl apply -f ./yaml/cluster/dashboard.yaml
+# echo '---------------------- Installing dashboard'
+# kubectl apply -f ./yaml/cluster/dashboard.yaml
 
 #start commandline proxy in background
 echo '---------------------- Starting proxy'
