@@ -1,0 +1,3 @@
+[submodule "eks/application/autoscaler"]
+	path = eks/application/autoscaler
+	url = https://github.com/shivam-nagar/autoscaler
