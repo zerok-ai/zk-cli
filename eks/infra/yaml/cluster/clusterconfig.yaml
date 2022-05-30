@@ -8,7 +8,7 @@ metadata:
 managedNodeGroups:
   - name: anton-ng-system
     instanceType: t3.medium
-    minSize: 2
+    minSize: 3
     maxSize: 10
     spot: true
     maxPodsPerNode: 35

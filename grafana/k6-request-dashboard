@@ -33,6 +33,7 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -85,11 +86,11 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 10,
         "x": 0,
         "y": 0
       },
-      "id": 17,
+      "id": 23,
       "options": {
         "legend": {
           "calcs": [],
@@ -107,14 +108,62 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "editorMode": "builder",
-          "expr": "k6_http_req_failed",
-          "legendFormat": "{{scenario}}_{{status}}",
-          "range": true,
+          "exemplar": true,
+          "expr": "max(container_memory_working_set_bytes{container=\"$container\",pod=\"$pod\"}) by (container) / (1024*1024)",
+          "interval": "",
+          "legendFormat": "container usage",
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "exemplar": true,
+          "expr": "max(kube_pod_container_resource_requests{container=\"$container\",pod=\"$pod\",resource=\"memory\"}) by (container) / (1024*1024)",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "container request",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "exemplar": true,
+          "expr": "max(kube_pod_container_resource_limits{pod=\"$pod\",container=\"$container\",resource=\"memory\"}/(1024*1024)) by (container) ",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "container limit",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum by(resource) (kube_pod_container_resource_requests{namespace=\"app\", resource=\"memory\"}) / (1024*1024)",
+          "hide": false,
+          "legendFormat": "requested_{{resource}}",
+          "range": true,
+          "refId": "E"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum by(resource) (kube_pod_container_resource_limits{namespace=\"app\", resource=\"memory\"}) / (1024*1024)",
+          "hide": false,
+          "legendFormat": "limit_{{resource}}",
+          "range": true,
+          "refId": "F"
         }
       ],
-      "title": "Failures",
+      "title": "Memory(Mi)",
       "type": "timeseries"
     },
     {
@@ -122,14 +171,14 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "http_req_duration - Total time for the request -  how long the remote server took to process the request and respond, without the initial DNS lookup/connection times\n(http_req_sending + http_req_waiting + http_req_receiving)",
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
-            "axisLabel": "seconds",
+            "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
@@ -179,7 +228,8 @@
               "options": {
                 "mode": "exclude",
                 "names": [
-                  "highcpu - true"
+                  "requested_cpu",
+                  "limit_cpu"
                 ],
                 "prefix": "All except:",
                 "readOnly": true
@@ -199,12 +249,12 @@
         ]
       },
       "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
+        "h": 8,
+        "w": 9,
+        "x": 10,
         "y": 0
       },
-      "id": 7,
+      "id": 24,
       "options": {
         "legend": {
           "calcs": [],
@@ -223,14 +273,26 @@
             "uid": "prometheus"
           },
           "editorMode": "builder",
-          "expr": "sum by(scenario, expected_response) (k6_http_req_duration_avg / 1000)",
+          "expr": "sum by(resource) (kube_pod_container_resource_requests{namespace=\"app\", resource=\"cpu\"})",
           "hide": false,
-          "legendFormat": "{{scenario}} - {{expected_response}}",
+          "legendFormat": "requested_{{resource}}",
           "range": true,
-          "refId": "A"
+          "refId": "E"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "builder",
+          "expr": "sum by(resource) (kube_pod_container_resource_limits{namespace=\"app\", resource=\"cpu\"})",
+          "hide": false,
+          "legendFormat": "limit_{{resource}}",
+          "range": true,
+          "refId": "F"
         }
       ],
-      "title": "Request - time",
+      "title": "CPU",
       "type": "timeseries"
     },
     {
@@ -244,7 +306,7 @@
             "mode": "palette-classic"
           },
           "custom": {
-            "axisLabel": "seconds",
+            "axisLabel": "MegaBytes",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
@@ -289,12 +351,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 7
+        "h": 8,
+        "w": 10,
+        "x": 0,
+        "y": 8
       },
-      "id": 13,
+      "id": 19,
       "options": {
         "legend": {
           "calcs": [],
@@ -313,13 +375,22 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "k6_http_req_waiting_avg{} / 1000",
-          "legendFormat": "{{scenario}} - {{status}}",
+          "expr": "sum(container_memory_usage_bytes{namespace=\"app\"}/1000000)",
+          "legendFormat": "Container memory usage",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum(container_spec_memory_limit_bytes{namespace=\"app\"}/1000000)",
+          "hide": false,
+          "refId": "B"
         }
       ],
-      "title": "Waiting average",
+      "title": "Memory Utilization",
       "type": "timeseries"
     },
     {
@@ -327,7 +398,6 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "k6_http_reqs",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -378,13 +448,29 @@
         },
         "overrides": [
           {
+            "matcher": {
+              "id": "byName",
+              "options": "container Scaling Target%"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
             "__systemRef": "hideSeriesFrom",
             "matcher": {
               "id": "byNames",
               "options": {
                 "mode": "exclude",
                 "names": [
-                  "highload - true"
+                  "Avg CPU Usage - Container",
+                  "container Scaling Target%"
                 ],
                 "prefix": "All except:",
                 "readOnly": true
@@ -404,99 +490,10 @@
         ]
       },
       "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
+        "h": 8,
+        "w": 9,
+        "x": 10,
         "y": 8
-      },
-      "id": 15,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "explain",
-          "expr": "sum by(scenario, expected_response) (k6_http_reqs)",
-          "legendFormat": "{{scenario}} - {{expected_response}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Request Count",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 14
       },
       "id": 3,
       "options": {
@@ -539,7 +536,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "editorMode": "code",
+          "editorMode": "builder",
           "expr": "kube_horizontalpodautoscaler_spec_target_metric{}",
           "hide": false,
           "legendFormat": "container Scaling Target%",
@@ -606,12 +603,99 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 12,
+        "h": 8,
+        "w": 6,
         "x": 0,
-        "y": 15
+        "y": 16
       },
-      "id": 5,
+      "id": 21,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "k6_iterations{}",
+          "refId": "A"
+        }
+      ],
+      "title": "K6s Iterations",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "k6_http_reqs",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 7,
+        "x": 6,
+        "y": 16
+      },
+      "id": 15,
       "options": {
         "legend": {
           "calcs": [],
@@ -630,26 +714,13 @@
             "uid": "prometheus"
           },
           "editorMode": "builder",
-          "expr": "kube_horizontalpodautoscaler_status_current_replicas{}",
-          "hide": false,
-          "legendFormat": "Current Replicas {{horizontalpodautoscaler}}",
+          "expr": "sum by(scenario, error_code) (k6_http_reqs)",
+          "legendFormat": "{{scenario}} - {{error_code}}",
           "range": true,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "kube_horizontalpodautoscaler_spec_max_replicas{}",
-          "hide": false,
-          "legendFormat": "Max replicas",
-          "range": true,
-          "refId": "C"
+          "refId": "A"
         }
       ],
-      "title": "Autoscaler",
+      "title": "Request Count",
       "type": "timeseries"
     },
     {
@@ -708,12 +779,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 22
+        "h": 8,
+        "w": 6,
+        "x": 13,
+        "y": 16
       },
-      "id": 9,
+      "id": 17,
       "options": {
         "legend": {
           "calcs": [],
@@ -732,9 +803,295 @@
             "uid": "prometheus"
           },
           "editorMode": "builder",
-          "expr": "avg(rate(loadtest__http_request_duration_seconds_count{route=\"/highload\"}[$__rate_interval]))",
+          "expr": "k6_http_req_failed",
+          "legendFormat": "{{scenario}}_{{status}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Failures",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "http_req_duration - Total time for the request -  how long the remote server took to process the request and respond, without the initial DNS lookup/connection times\n(http_req_sending + http_req_waiting + http_req_receiving)",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "ms",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 24
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "builder",
+          "expr": "sum by(scenario, expected_response) (k6_http_req_duration_avg)",
           "hide": false,
-          "legendFormat": "highload",
+          "legendFormat": "{{scenario}} - {{expected_response}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Request - time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "k6_http_req_waiting_avg",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "ms",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 7,
+        "x": 6,
+        "y": 24
+      },
+      "id": 13,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "k6_http_req_waiting_avg{}",
+          "legendFormat": "{{scenario}} - {{status}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Waiting average",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Max replicas"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 13,
+        "y": 24
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "builder",
+          "expr": "kube_horizontalpodautoscaler_status_current_replicas{}",
+          "hide": false,
+          "legendFormat": "Current Replicas {{horizontalpodautoscaler}}",
           "range": true,
           "refId": "B"
         },
@@ -743,39 +1100,15 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "editorMode": "builder",
-          "expr": "avg(rate(loadtest__http_request_duration_seconds_count{route=\"/lowload\"}[$__rate_interval]))",
+          "editorMode": "code",
+          "expr": "kube_horizontalpodautoscaler_spec_max_replicas{}",
           "hide": false,
-          "legendFormat": "lowload",
-          "range": true,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "builder",
-          "expr": "avg(rate(loadtest__http_request_duration_seconds_count{route=\"/highcpu\"}[$__rate_interval]))",
-          "hide": false,
-          "legendFormat": "highcpu",
+          "legendFormat": "Max replicas",
           "range": true,
           "refId": "C"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "builder",
-          "expr": "avg(rate(loadtest__http_request_duration_seconds_count{route=\"/highmem\"}[$__rate_interval]))",
-          "hide": false,
-          "legendFormat": "highmem",
-          "range": true,
-          "refId": "D"
         }
       ],
-      "title": "API level latency",
+      "title": "Autoscaler",
       "type": "timeseries"
     }
   ],
@@ -787,13 +1120,15 @@
     "list": []
   },
   "time": {
-    "from": "now-15m",
-    "to": "now"
+    "from": "now-6h",
+    "to": "now-1m"
   },
-  "timepicker": {},
+  "timepicker": {
+    "nowDelay": "1m"
+  },
   "timezone": "",
   "title": "Load-test Data",
   "uid": "uEWfFXX7k",
-  "version": 35,
+  "version": 49,
   "weekStart": ""
 }
