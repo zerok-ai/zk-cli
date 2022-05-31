@@ -1,3 +1,3 @@
-[submodule "eks/application/autoscaler"]
-	path = eks/application/autoscaler
-	url = https://github.com/zerokdotcom/autoscaler
+[submodule "eks/infra/autoscaler"]
+	path = eks/infra/autoscaler
+	url = git@github.com:kubernetes/autoscaler.git
