@@ -4,35 +4,46 @@ import { sleep } from 'k6';
 import { Trend } from 'k6/metrics';
 
 /* scenario specs */
-const preallocVUs = 2;
-const maxVUs = 50;
+const preallocVUs = 1200;
+const maxVUs = 1200;
 const timeUnit = '1m';
 
 const scenarioStages = {
-  'highload' : [
-    { duration: '1m', target: 100 },
-    { duration: '3m', target: 300 },
-    { duration: '30s', target: 0 }  
-  ],
+/*/
   'highmem' : [
-    { duration: '1m', target: 100 },
-    { duration: '3m', target: 300 },
-    { duration: '30s', target: 0 }  
+    { duration: '3m', target: 999999999 },
+    { duration: '3m', target: 999999999 },
+    { duration: '5s', target: 999999999 }  
   ],
+/**/
   'highcpu' : [
-    { duration: '1m', target: 100 },
-    { duration: '3m', target: 300 },
-    { duration: '30s', target: 0 }  
+    { duration: '1m', target: 10000 },
+    { duration: '3m', target: 10000 },
+    { duration: '30s', target: 10000 }  
   ],
+/*/	
+  'highload' : [
+    { duration: '1m', target: 10000 },
+    { duration: '1m', target: 10000 },
+    { duration: '1m', target: 10000 },
+    { duration: '1m', target: 10000 }
+  ],
+/**/
   'lowload' : [
-    { duration: '1m', target: 100 },
-    { duration: '3m', target: 300 },
+    { duration: '1m', target: 1000 },
+    { duration: '3m', target: 3000 },
     { duration: '30s', target: 0 }  
   ]
+/**/
 }
 
-const highcpuCount = 800; // Count variable to control CPU consumed by each highcpu API call.
-const highmemCount = 80;  // Count variable to control Mem consumed by each highmem API call.
+const verticalScaleCount = {
+  // Count variable to control Mem consumed by each highmem API call.
+  'highmem': 1200,
+   // Count variable to control CPU consumed by each highcpu API call.
+  'highcpu': 50
+}
+
 const scenarioMetrics = ['waiting', 'duration']
 
 /* End scenario specs */
@@ -40,13 +51,15 @@ var myTrend = {};
 
 function generateScenarioObj(scenarioName) {
   return {
-    executor: 'ramping-arrival-rate',
+    executor: 'constant-arrival-rate',
     exec: scenarioName,
     preAllocatedVUs: preallocVUs,
     timeUnit,
+    duration: '4m',
     maxVUs,
-    startRate: scenarioStages[scenarioName][0].target,
-    stages: scenarioStages[scenarioName]
+    rate: scenarioStages[scenarioName][0].target,
+//    startRate: scenarioStages[scenarioName][0].target,
+//    stages: scenarioStages[scenarioName]
   }
 }
 
@@ -60,12 +73,13 @@ function generateScenarios() {
     module.exports[element] = prepareExecFn(element);
     scenarios[element] = generateScenarioObj(element);
   });
-  console.log(scenarios)
   return scenarios;
 }
 
 export const options = {
+  noConnectionReuse: true,
   scenarios: generateScenarios(),
+  VUs: preallocVUs,
   ext: {
     loadimpact: {
       apm: [
@@ -85,7 +99,7 @@ const hostname = __ENV.MY_HOSTNAME;
 
 function prepareExecFn(scenarioName) {
   return () => {
-    const res = http.get('http://'+hostname+'/'+scenarioName);
+    const res = http.get('http://'+hostname+'/'+scenarioName+'?count='+verticalScaleCount[scenarioName]);
     check(res, {
       'verify homepage text': (r) =>
         r.body.includes(scenarioName),
@@ -93,7 +107,6 @@ function prepareExecFn(scenarioName) {
     scenarioMetrics.forEach((metric) => {
     	myTrend[scenarioName][metric].add(res.timings[metric], {tag: `${scenarioName}_${metric}`});
     })
-    console.log(res);
     sleep(1);  
   }
 }
