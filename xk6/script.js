@@ -9,26 +9,25 @@ const maxVUs = 1200;
 const timeUnit = '1m';
 
 const scenarioStages = {
-/*/
+//
   'highmem' : [
-    { duration: '3m', target: 999999999 },
-    { duration: '3m', target: 999999999 },
-    { duration: '5s', target: 999999999 }  
+    { duration: '1m', target: 150 },
+    { duration: '3m', target: 150 },
+    { duration: '30s', target: 150 }  
   ],
-/**/
+/*/
   'highcpu' : [
-    { duration: '1m', target: 10000 },
-    { duration: '3m', target: 10000 },
-    { duration: '30s', target: 10000 }  
+    { duration: '1m', target: 2400 },
+    { duration: '3m', target: 2400 },
+    { duration: '30s', target: 2400 }  
   ],
-/*/	
+//	
   'highload' : [
     { duration: '1m', target: 10000 },
-    { duration: '1m', target: 10000 },
-    { duration: '1m', target: 10000 },
-    { duration: '1m', target: 10000 }
+    { duration: '3m', target: 10000 },
+    { duration: '30s', target: 10000 }
   ],
-/**/
+//
   'lowload' : [
     { duration: '1m', target: 1000 },
     { duration: '3m', target: 3000 },
@@ -39,7 +38,7 @@ const scenarioStages = {
 
 const verticalScaleCount = {
   // Count variable to control Mem consumed by each highmem API call.
-  'highmem': 1200,
+  'highmem': 20,
    // Count variable to control CPU consumed by each highcpu API call.
   'highcpu': 50
 }
