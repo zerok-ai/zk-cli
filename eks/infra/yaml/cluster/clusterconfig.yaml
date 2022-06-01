@@ -24,6 +24,23 @@ managedNodeGroups:
     labels: {
       role: worker
     }
+  - name: anton-ng-kafka
+    instanceType: m5.large
+    desiredCapacity: 2
+    minSize: 1
+    maxSize: 4
+    spot: true
+    taints:
+      - {
+          "key": "dedicated",
+          "value": "kafka",
+          "effect": "NoSchedule"
+        }
+    ssh:
+      allow: true
+    labels: {
+      role: kafka
+    }
 
 # fargateProfiles:
 #   - name: anton-fp-default
