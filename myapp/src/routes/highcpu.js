@@ -2,17 +2,6 @@ var express = require('express');
 var { highcpuCounter } = require('../utils/prometheus');
 
 var router = express.Router();
-var jsondata = require('../utils/dummy.json');
-
-function hackySack(dummyData, recCount) {
-    if(recCount == 0) {
-        return {};
-    }
-    var newData = JSON.parse(JSON.stringify(dummyData));
-    newData.depth = recCount;
-    newData.child = JSON.parse(JSON.stringify(hackySack(newData, recCount - 1)));
-    return newData;
-}
 
 function fibonacci(nth) {
     var num1 = 1;
@@ -33,6 +22,7 @@ router.get('/', function(req, res, next) {
     
     for(var i=0; i<recCount; i++) {
         finalData += fibonacci(i);
+        // finalData += Math.random()*recCount; //fibonacci(i);
     }
 
     let ts = Date.now();
