@@ -7,7 +7,7 @@ metadata:
     app: load-test
     load: any
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: load-test
@@ -30,8 +30,8 @@ spec:
           containerPort: 3000
         resources: 
           requests: 
-            cpu: 50m
-            memory: 100Mi
+            cpu: 150m
+            memory: 170Mi
           limits:
-            cpu: 60m
-            memory: 100Mi 
+            cpu: 170m
+            memory: 200Mi 

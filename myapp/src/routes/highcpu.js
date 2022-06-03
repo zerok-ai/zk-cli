@@ -17,11 +17,12 @@ function fibonacci(nth) {
 
 /* GET home page. */
 router.get('/', function(req, res, next) {    
-    var recCount = req.query.count || 10;
+    var recCount = (req.query.count || 10);
     var finalData = 1; // hackySack(jsondata, recCount);
     
     for(var i=0; i<recCount; i++) {
-        finalData += fibonacci(i);
+        finalData += 1;
+        Math.random();
         // finalData += Math.random()*recCount; //fibonacci(i);
     }
 
@@ -31,7 +32,7 @@ router.get('/', function(req, res, next) {
     highcpuCounter.inc({ code: 200 });
     res.send({ 
         api: 'highcpu',
-        sum_of_fibs: finalData,
+        count: finalData,
         date
     });
 });

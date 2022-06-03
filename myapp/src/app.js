@@ -7,6 +7,7 @@ const apiMetrics = require('prometheus-api-metrics');
 
 var indexRouter = require('./routes/index');
 var healthCheckRouter = require('./routes/hc');
+var garbageCollectorRouter = require('./routes/garbageCollectorRouter');
 var lowloadRouter = require('./routes/lowload');
 var highloadRouter = require('./routes/highload');
 var highcpuRouter = require('./routes/highcpu');
@@ -22,6 +23,7 @@ app.use(apiMetrics({metricsPrefix: "loadtest_"}));
 
 app.use('/', indexRouter);
 app.use('/hc', healthCheckRouter);
+app.use('/gc', garbageCollectorRouter);
 app.use('/lowload', lowloadRouter);
 app.use('/highload', highloadRouter);
 app.use('/highcpu', highcpuRouter);
