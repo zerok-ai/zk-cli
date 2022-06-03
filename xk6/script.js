@@ -11,17 +11,17 @@ const timeUnit = '1m';
 const scenarioStages = {
 //
   'highmem' : [
-    { duration: '1m', target: 150 },
-    { duration: '3m', target: 150 },
-    { duration: '30s', target: 150 }  
+    { duration: '1m', target: 1500 },
+    { duration: '3m', target: 1500 },
+    { duration: '30s', target: 1500 }  
   ],
-/*/
+//
   'highcpu' : [
-    { duration: '1m', target: 2400 },
-    { duration: '3m', target: 2400 },
-    { duration: '30s', target: 2400 }  
+    { duration: '1m', target: 1500 },
+    { duration: '3m', target: 1500 },
+    { duration: '30s', target: 1500 }  
   ],
-//	
+/*/	
   'highload' : [
     { duration: '1m', target: 10000 },
     { duration: '3m', target: 10000 },
@@ -30,17 +30,17 @@ const scenarioStages = {
 //
   'lowload' : [
     { duration: '1m', target: 1000 },
-    { duration: '3m', target: 3000 },
-    { duration: '30s', target: 0 }  
+    { duration: '3m', target: 1000 },
+    { duration: '30s', target: 1000 }  
   ]
 /**/
 }
 
 const verticalScaleCount = {
   // Count variable to control Mem consumed by each highmem API call.
-  'highmem': 20,
+  'highmem': 15,  // 1 * 1MB
    // Count variable to control CPU consumed by each highcpu API call.
-  'highcpu': 50
+  'highcpu': 333 * 1000
 }
 
 const scenarioMetrics = ['waiting', 'duration']
