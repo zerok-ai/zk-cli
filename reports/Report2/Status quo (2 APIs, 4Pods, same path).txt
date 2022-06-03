@@ -1,0 +1,174 @@
+Status quo (2 APIs, 4Pods, same path)
+
+
+scenarios: (100.00%) 2 scenarios, 2400 max VUs, 4m30s max duration (incl. graceful stop):
+           * highcpu: 25.00 iterations/s for 4m0s (maxVUs: 1200, exec: highcpu, gracefulStop: 30s)
+           * highmem: 25.00 iterations/s for 4m0s (maxVUs: 1200, exec: highmem, gracefulStop: 30s)
+
+Handling connection for 9090
+Unable to listen on port 9090: Listeners failed to create with the following errors: [unable to create listener: Error listen tcp4 127.0.0.1:9090: bind: address already in use unable to create listener: Error listen tcp6 [::1]:9090: bind: address already in use]
+error: unable to listen on any of the requested ports: [{9090 9090}]
+
+running (4m19.4s), 0000/2400 VUs, 12001 complete and 0 interrupted iterations
+highcpu ✓ [======================================] 0000/1200 VUs  4m0s  25 iters/s
+highmem ✓ [======================================] 0000/1200 VUs  4m0s  25 iters/s
+
+     ✓ verify homepage text
+
+     checks.........................: 100.00% ✓ 24002     ✗ 0
+     custom_highcpu_duration........: avg=5693.868997 min=8.879058 med=3125.247223 max=45602.83197  p(90)=18002.769325 p(95)=20718.667327
+     custom_highcpu_waiting.........: avg=5693.768731 min=8.790907 med=3125.144662 max=45602.729569 p(90)=18002.661406 p(95)=20718.583251
+     custom_highmem_duration........: avg=5655.367667 min=4.098903 med=3033.64767  max=41841.497608 p(90)=18054.528872 p(95)=20753.178955
+     custom_highmem_waiting.........: avg=5655.266183 min=4.012226 med=3033.534233 max=41841.404213 p(90)=18054.434561 p(95)=20753.082314
+     data_received..................: 7.8 MB  30 kB/s
+     data_sent......................: 4.2 MB  16 kB/s
+     http_req_blocked...............: avg=434.12µs    min=195.82µs med=387.26µs    max=28.55ms      p(90)=484.15µs     p(95)=538.81µs
+     http_req_connecting............: avg=382.61µs    min=149.52µs med=338.11µs    max=28.5ms       p(90)=431.31µs     p(95)=484.59µs
+     http_req_duration..............: avg=5.67s       min=4.09ms   med=3.08s       max=45.6s        p(90)=18.04s       p(95)=20.73s
+       { expected_response:true }...: avg=5.67s       min=4.09ms   med=3.08s       max=45.6s        p(90)=18.04s       p(95)=20.73s
+     http_req_failed................: 0.00%   ✓ 0         ✗ 24002
+     http_req_receiving.............: avg=58.55µs     min=30.09µs  med=55.7µs      max=6.4ms        p(90)=69.15µs      p(95)=73.64µs
+     http_req_sending...............: avg=42.32µs     min=31.31µs  med=40.81µs     max=230.4µs      p(90)=49.03µs      p(95)=53.75µs
+     http_req_tls_handshaking.......: avg=0s          min=0s       med=0s          max=0s           p(90)=0s           p(95)=0s
+     http_req_waiting...............: avg=5.67s       min=4.01ms   med=3.08s       max=45.6s        p(90)=18.04s       p(95)=20.73s
+     http_reqs......................: 24002   92.545126/s
+     iteration_duration.............: avg=6.66s       min=1s       med=4.08s       max=46.6s        p(90)=19.01s       p(95)=21.7s
+     iterations.....................: 23980   92.4603/s
+     vus............................: 2400    min=0       max=2400
+     vus_max........................: 2400    min=885     max=2400
+
+
+
+
+
+
+
+
+
+
+
+scenarios: (100.00%) 2 scenarios, 2400 max VUs, 4m30s max duration (incl. graceful stop):
+           * highcpu: 25.00 iterations/s for 4m0s (maxVUs: 1200, exec: highcpu, gracefulStop: 30s)
+           * highmem: 25.00 iterations/s for 4m0s (maxVUs: 1200, exec: highmem, gracefulStop: 30s)
+
+Handling connection for 9090
+Unable to listen on port 9090: Listeners failed to create with the following errors: [unable to create listener: Error listen tcp4 127.0.0.1:9090: bind: address already in use unable to create listener: Error listen tcp6 [::1]:9090: bind: address already in use]
+error: unable to listen on any of the requested ports: [{9090 9090}]
+
+running (4m12.3s), 0000/2400 VUs, 12002 complete and 0 interrupted iterations
+highcpu ✓ [======================================] 0000/1200 VUs  4m0s  25 iters/s
+highmem ✓ [======================================] 0000/1200 VUs  4m0s  25 iters/s
+
+     ✓ verify homepage text
+
+     checks.........................: 100.00% ✓ 24004     ✗ 0
+     custom_highcpu_duration........: avg=2417.513095 min=9.099087 med=233.865882 max=27202.48583  p(90)=7197.069838 p(95)=12246.238684
+     custom_highcpu_waiting.........: avg=2417.408058 min=9.005275 med=233.753384 max=27202.298391 p(90)=7196.968123 p(95)=12246.160257
+     custom_highmem_duration........: avg=2370.086101 min=4.055114 med=178.430934 max=27495.550175 p(90)=7621.572277 p(95)=12014.200879
+     custom_highmem_waiting.........: avg=2369.982155 min=3.942947 med=178.317957 max=27495.457094 p(90)=7621.484638 p(95)=12014.094753
+     data_received..................: 7.8 MB  31 kB/s
+     data_sent......................: 4.2 MB  17 kB/s
+     http_req_blocked...............: avg=451.06µs    min=178.12µs med=402.43µs   max=15.34ms      p(90)=523.5µs     p(95)=578.44µs
+     http_req_connecting............: avg=395.84µs    min=133.6µs  med=349.5µs    max=15.26ms      p(90)=467.2µs     p(95)=517.43µs
+     http_req_duration..............: avg=2.39s       min=4.05ms   med=209.49ms   max=27.49s       p(90)=7.44s       p(95)=12.09s
+       { expected_response:true }...: avg=2.39s       min=4.05ms   med=209.5ms    max=27.49s       p(90)=7.44s       p(95)=12.09s
+     http_req_failed................: 0.00%   ✓ 0         ✗ 24004
+     http_req_receiving.............: avg=57.09µs     min=27.52µs  med=53.89µs    max=517.66µs     p(90)=67.32µs     p(95)=73.48µs
+     http_req_sending...............: avg=47.39µs     min=22.98µs  med=45.08µs    max=686.01µs     p(90)=63.25µs     p(95)=69.2µs
+     http_req_tls_handshaking.......: avg=0s          min=0s       med=0s         max=0s           p(90)=0s          p(95)=0s
+     http_req_waiting...............: avg=2.39s       min=3.94ms   med=209.41ms   max=27.49s       p(90)=7.45s       p(95)=12.11s
+     http_reqs......................: 24004   95.155737/s
+     iteration_duration.............: avg=3.38s       min=1s       med=1.21s      max=28.49s       p(90)=8.43s       p(95)=13.09s
+     iterations.....................: 23993   95.112131/s
+     vus............................: 2400    min=0       max=2400
+     vus_max........................: 2400    min=782     max=2400
+
+
+
+
+
+
+
+
+
+
+scenarios: (100.00%) 2 scenarios, 2400 max VUs, 4m30s max duration (incl. graceful stop):
+           * highcpu: 25.00 iterations/s for 4m0s (maxVUs: 1200, exec: highcpu, gracefulStop: 30s)
+           * highmem: 25.00 iterations/s for 4m0s (maxVUs: 1200, exec: highmem, gracefulStop: 30s)
+
+Handling connection for 9090
+Unable to listen on port 9090: Listeners failed to create with the following errors: [unable to create listener: Error listen tcp4 127.0.0.1:9090: bind: address already in use unable to create listener: Error listen tcp6 [::1]:9090: bind: address already in use]
+error: unable to listen on any of the requested ports: [{9090 9090}]
+ERRO[0092] Failed to store timeseries.                   error="server returned HTTP status 400 Bad Request: duplicate sample for timestamp"
+
+running (4m18.0s), 0000/2400 VUs, 12002 complete and 0 interrupted iterations
+highcpu ✓ [======================================] 0000/1200 VUs  4m0s  25 iters/s
+highmem ✓ [======================================] 0000/1200 VUs  4m0s  25 iters/s
+
+     ✓ verify homepage text
+
+     checks.........................: 100.00% ✓ 24004     ✗ 0
+     custom_highcpu_duration........: avg=4381.653052 min=9.126558 med=1404.884552 max=40396.112146 p(90)=15685.744232 p(95)=18065.599775
+     custom_highcpu_waiting.........: avg=4381.548859 min=9.013693 med=1404.756059 max=40396.023879 p(90)=15685.635899 p(95)=18065.495393
+     custom_highmem_duration........: avg=4412.038119 min=4.029678 med=1297.108356 max=42753.240213 p(90)=15914.552906 p(95)=18413.24831
+     custom_highmem_waiting.........: avg=4411.935108 min=3.909889 med=1297.011494 max=42753.151707 p(90)=15914.430696 p(95)=18413.142252
+     data_received..................: 7.8 MB  30 kB/s
+     data_sent......................: 4.2 MB  16 kB/s
+     http_req_blocked...............: avg=480.26µs    min=175.55µs med=404.19µs    max=34.07ms      p(90)=521.15µs     p(95)=580.45µs
+     http_req_connecting............: avg=425.71µs    min=134.39µs med=351.86µs    max=34ms         p(90)=465.05µs     p(95)=525.66µs
+     http_req_duration..............: avg=4.39s       min=4.02ms   med=1.35s       max=42.75s       p(90)=15.78s       p(95)=18.22s
+       { expected_response:true }...: avg=4.39s       min=4.02ms   med=1.35s       max=42.75s       p(90)=15.78s       p(95)=18.22s
+     http_req_failed................: 0.00%   ✓ 0         ✗ 24004
+     http_req_receiving.............: avg=58.02µs     min=24.09µs  med=54.44µs     max=405.35µs     p(90)=68.66µs      p(95)=74.23µs
+     http_req_sending...............: avg=45.57µs     min=23.44µs  med=43.83µs     max=865.21µs     p(90)=59.58µs      p(95)=64.25µs
+     http_req_tls_handshaking.......: avg=0s          min=0s       med=0s          max=0s           p(90)=0s           p(95)=0s
+     http_req_waiting...............: avg=4.39s       min=3.9ms    med=1.35s       max=42.75s       p(90)=15.78s       p(95)=18.22s
+     http_reqs......................: 24004   93.021013/s
+     iteration_duration.............: avg=5.39s       min=1s       med=2.36s       max=43.75s       p(90)=16.78s       p(95)=19.21s
+     iterations.....................: 24001   93.009387/s
+     vus............................: 2400    min=0       max=2400
+     vus_max........................: 2400    min=760     max=2400
+
+
+
+
+
+
+
+
+
+scenarios: (100.00%) 2 scenarios, 2400 max VUs, 4m30s max duration (incl. graceful stop):
+           * highcpu: 25.00 iterations/s for 4m0s (maxVUs: 1200, exec: highcpu, gracefulStop: 30s)
+           * highmem: 25.00 iterations/s for 4m0s (maxVUs: 1200, exec: highmem, gracefulStop: 30s)
+
+Handling connection for 9090
+Unable to listen on port 9090: Listeners failed to create with the following errors: [unable to create listener: Error listen tcp4 127.0.0.1:9090: bind: address already in use unable to create listener: Error listen tcp6 [::1]:9090: bind: address already in use]
+error: unable to listen on any of the requested ports: [{9090 9090}]
+
+running (4m18.5s), 0000/2400 VUs, 12002 complete and 0 interrupted iterations
+highcpu ✓ [======================================] 0000/1200 VUs  4m0s  25 iters/s
+highmem ✓ [======================================] 0000/1200 VUs  4m0s  25 iters/s
+
+     ✓ verify homepage text
+
+     checks.........................: 100.00% ✓ 24004     ✗ 0
+     custom_highcpu_duration........: avg=4888.208641 min=9.151017 med=2199.354283 max=38626.950774 p(90)=16306.067745 p(95)=19012.991564
+     custom_highcpu_waiting.........: avg=4888.10132  min=9.042569 med=2199.06722  max=38626.755016 p(90)=16305.969012 p(95)=19012.890988
+     custom_highmem_duration........: avg=4828.765642 min=4.073458 med=2312.598282 max=45065.405098 p(90)=16213.58244  p(95)=19072.670545
+     custom_highmem_waiting.........: avg=4828.656631 min=3.973123 med=2312.485383 max=45065.283208 p(90)=16213.473434 p(95)=19072.545965
+     data_received..................: 7.8 MB  30 kB/s
+     data_sent......................: 4.2 MB  16 kB/s
+     http_req_blocked...............: avg=431.01µs    min=175.4µs  med=404.54µs    max=17.22ms      p(90)=518.21µs     p(95)=561.63µs
+     http_req_connecting............: avg=376.85µs    min=135.9µs  med=350.96µs    max=17.16ms      p(90)=464.38µs     p(95)=507.44µs
+     http_req_duration..............: avg=4.85s       min=4.07ms   med=2.24s       max=45.06s       p(90)=16.27s       p(95)=19.05s
+       { expected_response:true }...: avg=4.85s       min=4.07ms   med=2.24s       max=45.06s       p(90)=16.27s       p(95)=19.04s
+     http_req_failed................: 0.00%   ✓ 0         ✗ 24004
+     http_req_receiving.............: avg=61.19µs     min=24.96µs  med=54.87µs     max=13.14ms      p(90)=68.82µs      p(95)=74.65µs
+     http_req_sending...............: avg=46.96µs     min=23.47µs  med=44.77µs     max=1.16ms       p(90)=61.75µs      p(95)=68.22µs
+     http_req_tls_handshaking.......: avg=0s          min=0s       med=0s          max=0s           p(90)=0s           p(95)=0s
+     http_req_waiting...............: avg=4.85s       min=3.97ms   med=2.24s       max=45.06s       p(90)=16.27s       p(95)=19.04s
+     http_reqs......................: 24003   92.840916/s
+     iteration_duration.............: avg=5.84s       min=1s       med=3.24s       max=46.06s       p(90)=17.25s       p(95)=20.03s
+     iterations.....................: 23989   92.786765/s
+     vus............................: 2400    min=0       max=2400
+     vus_max........................: 2400    min=795     max=2400
