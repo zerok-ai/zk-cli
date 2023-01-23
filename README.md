@@ -24,9 +24,7 @@ go get -u github.com/spf13/cobra@latest
 
 All the commands should be in their respective files under the folder `.\commands` while the business logic should go in files in the folder `.\backend`.
 
-```
-
+```sh
 touch commands/operator.go
 touch commands/debug.go
-
 ```

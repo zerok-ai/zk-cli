@@ -1,0 +1,6 @@
+[submodule "operator"]
+	path = operator
+	url = https://github.com/zerok-ai/operator
+[submodule "zpx"]
+	path = zpx
+	url = https://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@github.com/zerok-ai/zpx.git
