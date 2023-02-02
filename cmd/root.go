@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/ui"
 	"k8s.io/client-go/util/homedir"
 	// operator "github.com/zerok-ai/operator/cmd"
 	// operatior "github.com/zerok-ai/zk-cli/zkctl/cmd/operator/cmd"
@@ -57,13 +58,14 @@ var (
 )
 
 func ExecuteContext(ctx context.Context) error {
+	ui.GlobalWriter.Println("")
 	err := rootCmd.ExecuteContext(ctx)
 
 	if err == nil {
-		fmt.Printf("Executed successfully")
+		// ui.GlobalWriter.PrintSuccessMessageln("Executed successfully")
 		return nil
 	}
-	fmt.Fprintf(os.Stderr, "Whoops. There was an error in zkctl '%s'", err)
+	ui.GlobalWriter.PrintErrorMessageln(fmt.Sprintf("Whoops. There was an error in zkctl '%s'", err))
 	os.Exit(1)
 	return err
 }
@@ -115,7 +117,7 @@ func initConfigFromFile() {
 	viper.AutomaticEnv()
 	err := viper.ReadInConfig()
 	if err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		// fmt.Println("Using config file:", viper.ConfigFileUsed())
 	} else {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
