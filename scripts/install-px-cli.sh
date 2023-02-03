@@ -22,6 +22,12 @@
 ################################################################
 set -u
 
+# exit if the px cli is already installed
+if command -v px &> /dev/null
+then
+    exit
+fi
+
 export PL_CLOUD_ADDR="pxtest1.getanton.com"
 CLOUD_ADDR=${PL_CLOUD_ADDR:-"work.withpixie.ai"}
 DEFAULT_INSTALL_PATH=/usr/local/bin

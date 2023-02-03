@@ -32,6 +32,6 @@ func RunPxBackendPresetupCmd(cmd *cobra.Command, args []string) error {
 }
 
 func pxBackendPresetup(ctx context.Context) error {
-	
-	return logic.ExecOnShellM(logic.GetPWD() + pxInstallBackendPresetup, "PX backend presetup done")
+	_, err := logic.ExecOnShellM(logic.GetPWD()+pxInstallBackendPresetup, "PX backend presetup done")
+	return err
 }

@@ -27,5 +27,6 @@ func RunPxBackendCmd(cmd *cobra.Command, args []string) error {
 }
 
 func checkAndInstallPxBackend(ctx context.Context) error {
-	return logic.ExecOnShellM(logic.GetPWD() + pxInstallBackend, "PX backend installed successfully")
+	_, err := logic.ExecOnShellM(logic.GetPWD() + pxInstallBackend, "PX backend installed successfully")
+	return err
 }

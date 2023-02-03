@@ -28,5 +28,6 @@ func RunZKOperatorCmd(cmd *cobra.Command, args []string) error {
 }
 
 func zkOperatorSetup(ctx context.Context) error {
-	return logic.ExecOnShellM(logic.GetPWD() + zkInstallOperator, "ZeroK operator installed successfully")
+	_, err := logic.ExecOnShellM(logic.GetPWD() + zkInstallOperator, "ZeroK operator installed successfully")
+	return err
 }

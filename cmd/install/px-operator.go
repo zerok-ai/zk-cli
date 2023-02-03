@@ -28,5 +28,6 @@ func RunPxOperatorCmd(cmd *cobra.Command, args []string) error {
 }
 
 func installPxOperator(ctx context.Context) error {
-	return logic.ExecOnShellM(logic.GetPWD()+pxInstallOperator, "PX operator installed successfully")
+	_, err := logic.ExecOnShellM(logic.GetPWD()+pxInstallOperator, "PX operator installed successfully")
+	return err
 }

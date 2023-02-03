@@ -20,5 +20,6 @@ func init() {
 }
 
 func RunPxBackendPostsetupCmd(cmd *cobra.Command, args []string) error {
-	return logic.ExecOnShellM(logic.GetPWD() + pxInstallBackendPostsetup, "PX backend postsetup done")
+	_, err := logic.ExecOnShellM(logic.GetPWD() + pxInstallBackendPostsetup, "PX backend postsetup done")
+	return err
 }

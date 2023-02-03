@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	pxInstallCLI string = "/scripts/install.sh"
+	pxInstallCLI string = "/scripts/install-px-cli.sh"
 )
 
 var PixieCLICmd = &cobra.Command{
@@ -39,5 +39,6 @@ func RunPxCLICmd(cmd *cobra.Command, args []string) error {
 }
 
 func checkAndInstallPxCLI(ctx context.Context) error {
-	return logic.ExecOnShellM(logic.GetPWD() + pxInstallCLI, "PX cli installed successfully")
+	_, err := logic.ExecOnShellM(logic.GetPWD() + pxInstallCLI, "PX cli installed successfully")
+	return err
 }

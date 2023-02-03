@@ -55,7 +55,7 @@ func RunLabelNamespaceCmd(cmd *cobra.Command, args []string) error {
 
 func labelNamespaceAndRestart(ctx context.Context, namespace string) error {
 	command := fmt.Sprintf(labelNamespaceCmdString, namespace)
-	err := logic.ExecOnShellM(command, fmt.Sprintf(labelSuccessMessage, namespace))
+	_, err := logic.ExecOnShellM(command, fmt.Sprintf(labelSuccessMessage, namespace))
 
 	if (err !=nil){
 		return err
@@ -63,7 +63,8 @@ func labelNamespaceAndRestart(ctx context.Context, namespace string) error {
 
 	if (rollingRestart) {
 		command := fmt.Sprintf(restartCmdString, namespace)
-		return logic.ExecOnShellM(command, fmt.Sprintf(restartSuccessMessage, namespace))
+		_, err := logic.ExecOnShellM(command, fmt.Sprintf(restartSuccessMessage, namespace))
+		return err
 	} else {
 		ui.GlobalWriter.PrintWarningMessageln(fmt.Sprintf(restartNeededMessage, namespace))
 	}
