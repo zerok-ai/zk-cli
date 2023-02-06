@@ -18,6 +18,7 @@ import (
 	// // "github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/k8s"
 	// install "github.com/zerok-ai/zk-cli/zkctl/cmd"
 	logic "github.com/zerok-ai/zk-cli/zkctl/cmd/pkg"
+	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/ui"
 	// "github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/ui"
 )
 
@@ -26,7 +27,7 @@ const (
 )
 
 var PixieClientCmd = &cobra.Command{
-	Use: "getscenario",
+	Use: "datadump",
 	// Aliases: []string{"op", "optr"},
 	Short: "Interact with PX server through this client",
 	RunE:  RunPxClientCmd,
@@ -38,20 +39,26 @@ func init() {
 
 func RunPxClientCmd(cmd *cobra.Command, args []string) error {
 
-	cloudAddress, err := logic.Shellout(fmt.Sprintf("%s/%s -c domain", logic.GetPWD(), pxConstants), true)
+	ui.GlobalWriter.Println("--> Authenticating user")
+	cloudAddress, err := logic.Shellout(fmt.Sprintf("%s/%s -c domain", logic.GetPWD(), pxConstants), false)
 	if err != nil {
 		return err
 	}
 
-	clusterId, err := logic.Shellout(fmt.Sprintf("%s/%s -c cluster", logic.GetPWD(), pxConstants), true)
+	clusterId, err := logic.Shellout(fmt.Sprintf("%s/%s -c cluster", logic.GetPWD(), pxConstants), false)
 	if err != nil {
 		return err
 	}
 
-	apikey, err := logic.Shellout(fmt.Sprintf("%s/%s -c apikey", logic.GetPWD(), pxConstants), true)
+	ui.GlobalWriter.PrintSuccessMessageln("User authenticated")
+	ui.GlobalWriter.Println("")
+
+	apikey, err := logic.Shellout(fmt.Sprintf("%s/%s -c apikey", logic.GetPWD(), pxConstants), false)
 	if err != nil {
 		return err
 	}
+
+	ui.GlobalWriter.Println("--> Fetching data ")
 
 	// ui.GlobalWriter.PrintSuccessMessageln(fmt.Sprintf("cloudAddress=%s clusterId=%s apikey=%s\n", cloudAddress, clusterId, apikey))
 
