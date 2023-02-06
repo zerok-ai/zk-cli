@@ -16,10 +16,10 @@ var PixieBackendPostsetupCmd = &cobra.Command{
 }
 
 func init() {
-	PixieBackendCmd.AddCommand(PixieBackendPostsetupCmd)
+	ZKBackendCmd.AddCommand(PixieBackendPostsetupCmd)
 }
 
 func RunPxBackendPostsetupCmd(cmd *cobra.Command, args []string) error {
-	_, err := logic.ExecOnShellM(logic.GetPWD() + pxInstallBackendPostsetup, "PX backend postsetup done")
+	_, err := logic.ExecWithLogsDurationAndSuccessM(logic.GetPWD()+pxInstallBackendPostsetup, "PX backend postsetup done")
 	return err
 }

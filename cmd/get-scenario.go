@@ -1,4 +1,4 @@
-package install
+package cmd
 
 import (
 	// "bytes"
@@ -18,7 +18,7 @@ import (
 	// // "github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/k8s"
 	// install "github.com/zerok-ai/zk-cli/zkctl/cmd"
 	logic "github.com/zerok-ai/zk-cli/zkctl/cmd/pkg"
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/ui"
+	// "github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/ui"
 )
 
 const (
@@ -26,34 +26,34 @@ const (
 )
 
 var PixieClientCmd = &cobra.Command{
-	Use: "client",
+	Use: "getscenario",
 	// Aliases: []string{"op", "optr"},
 	Short: "Interact with PX server through this client",
 	RunE:  RunPxClientCmd,
 }
 
 func init() {
-	PixieCmd.AddCommand(PixieClientCmd)
+	rootCmd.AddCommand(PixieClientCmd)
 }
 
 func RunPxClientCmd(cmd *cobra.Command, args []string) error {
-	
-	cloudAddress, err := logic.Shellout(fmt.Sprintf("%s/%s -c domain", logic.GetPWD(), pxConstants))
+
+	cloudAddress, err := logic.Shellout(fmt.Sprintf("%s/%s -c domain", logic.GetPWD(), pxConstants), true)
 	if err != nil {
 		return err
 	}
 
-	clusterId, err := logic.Shellout(fmt.Sprintf("%s/%s -c cluster", logic.GetPWD(), pxConstants));
-	if err!=nil{
+	clusterId, err := logic.Shellout(fmt.Sprintf("%s/%s -c cluster", logic.GetPWD(), pxConstants), true)
+	if err != nil {
 		return err
 	}
 
-	apikey, err := logic.Shellout(fmt.Sprintf("%s/%s -c apikey", logic.GetPWD(), pxConstants));
-	if err!=nil{
+	apikey, err := logic.Shellout(fmt.Sprintf("%s/%s -c apikey", logic.GetPWD(), pxConstants), true)
+	if err != nil {
 		return err
 	}
 
-	ui.GlobalWriter.PrintSuccessMessageln(fmt.Sprintf("cloudAddress=%s clusterId=%s apikey=%s\n", cloudAddress, clusterId, apikey))
+	// ui.GlobalWriter.PrintSuccessMessageln(fmt.Sprintf("cloudAddress=%s clusterId=%s apikey=%s\n", cloudAddress, clusterId, apikey))
 
 	// cloudAddress := "pxtest1.getanton.com:443"
 	// clusterId := "a95919ea-a65d-4349-907f-783193558fc0"

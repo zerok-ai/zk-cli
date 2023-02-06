@@ -15,12 +15,18 @@ import (
 
 const ShellToUse = "bash"
 
-func Shellout(command string) (string, error) {
+func Shellout(command string, printLogsOnConsole bool) (string, error) {
 
 	// send the output to console as well as to a buffer
 	var stdBuffer bytes.Buffer
-	mw := io.MultiWriter(os.Stdout, &stdBuffer)
 	cmd := exec.Command(ShellToUse, "-c", command)
+
+	var mw io.Writer
+	if printLogsOnConsole {
+		mw = io.MultiWriter(os.Stdout, &stdBuffer)
+	} else {
+		mw = io.MultiWriter(&stdBuffer)
+	}
 	cmd.Stdout = mw
 	cmd.Stderr = mw
 
@@ -29,15 +35,21 @@ func Shellout(command string) (string, error) {
 }
 
 // execute and print error only
-func execOnShell(command string) (string, time.Duration, error) {
+func ExecWithDurationAndSuccessM(command string, successMsg string) (string, error) {
 	startTime := time.Now()
-	out, err := Shellout(command)
+	out, err := Shellout(command, false)
 	diff := time.Since(startTime)
-	return out, diff, err
+	if err == nil {
+		ui.GlobalWriter.PrintSuccessMessageln(fmt.Sprintf("%s [time taken: %v]\n", successMsg, diff))
+	}
+	return out, err
 }
 
-func ExecOnShellM(command string, successMsg string) (string, error) {
-	out, diff, err := execOnShell(command)
+// execute and print error only
+func ExecWithLogsDurationAndSuccessM(command string, successMsg string) (string, error) {
+	startTime := time.Now()
+	out, err := Shellout(command, true)
+	diff := time.Since(startTime)
 	if err == nil {
 		ui.GlobalWriter.PrintSuccessMessageln(fmt.Sprintf("%s [time taken: %v]\n", successMsg, diff))
 	}

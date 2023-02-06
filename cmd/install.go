@@ -48,8 +48,8 @@ func init() {
 
 func Initialize(root *cobra.Command) {
 	root.AddCommand(installCmd)
-	
-	installCmd.AddCommand(install.PixieCmd)
+
+	installCmd.AddCommand(install.ZKBackendCmd)
 	installCmd.AddCommand(install.ZkOperatorCmd)
 }
 
@@ -91,7 +91,7 @@ func runInstallCmd(cmd *cobra.Command, args []string) error {
 	// 	return err
 	// }
 
-	if err = install.RunPxCmd(cmd, args); err != nil {
+	if err = install.RunZKBackendCmd(cmd, args); err != nil {
 		return err
 	}
 

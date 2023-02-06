@@ -22,23 +22,23 @@ const (
 	pxInstallCLI string = "/scripts/install-px-cli.sh"
 )
 
-var PixieCLICmd = &cobra.Command{
+var ZkBackendCLICmd = &cobra.Command{
 	Use: "cli",
 	// Aliases: []string{"op", "optr"},
 	Short: "Install PX CLI",
-	RunE: RunPxCLICmd,
+	RunE:  RunBackendCLICmd,
 }
 
 func init() {
-	PixieCmd.AddCommand(PixieCLICmd)
+	ZKBackendCmd.AddCommand(ZkBackendCLICmd)
 }
 
-func RunPxCLICmd(cmd *cobra.Command, args []string) error {
+func RunBackendCLICmd(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
-	return checkAndInstallPxCLI(ctx);
+	return checkAndInstallPxCLI(ctx)
 }
 
 func checkAndInstallPxCLI(ctx context.Context) error {
-	_, err := logic.ExecOnShellM(logic.GetPWD() + pxInstallCLI, "PX cli installed successfully")
+	_, err := logic.ExecWithLogsDurationAndSuccessM(logic.GetPWD()+pxInstallCLI, "PX cli installed successfully")
 	return err
 }

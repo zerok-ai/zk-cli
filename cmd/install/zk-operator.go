@@ -11,7 +11,7 @@ var ZkOperatorCmd = &cobra.Command{
 	Use:     "operator",
 	Aliases: []string{"op", "optr"},
 	Short:   "Install ZeroK operator",
-	RunE:    RunZKOperatorCmd,
+	RunE:    RunZkOperatorCmd,
 }
 
 const (
@@ -22,12 +22,12 @@ func init() {
 
 }
 
-func RunZKOperatorCmd(cmd *cobra.Command, args []string) error {
+func RunZkOperatorCmd(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
 	return zkOperatorSetup(ctx)
 }
 
 func zkOperatorSetup(ctx context.Context) error {
-	_, err := logic.ExecOnShellM(logic.GetPWD() + zkInstallOperator, "ZeroK operator installed successfully")
+	_, err := logic.ExecWithLogsDurationAndSuccessM(logic.GetPWD()+zkInstallOperator, "ZeroK operator installed successfully")
 	return err
 }

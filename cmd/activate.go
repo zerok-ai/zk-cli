@@ -30,9 +30,7 @@ const (
 
 func init() {
 	rootCmd.AddCommand(labelNamespaceCmd)
-
 	labelNamespaceCmd.PersistentFlags().BoolVarP(&rollingRestart, "restart", "r", false, "Use this if you also want to do rolling restart")
-
 }
 
 func RunLabelNamespaceCmd(cmd *cobra.Command, args []string) error {
@@ -55,15 +53,15 @@ func RunLabelNamespaceCmd(cmd *cobra.Command, args []string) error {
 
 func labelNamespaceAndRestart(ctx context.Context, namespace string) error {
 	command := fmt.Sprintf(labelNamespaceCmdString, namespace)
-	_, err := logic.ExecOnShellM(command, fmt.Sprintf(labelSuccessMessage, namespace))
+	_, err := logic.ExecWithLogsDurationAndSuccessM(command, fmt.Sprintf(labelSuccessMessage, namespace))
 
-	if (err !=nil){
+	if err != nil {
 		return err
 	}
 
-	if (rollingRestart) {
+	if rollingRestart {
 		command := fmt.Sprintf(restartCmdString, namespace)
-		_, err := logic.ExecOnShellM(command, fmt.Sprintf(restartSuccessMessage, namespace))
+		_, err := logic.ExecWithLogsDurationAndSuccessM(command, fmt.Sprintf(restartSuccessMessage, namespace))
 		return err
 	} else {
 		ui.GlobalWriter.PrintWarningMessageln(fmt.Sprintf(restartNeededMessage, namespace))
