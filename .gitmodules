@@ -4,3 +4,6 @@
 [submodule "zpx"]
 	path = zpx
 	url = git@github.com:zerok-ai/zpx.git
+[submodule "zk-api-server"]
+	path = zk-api-server
+	url = git@github.com:zerok-ai/zk-api-server.git

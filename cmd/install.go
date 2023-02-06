@@ -10,8 +10,8 @@ import (
 	"github.com/spf13/cobra"
 	// "github.com/spf13/viper"
 	// "github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/k8s"
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/ui"
 	install "github.com/zerok-ai/zk-cli/zkctl/cmd/install"
+	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/ui"
 	// logic "github.com/zerok-ai/zk-cli/zkctl/cmd/pkg"
 )
 
@@ -36,8 +36,7 @@ const (
 )
 
 var installCmd = &cobra.Command{
-	Use: "install",
-	// Aliases: []string{"op", "optr"},
+	Use:   "install",
 	Short: "Install ZeroK",
 	// Args:    cobra.ExactArgs(1),
 	RunE: runInstallCmd,
@@ -49,7 +48,9 @@ func init() {
 
 func Initialize(root *cobra.Command) {
 	root.AddCommand(installCmd)
+	
 	installCmd.AddCommand(install.PixieCmd)
+	installCmd.AddCommand(install.ZkOperatorCmd)
 }
 
 func operatorSDKExists() error {
@@ -126,9 +127,9 @@ func validateCluster(ctx context.Context, namespace string) error {
 const operatorInstallString string = "/operator/install.sh"
 
 // const operatorInstallString string = "operator-sdk run bundle us-west1-docker.pkg.dev/zerok-dev/stage/zerok-operator:0.0.1"
-const namespace string = "zerok-demoapp"
-const labelNamespace string = "kubectl label namespace namespace " + namespace + "zk-injection=enabled"
-const rollingRestart string = "kubectl rollout restart deployment -n " + namespace
+// const namespace string = "zerok-demoapp"
+// const labelNamespace string = "kubectl label namespace namespace " + namespace + "zk-injection=enabled"
+// const rollingRestart string = "kubectl rollout restart deployment -n " + namespace
 
 func installOperator(ctx context.Context) error {
 	ui.GlobalWriter.PrintNoticeMessage("Installing operator")

@@ -6,7 +6,6 @@ import (
 
 	"github.com/spf13/cobra"
 	logic "github.com/zerok-ai/zk-cli/zkctl/cmd/pkg"
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/ui"
 )
 
 const (
@@ -24,22 +23,11 @@ func init() {
 }
 
 func RunPxOperatorCmd(cmd *cobra.Command, args []string) error {
-
-	ui.GlobalWriter.PrintNoticeMessage("Installing PX operator")
-
-	var err error
 	ctx := cmd.Context()
-
-	// Install px operator
-	if err = installPxOperator(ctx); err != nil {
-		return err
-	}
-
-	ui.GlobalWriter.PrintSuccessMessageln("PX operator installed successfully")
-	return nil
+	return installPxOperator(ctx)
 }
 
 func installPxOperator(ctx context.Context) error {
-	logic.ExecOnShellsE(logic.GetPWD() + pxInstallOperator)
-	return nil
+	_, err := logic.ExecOnShellM(logic.GetPWD()+pxInstallOperator, "PX operator installed successfully")
+	return err
 }

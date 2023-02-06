@@ -3,4 +3,5 @@ go 1.19
 use (
 	.
 	./operator
+	./zk-api-server
 )
