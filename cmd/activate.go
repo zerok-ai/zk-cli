@@ -1,71 +1,59 @@
 package cmd
 
 import (
-	"context"
-	"fmt"
-
 	"github.com/spf13/cobra"
-	logic "github.com/zerok-ai/zk-cli/zkctl/cmd/pkg"
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/ui"
+	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/k8"
 )
 
 var (
-	labelNamespaceCmd = &cobra.Command{
+	labelActivateCmd = &cobra.Command{
 		Use:   "activate",
 		Short: "activate a namespace for zerok",
-		RunE:  RunLabelNamespaceCmd,
-		// Args:    cobra.ExactArgs(1),
+		RunE:  RunActivateNamespaceCmd,
 	}
-	rollingRestart bool
+	labelDeactivateCmd = &cobra.Command{
+		Use:   "deactivate",
+		Short: "deactivate a namespace for zerok",
+		RunE:  RunDeactivateNamespaceCmd,
+	}
+	rollingRestart  bool
+	namespaceString string
 )
 
 const (
-	labelNamespaceCmdString string = "kubectl label namespace %s zk-injection=enabled"
-	labelSuccessMessage     string = "Namespace %s is activated for ZeroK"
-
-	restartCmdString      string = "kubectl rollout restart deployment -n %s"
-	restartNeededMessage  string = "Rolling restart is needed for all the deployments in Namespace %s for activation to take affect"
-	restartSuccessMessage string = "Rolling restart initiated for Namespace %s"
+	ZKMARKER_LABEL_KEY   string = "zk-injection"
+	ZKMARKER_LABEL_VALUE string = "enabled"
 )
 
 func init() {
-	rootCmd.AddCommand(labelNamespaceCmd)
-	labelNamespaceCmd.PersistentFlags().BoolVarP(&rollingRestart, "restart", "r", false, "Use this if you also want to do rolling restart")
+	addToRootAndSetFlags(labelActivateCmd)
+	addToRootAndSetFlags(labelDeactivateCmd)
 }
 
-func RunLabelNamespaceCmd(cmd *cobra.Command, args []string) error {
-
-	var err error
-	ctx := cmd.Context()
-
-	if len(args) < 1 {
-		ui.GlobalWriter.PrintErrorMessageln("Namespace missing in the command")
-		return nil
-	}
-
-	namespace := args[0]
-
-	if err = labelNamespaceAndRestart(ctx, namespace); err != nil {
-		return err
-	}
-	return nil
+func addToRootAndSetFlags(c *cobra.Command) {
+	rootCmd.AddCommand(c)
+	c.Flags().BoolVarP(&rollingRestart, "restart", "r", false, "Use this if you also want to do rolling restart post activation")
+	c.Flags().StringVarP(&namespaceString, "namespace", "n", "default", "Source directory to read from")
 }
 
-func labelNamespaceAndRestart(ctx context.Context, namespace string) error {
-	command := fmt.Sprintf(labelNamespaceCmdString, namespace)
-	_, err := logic.ExecWithLogsDurationAndSuccessM(command, fmt.Sprintf(labelSuccessMessage, namespace))
+func RunActivateNamespaceCmd(cmd *cobra.Command, args []string) error {
 
-	if err != nil {
-		return err
+	zkNamespace := k8.NewZkNamespace(namespaceString)
+	errorInMarking := zkNamespace.AddLabel(ZKMARKER_LABEL_KEY, ZKMARKER_LABEL_VALUE)
+	if errorInMarking == nil && rollingRestart {
+		return zkNamespace.DoRollingRestart(namespaceString)
 	}
 
-	if rollingRestart {
-		command := fmt.Sprintf(restartCmdString, namespace)
-		_, err := logic.ExecWithLogsDurationAndSuccessM(command, fmt.Sprintf(restartSuccessMessage, namespace))
-		return err
-	} else {
-		ui.GlobalWriter.PrintWarningMessageln(fmt.Sprintf(restartNeededMessage, namespace))
+	return errorInMarking
+}
+
+func RunDeactivateNamespaceCmd(cmd *cobra.Command, args []string) error {
+
+	zkNamespace := k8.NewZkNamespace(namespaceString)
+	errorInMarking := zkNamespace.RemoveLabel(ZKMARKER_LABEL_KEY)
+	if errorInMarking == nil && rollingRestart {
+		return zkNamespace.DoRollingRestart(namespaceString)
 	}
 
-	return nil
+	return errorInMarking
 }

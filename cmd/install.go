@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"context"
-	"fmt"
 	"time"
 
 	// "errors"
@@ -11,7 +9,6 @@ import (
 	// "github.com/spf13/viper"
 	// "github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/k8s"
 	install "github.com/zerok-ai/zk-cli/zkctl/cmd/install"
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/ui"
 	// logic "github.com/zerok-ai/zk-cli/zkctl/cmd/pkg"
 )
 
@@ -38,8 +35,7 @@ const (
 var installCmd = &cobra.Command{
 	Use:   "install",
 	Short: "Install ZeroK",
-	// Args:    cobra.ExactArgs(1),
-	RunE: runInstallCmd,
+	RunE:  runInstallCmd,
 }
 
 func init() {
@@ -53,91 +49,36 @@ func Initialize(root *cobra.Command) {
 	installCmd.AddCommand(install.ZkOperatorCmd)
 }
 
-func operatorSDKExists() error {
-	// var err error
-	// write the validation
-	return nil
-}
-
 func runInstallCmd(cmd *cobra.Command, args []string) error {
 
-	// var cb string = "kubectl create clusterrolebinding serviceaccounts-cluster-admin " + "--clusterrole=cluster-admin " + "--group=system:serviceaccounts"
-	var err error
-
-	// ctx := cmd.Context()
-	// namespace := viper.GetString(NAMESPACE_FLAG)
-	// kubeconfig := viper.GetString(KUBECONFIG_FLAG)
-	// kubecontext := viper.GetString(KUBECONTEXT_FLAG)
-
-	// var kubeClient *k8s.Client
-	// if kubeClient, err = k8s.NewKubeClient(kubeconfig, kubecontext); err != nil {
-	// 	return err
-	// }
-
-	// if err = validateCluster(ctx, kubeClient, namespace); err != nil {
-	// 	return err
-	// }
-
-	fmt.Println("Welcome to Zerok Command Line Interface!")
-
-	// check for the installation of opertor sdk
-	if err = operatorSDKExists(); err != nil {
-		return err
-	}
-
-	// ctx := cmd.Context()
-
-	// if err = installOperator(ctx); err != nil {
-	// 	return err
-	// }
-
-	if err = install.RunZKBackendCmd(cmd, args); err != nil {
-		return err
-	}
+	// Nothing here, how help
+	cmd.Help()
 
 	return nil
 }
 
-func validateCluster(ctx context.Context, namespace string) error {
-	// var err error
+// func validateCluster(ctx context.Context, namespace string) error {
+// 	// var err error
 
-	ui.GlobalWriter.PrintlnWithPrefixln("Validating cluster compatibility:")
+// 	ui.GlobalWriter.PrintlnWithPrefixln("Validating cluster compatibility:")
 
-	// var clusterSummary *k8s.ClusterSummary
-	// if clusterSummary, err = kubeClient.GetClusterSummary(namespace); err != nil {
-	// 	// print the error
-	// 	return err
-	// }
+// 	// var clusterSummary *k8s.ClusterSummary
+// 	// if clusterSummary, err = kubeClient.GetClusterSummary(namespace); err != nil {
+// 	// 	// print the error
+// 	// 	return err
+// 	// }
 
-	// clusterReport := k8s.DefaultClusterRequirements.Validate(ctx, kubeClient, clusterSummary)
+// 	// clusterReport := k8s.DefaultClusterRequirements.Validate(ctx, kubeClient, clusterSummary)
 
-	// clusterReport.PrintStatus()
+// 	// clusterReport.PrintStatus()
 
-	// if clusterReport.IsLocalCluster() {
-	// 	viper.Set(LOW_RESOURCES_FLAG, true)
-	// }
+// 	// if clusterReport.IsLocalCluster() {
+// 	// 	viper.Set(LOW_RESOURCES_FLAG, true)
+// 	// }
 
-	// if !clusterReport.IsCompatible {
-	// 	return errors.New("can't continue with installation, cluster is not compatible for installation. Check solutions suggested by the CLI")
-	// }
+// 	// if !clusterReport.IsCompatible {
+// 	// 	return errors.New("can't continue with installation, cluster is not compatible for installation. Check solutions suggested by the CLI")
+// 	// }
 
-	return nil
-}
-
-const operatorInstallString string = "/operator/install.sh"
-
-// const operatorInstallString string = "operator-sdk run bundle us-west1-docker.pkg.dev/zerok-dev/stage/zerok-operator:0.0.1"
-// const namespace string = "zerok-demoapp"
-// const labelNamespace string = "kubectl label namespace namespace " + namespace + "zk-injection=enabled"
-// const rollingRestart string = "kubectl rollout restart deployment -n " + namespace
-
-func installOperator(ctx context.Context) error {
-	ui.GlobalWriter.PrintNoticeMessage("Installing operator")
-	// var mydir = getPWD()
-
-	// execOnShell(mydir + operatorInstallString)
-	// execOnShell(labelNamespace)
-	// execOnShell(rollingRestart)
-
-	return nil
-}
+// 	return nil
+// }
