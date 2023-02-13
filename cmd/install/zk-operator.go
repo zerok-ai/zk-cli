@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/spf13/cobra"
-	logic "github.com/zerok-ai/zk-cli/zkctl/cmd/pkg"
+	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/shell"
 )
 
 var ZkOperatorCmd = &cobra.Command{
@@ -18,16 +18,12 @@ const (
 	zkInstallOperator string = "/operator/install-demo.sh"
 )
 
-func init() {
-
-}
-
 func RunZkOperatorCmd(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
 	return zkOperatorSetup(ctx)
 }
 
 func zkOperatorSetup(ctx context.Context) error {
-	_, err := logic.ExecWithLogsDurationAndSuccessM(logic.GetPWD()+zkInstallOperator, "ZeroK operator installed successfully")
+	_, err := shell.ExecWithLogsDurationAndSuccessM(shell.GetPWD()+zkInstallOperator, "ZeroK operator installed successfully")
 	return err
 }

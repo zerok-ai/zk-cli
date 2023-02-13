@@ -1,30 +1,35 @@
+# Install ZeroK
 
-# zk-cli sh
+## Add alias
 
-```sh
+If you are running the code instead of the executable set the following alias
 
-export GOPRIVATE=github.com/zerok-ai/*
-
-# initialize the module
-go mod init github.com/zerok-ai/zk-cli/zkctl
-
-
-# create the repository structure 
-mkdir -p commands
-mkdir -p backend
-
-touch commands/root.go
-touch backend/logic.go
-touch main.go
-
-# add Cobra as a dependency
-go get -u github.com/spf13/cobra@latest
-
+``` sh
+alias zkctl="go run main.go"
 ```
 
-All the commands should be in their respective files under the folder `.\commands` while the business logic should go in files in the folder `.\backend`.
+## install zerok operator
 
 ```sh
-touch commands/operator.go
-touch commands/debug.go
+zkctl install operator
+```
+
+## install backend
+
+```sh
+zkctl install backend
+```
+
+## perform post backend installation tasks
+
+```sh
+zkctl install backend postsetup
+```
+
+## activate zerok and do rolling restart
+
+Activate a namespace for ZeroK and do a rolling restart
+
+```sh
+zkctl activate -n <namespace> -r
 ```
