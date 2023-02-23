@@ -7,8 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/shell"
 	client "github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/scenarios"
+	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/shell"
 	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/ui"
 )
 
@@ -24,7 +24,7 @@ var PixieClientCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(PixieClientCmd)
+	RootCmd.AddCommand(PixieClientCmd)
 }
 
 func RunPxClientCmd(cmd *cobra.Command, args []string) error {

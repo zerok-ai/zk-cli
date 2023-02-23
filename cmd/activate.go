@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/k8"
+	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/k8s"
 )
 
 var (
@@ -31,14 +31,14 @@ func init() {
 }
 
 func addToRootAndSetFlags(c *cobra.Command) {
-	rootCmd.AddCommand(c)
+	RootCmd.AddCommand(c)
 	c.Flags().BoolVarP(&rollingRestart, "restart", "r", false, "Use this if you also want to do rolling restart post activation")
 	c.Flags().StringVarP(&namespaceString, "namespace", "n", "default", "Source directory to read from")
 }
 
 func RunActivateNamespaceCmd(cmd *cobra.Command, args []string) error {
 
-	zkNamespace := k8.NewZkNamespace(namespaceString)
+	zkNamespace := k8s.NewZkNamespace(namespaceString)
 	errorInMarking := zkNamespace.AddLabel(ZKMARKER_LABEL_KEY, ZKMARKER_LABEL_VALUE)
 	if errorInMarking == nil && rollingRestart {
 		return zkNamespace.DoRollingRestart(namespaceString)
@@ -49,7 +49,7 @@ func RunActivateNamespaceCmd(cmd *cobra.Command, args []string) error {
 
 func RunDeactivateNamespaceCmd(cmd *cobra.Command, args []string) error {
 
-	zkNamespace := k8.NewZkNamespace(namespaceString)
+	zkNamespace := k8s.NewZkNamespace(namespaceString)
 	errorInMarking := zkNamespace.RemoveLabel(ZKMARKER_LABEL_KEY)
 	if errorInMarking == nil && rollingRestart {
 		return zkNamespace.DoRollingRestart(namespaceString)

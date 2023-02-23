@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/pkg/errors"
 
 	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/ui"
 	"k8s.io/client-go/util/homedir"
@@ -23,7 +24,7 @@ const (
 )
 
 var (
-	rootCmd = &cobra.Command{
+	RootCmd = &cobra.Command{
 		Use:           "zkctl",
 		SilenceUsage:  true,
 		SilenceErrors: true,
@@ -53,13 +54,15 @@ var (
 		},
 	}
 
+	ErrExecutionAborted     = errors.New("execution aborted")
+
 	// private variables
 	cfgFile string
 )
 
 func ExecuteContext(ctx context.Context) error {
 	ui.GlobalWriter.Println("")
-	err := rootCmd.ExecuteContext(ctx)
+	err := RootCmd.ExecuteContext(ctx)
 
 	if err == nil {
 		// ui.GlobalWriter.PrintSuccessMessageln("Executed successfully")
@@ -75,21 +78,21 @@ func init() {
 	cobra.OnInitialize(initConfigFromFile)
 
 	// path of the config file
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "zkctl config file (default is ${PWD}/zkctl.yaml)")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "zkctl config file (default is ${PWD}/zkctl.yaml)")
 
 	// cloud provider
-	rootCmd.PersistentFlags().String("cloudprovider", "P", "Name of a cloud provider. Allowed values gke|eks|minikube")
-	viper.BindPFlag("cloudprovider", rootCmd.PersistentFlags().Lookup("cloudprovider"))
+	RootCmd.PersistentFlags().String("cloudprovider", "P", "Name of a cloud provider. Allowed values gke|eks|minikube")
+	viper.BindPFlag("cloudprovider", RootCmd.PersistentFlags().Lookup("cloudprovider"))
 
-	rootCmd.PersistentFlags().String(CLUSTER_NAME_FLAG, "c", "cluster name")
-	viper.BindPFlag(CLUSTER_NAME_FLAG, rootCmd.PersistentFlags().Lookup(CLUSTER_NAME_FLAG))
+	RootCmd.PersistentFlags().String(CLUSTER_NAME_FLAG, "", "cluster name")
+	viper.BindPFlag(CLUSTER_NAME_FLAG, RootCmd.PersistentFlags().Lookup(CLUSTER_NAME_FLAG))
 
-	rootCmd.PersistentFlags().String(KUBECONTEXT_FLAG, "", "name of the kubeconfig context to use")
-	viper.BindPFlag(KUBECONTEXT_FLAG, rootCmd.PersistentFlags().Lookup(KUBECONTEXT_FLAG))
+	RootCmd.PersistentFlags().String(KUBECONTEXT_FLAG, "", "name of the kubeconfig context to use")
+	viper.BindPFlag(KUBECONTEXT_FLAG, RootCmd.PersistentFlags().Lookup(KUBECONTEXT_FLAG))
 
 	home := homedir.HomeDir()
-	rootCmd.PersistentFlags().String(KUBECONFIG_FLAG, filepath.Join(home, ".kube", "config"), "path to the kubeconfig file")
-	viper.BindPFlag(KUBECONFIG_FLAG, rootCmd.PersistentFlags().Lookup(KUBECONFIG_FLAG))
+	RootCmd.PersistentFlags().String(KUBECONFIG_FLAG, filepath.Join(home, ".kube", "config"), "path to the kubeconfig file")
+	viper.BindPFlag(KUBECONFIG_FLAG, RootCmd.PersistentFlags().Lookup(KUBECONFIG_FLAG))
 	viper.BindEnv(KUBECONFIG_FLAG)
 
 }
