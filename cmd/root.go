@@ -6,17 +6,21 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/pkg/errors"
 
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/ui"
+	"zkctl/cmd/pkg/ui"
+	"zkctl/cmd/pkg/utils"
+
 	"k8s.io/client-go/util/homedir"
 	// operator "github.com/zerok-ai/operator/cmd"
-	// operatior "github.com/zerok-ai/zk-cli/zkctl/cmd/operator/cmd"
+	// operatior "zkctl/cmd/operator/cmd"
 )
 
 const (
+	zerok_dir_name = ".zerok"
+
 	NAMESPACE_FLAG    = "namespace"
 	KUBECONFIG_FLAG   = "kubeconfig"
 	KUBECONTEXT_FLAG  = "kube-context"
@@ -54,14 +58,15 @@ var (
 		},
 	}
 
-	ErrExecutionAborted     = errors.New("execution aborted")
+	ErrExecutionAborted = errors.New("execution aborted")
+
+	ErrForceAborted = errors.New("force abort")
 
 	// private variables
 	cfgFile string
 )
 
 func ExecuteContext(ctx context.Context) error {
-	ui.GlobalWriter.Println("")
 	err := RootCmd.ExecuteContext(ctx)
 
 	if err == nil {
@@ -75,6 +80,7 @@ func ExecuteContext(ctx context.Context) error {
 
 func init() {
 
+	ui.GlobalWriter.PrintSuccessMessageln("lowering the temperature")
 	cobra.OnInitialize(initConfigFromFile)
 
 	// path of the config file
@@ -83,6 +89,9 @@ func init() {
 	// cloud provider
 	RootCmd.PersistentFlags().String("cloudprovider", "P", "Name of a cloud provider. Allowed values gke|eks|minikube")
 	viper.BindPFlag("cloudprovider", RootCmd.PersistentFlags().Lookup("cloudprovider"))
+
+	RootCmd.PersistentFlags().String(utils.ZEROK_DIR_PATH_FLAG, getZerokDirDefaultPath(), "default location of zerok's directory on dev machine")
+	viper.BindPFlag(utils.ZEROK_DIR_PATH_FLAG, RootCmd.PersistentFlags().Lookup(utils.ZEROK_DIR_PATH_FLAG))
 
 	RootCmd.PersistentFlags().String(CLUSTER_NAME_FLAG, "", "cluster name")
 	viper.BindPFlag(CLUSTER_NAME_FLAG, RootCmd.PersistentFlags().Lookup(CLUSTER_NAME_FLAG))
@@ -94,7 +103,6 @@ func init() {
 	RootCmd.PersistentFlags().String(KUBECONFIG_FLAG, filepath.Join(home, ".kube", "config"), "path to the kubeconfig file")
 	viper.BindPFlag(KUBECONFIG_FLAG, RootCmd.PersistentFlags().Lookup(KUBECONFIG_FLAG))
 	viper.BindEnv(KUBECONFIG_FLAG)
-
 }
 
 func initConfigFromFile() {
@@ -115,4 +123,15 @@ func initConfigFromFile() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func getZerokDirDefaultPath() string {
+	var err error
+
+	var baseDir string
+	if baseDir, err = os.UserHomeDir(); err != nil {
+		baseDir = os.TempDir()
+	}
+
+	return fmt.Sprintf("%s%c%s", baseDir, os.PathSeparator, zerok_dir_name)
 }

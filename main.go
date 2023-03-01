@@ -1,7 +1,7 @@
 package main
 
 import (
-	cmd "github.com/zerok-ai/zk-cli/zkctl/cmd"
+	"zkctl/cmd"
 
 	"context"
 	"os"

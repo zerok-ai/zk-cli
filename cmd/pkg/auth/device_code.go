@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/ui"
+	"zkctl/cmd/pkg/ui"
 )
 
 const (

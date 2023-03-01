@@ -61,6 +61,18 @@ func (w *Writer) PrintflnWithPrefixln(format string, args ...interface{}) {
 	fmt.Printf("\n%s\n", message)
 }
 
+func (w *Writer) PrintflnWithPrefixArrow(format string, args ...interface{}) {
+	message := fmt.Sprintf("→ "+format, args...)
+	w.addMessage(message)
+	fmt.Printf("%s\n", message)
+}
+
+func (w *Writer) PrintflnWithPrefixlnAndArrow(format string, args ...interface{}) {
+	message := fmt.Sprintf("→ "+format, args...)
+	w.addMessage(message)
+	fmt.Printf("\n%s\n", message)
+}
+
 func (w *Writer) Printf(format string, args ...interface{}) {
 	formatted := fmt.Sprintf(format, args...)
 	w.addMessage(formatted)

@@ -1,8 +1,9 @@
 package cmd
 
 import (
+	"zkctl/cmd/pkg/k8s"
+
 	"github.com/spf13/cobra"
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/k8s"
 )
 
 var (

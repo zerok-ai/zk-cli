@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"net/url"
 
+	"zkctl/cmd/pkg/utils"
+
 	"github.com/MicahParks/keyfunc"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/utils"
 )
 
 const (

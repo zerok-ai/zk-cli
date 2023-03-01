@@ -7,13 +7,9 @@ import (
 	"github.com/peterbourgon/diskv/v3"
 )
 
-const (
-	STROAGE_PREFIX = ".groundcover"
-)
+var PresistentStorage *diskv.Diskv = NewStorage(".zerok")
 
-var PresistentStorage *diskv.Diskv = NewStorage()
-
-func NewStorage() *diskv.Diskv {
+func NewStorage(dirPath string) *diskv.Diskv {
 	var err error
 
 	var baseDir string
@@ -22,7 +18,7 @@ func NewStorage() *diskv.Diskv {
 	}
 
 	diskv := diskv.New(diskv.Options{
-		BasePath:  filepath.Join(baseDir, STROAGE_PREFIX),
+		BasePath:  filepath.Join(baseDir, dirPath),
 		Transform: func(s string) []string { return []string{} },
 	})
 

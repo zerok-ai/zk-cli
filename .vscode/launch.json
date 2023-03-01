@@ -11,7 +11,9 @@
             "request": "launch",
             "mode": "debug",
             "program": "${workspaceFolder}/main.go",
-            "args": ["install", "backend", "operator"]
+            "args": ["install"],
+            // "args": ["install", "backend", "operator"],
+            "console": "integratedTerminal"
         }
     ]
 }

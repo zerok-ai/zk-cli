@@ -3,15 +3,16 @@ package sentry
 import (
 	"time"
 
+	"zkctl/cmd/pkg/k8s"
+	"zkctl/cmd/pkg/ui"
+
 	"github.com/blang/semver/v4"
 	"github.com/getsentry/sentry-go"
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/k8s"
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/ui"
 )
 
 const (
-	MAX_NODE_REPORT_SAMPLES = 10
-	COMMAND_CONTEXT_NAME    = "command"
+	MAX_NODE_REPORT_SAMPLES  = 10
+	COMMAND_CONTEXT_NAME     = "command"
 	HELM_CONTEXT_NAME        = "helm"
 	KUBE_CONTEXT_NAME        = "kubernetes"
 	SELF_UPDATE_CONTEXT_NAME = "cli-update"

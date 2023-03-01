@@ -23,10 +23,10 @@
 set -u
 
 # exit if the px cli is already installed
-if command -v px &> /dev/null
-then
-    exit
-fi
+# if command -v px &> /dev/null
+# then
+#     exit
+# fi
 
 export PL_CLOUD_ADDR="pxtest1.getanton.com"
 CLOUD_ADDR=${PL_CLOUD_ADDR:-"work.withpixie.ai"}
@@ -163,7 +163,7 @@ if exists_but_not_writable "${DEFAULT_INSTALL_PATH}"; then
     DEFAULT_INSTALL_PATH=${USER_INSTALL_PATH}
 fi
 
-emph "Installing PX CLI:"
+# emph "Installing full CLI support:"
 read -r -p "Install Path [${DEFAULT_INSTALL_PATH}]: " INSTALL_PATH
 INSTALL_PATH=${INSTALL_PATH:-${DEFAULT_INSTALL_PATH}}
 
@@ -182,6 +182,7 @@ if [[ ! -e "${INSTALL_PATH}" ]]; then
     fi
 fi
 
-execute curl -fsSL "$(artifact_url)" -o "${INSTALL_PATH}"/px_new
-execute chmod +x "${INSTALL_PATH}"/px_new
-execute mv "${INSTALL_PATH}"/px_new "${INSTALL_PATH}"/px
+echo "$(artifact_url)"
+# execute curl -fsSL "$(artifact_url)" -o "${INSTALL_PATH}"/px_new
+# execute chmod +x "${INSTALL_PATH}"/px_new
+# execute mv "${INSTALL_PATH}"/px_new "${INSTALL_PATH}"/px

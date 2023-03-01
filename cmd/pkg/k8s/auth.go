@@ -6,9 +6,10 @@ import (
 	"os/exec"
 	"regexp"
 
+	"zkctl/cmd/pkg/ui"
+
 	"github.com/blang/semver/v4"
 	"github.com/pkg/errors"
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/ui"
 	authv1 "k8s.io/api/authorization/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	restclient "k8s.io/client-go/rest"

@@ -3,10 +3,11 @@ package sentry_test
 import (
 	"testing"
 
+	sentry_utils "zkctl/cmd/pkg/sentry"
+
 	"github.com/getsentry/sentry-go"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
-	sentry_utils "github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/sentry"
 )
 
 type SentryClientTestSuite struct {

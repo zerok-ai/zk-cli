@@ -10,13 +10,14 @@ import (
 
 	"time"
 
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/ui"
+	"zkctl/cmd/pkg/ui"
 )
 
 const ShellToUse = "bash"
 
 func Shellout(command string, printLogsOnConsole bool) (string, error) {
 
+	fmt.Println("command: "+command)
 	// send the output to console as well as to a buffer
 	var stdBuffer bytes.Buffer
 	cmd := exec.Command(ShellToUse, "-c", command)
@@ -52,6 +53,8 @@ func ExecWithLogsDurationAndSuccessM(command string, successMsg string) (string,
 	diff := time.Since(startTime)
 	if err == nil {
 		ui.GlobalWriter.PrintSuccessMessageln(fmt.Sprintf("%s [time taken: %v]\n", successMsg, diff))
+	} else {
+		ui.GlobalWriter.Printf("\n ExecWithLogsDurationAndSuccessM err --- %v\n", err)
 	}
 	return out, err
 }

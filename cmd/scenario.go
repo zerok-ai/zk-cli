@@ -7,9 +7,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	client "github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/scenarios"
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/shell"
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/ui"
+	client "zkctl/cmd/pkg/scenarios"
+	"zkctl/cmd/pkg/shell"
+	"zkctl/cmd/pkg/ui"
 )
 
 const (

@@ -6,8 +6,9 @@ import (
 	"os"
 	"testing"
 
+	"zkctl/cmd/pkg/k8s"
+
 	"github.com/stretchr/testify/suite"
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/k8s"
 )
 
 type KubeRequirementTestSuite struct {

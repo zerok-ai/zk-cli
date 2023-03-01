@@ -7,7 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/ui"
+	"zkctl/cmd/pkg/ui"
+
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -21,8 +22,8 @@ import (
 const (
 	labelSuccessMessage        string = "Namespace '%s' has been activated for ZeroK"
 	labelAlreadyPresentMessage string = "Namespace '%s' is already active for ZeroK"
-	labelNotPresentMessage string = "Namespace '%s' is NOT active for ZeroK"
-	labelRemovedMessage string = "Namespace '%s' has been deactivated for ZeroK"
+	labelNotPresentMessage     string = "Namespace '%s' is NOT active for ZeroK"
+	labelRemovedMessage        string = "Namespace '%s' has been deactivated for ZeroK"
 
 	messageScale             string = "Scale deployment '%s' to %d replicas"
 	messageErrorGettingScale string = "Failed to get the scale value for deployment '%s' : %v"
@@ -92,7 +93,7 @@ func (ns *ZkNamespace) AddLabel(key string, value string) error {
 	} else {
 		ui.GlobalWriter.PrintSuccessMessageln(fmt.Sprintf(labelAlreadyPresentMessage, ns.namespaceName))
 	}
-	// printAllLabels(namespace)	
+	// printAllLabels(namespace)
 
 	return nil
 }
@@ -116,7 +117,7 @@ func (ns *ZkNamespace) RemoveLabel(key string) error {
 	} else {
 		ui.GlobalWriter.PrintSuccessMessageln(fmt.Sprintf(labelNotPresentMessage, ns.namespaceName))
 	}
-	printAllLabels(namespace)	
+	printAllLabels(namespace)
 
 	return nil
 }

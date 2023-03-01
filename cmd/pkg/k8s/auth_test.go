@@ -4,9 +4,10 @@ import (
 	"errors"
 	"testing"
 
+	"zkctl/cmd/pkg/k8s"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/k8s"
 	"k8s.io/client-go/kubernetes/fake"
 )
 

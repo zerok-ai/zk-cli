@@ -4,9 +4,10 @@ import (
 	"context"
 	"testing"
 
+	"zkctl/cmd/pkg/k8s"
+
 	"github.com/blang/semver/v4"
 	"github.com/stretchr/testify/suite"
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/k8s"
 	authv1 "k8s.io/api/authorization/v1"
 	"k8s.io/apimachinery/pkg/version"
 	discoveryfake "k8s.io/client-go/discovery/fake"

@@ -5,13 +5,14 @@ import (
 	"testing"
 	"time"
 
+	"zkctl/cmd/pkg/k8s"
+	sentry_utils "zkctl/cmd/pkg/sentry"
+	"zkctl/cmd/pkg/ui"
+
 	"github.com/blang/semver/v4"
 	"github.com/getsentry/sentry-go"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/k8s"
-	sentry_utils "github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/sentry"
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/ui"
 	v1 "k8s.io/api/core/v1"
 )
 

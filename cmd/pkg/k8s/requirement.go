@@ -3,8 +3,9 @@ package k8s
 import (
 	"strings"
 
+	"zkctl/cmd/pkg/ui"
+
 	"github.com/fatih/color"
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/ui"
 )
 
 type Requirement struct {

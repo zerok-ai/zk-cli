@@ -5,13 +5,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"runtime"
+	"strings"
 	"time"
+
+	"zkctl/cmd/pkg/k8s"
+	sentry_utils "zkctl/cmd/pkg/sentry"
+	"zkctl/cmd/pkg/ui"
+	"zkctl/cmd/pkg/utils"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/k8s"
-	sentry_utils "github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/sentry"
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/ui"
 )
 
 const (
@@ -33,19 +37,23 @@ const (
 	GET_LATEST_CHART_POLLING_INTERVAL   = time.Second * 1
 	GET_LATEST_CHART_POLLING_TIMEOUT    = time.Second * 10
 
-	CONTEXT 							= "ctx"	
-	SHOULD_PRINT_SUCCESS_MESSAGE 		= "should_print_success_msg"	
-	NODES_NOT_FOUND 					= "no nodes found in the current cluster"	
-	SHOULD_VALIDATE 					= "should_validate"	
-	YES 								= "yes"	
-	NO 									= "no"	
+	CONTEXT                      = "ctx"
+	SHOULD_PRINT_SUCCESS_MESSAGE = "should_print_success_msg"
+	NODES_NOT_FOUND              = "no nodes found in the current cluster"
+	SHOULD_VALIDATE              = "should_validate"
+	YES                          = "yes"
+	NO                           = "no"
+
+	APPLY_POLLING_RETRIES  = 1
+	APPLY_POLLING_TIMEOUT  = time.Minute * 3
+	APPLY_POLLING_INTERVAL = time.Second / 10
 )
 
 type ContextKey struct {
 	key string
 }
 
-var Ckey ContextKey = ContextKey {key: CONTEXT}
+var Ckey ContextKey = ContextKey{key: CONTEXT}
 
 type Values struct {
 	m map[string]string
@@ -56,47 +64,59 @@ func (v Values) Get(key string) string {
 }
 
 var installCmd = &cobra.Command{
-	Use:   "install",
-	Short: "Install ZeroK",
-	RunE:  runInstallCmd,
+	Use:     "install",
+	Short:   "Install ZeroK",
+	PreRunE: RunInstallPreCmd,
+	RunE:    RunInstallCmd,
 }
 
 func init() {
 	RootCmd.AddCommand(installCmd)
-
-	installCmd.AddCommand(ZKBackendCmd)
 	installCmd.AddCommand(ZkOperatorCmd)
 }
 
-func runInstallCmd(cmd *cobra.Command, args []string) error {
+func RunInstallPreCmd(cmd *cobra.Command, args []string) error {
+	return PreInstallChecksAndTasks(cmd.Context())
+}
 
-	err := ValidateAndConfirm(cmd.Context())
-	if err != nil {
-		return err
-	}
-	
-	var values Values = Values{map[string]string{
-		SHOULD_VALIDATE: NO,
-		SHOULD_PRINT_SUCCESS_MESSAGE: NO,
-	}}
-	
-	var ctx context.Context = context.WithValue(context.Background(),  Ckey, values)
-	
-	// ZkOperatorCmd.ExecuteContext(ctx)
-	ZKBackendCmd.ExecuteContext(ctx)
+func RunInstallCmd(cmd *cobra.Command, args []string) error {
+
+	LogicZkOperatorSetup(cmd.Context())
+	// LogicZKBackendCmd(cmd.Context(), cmd, args)
 
 	return nil
 }
 
-func ValidateAndConfirm(ctx context.Context) error {
-	
+func PreInstallChecksAndTasks(ctx context.Context) error {
+
+	utils.InitializeFolders()
+
+	err := validateAndConfirm(ctx)
+	ui.GlobalWriter.PrintflnWithPrefixlnAndArrow("running pre-installation checks")
+	if err != nil {
+		ui.GlobalWriter.Printf("In PreInstallChecksAndTasks err %s \n", err)
+		return err
+	}
+
+	// install px cli
+	return installBackendCLI(ctx)
+}
+
+func validateAndConfirm(ctx context.Context) error {
+
 	var err error
+
+	ctxValue := ctx.Value(Ckey)
+	if ctxValue != nil && ctxValue.(Values).Get(SHOULD_VALIDATE) != YES {
+		return nil
+	}
+
+	return nil
 
 	namespace := viper.GetString(NAMESPACE_FLAG)
 	kubeconfig := viper.GetString(KUBECONFIG_FLAG)
 	kubecontext := viper.GetString(KUBECONTEXT_FLAG)
-	ctxValue := ctx.Value(Ckey)
-	
+
 	sentryKubeContext := sentry_utils.NewKubeContext(kubeconfig, kubecontext)
 	sentryKubeContext.SetOnCurrentScope()
 
@@ -120,12 +140,6 @@ func ValidateAndConfirm(ctx context.Context) error {
 		return err
 	}
 
-	dn, _ := json.Marshal(deployableNodes)
-	ui.GlobalWriter.Printf("deployableNodes name = %s", string(dn))
-
-	t, _ := json.Marshal(tolerations)
-	ui.GlobalWriter.PrintNoticeMessage(fmt.Sprintf("tolerations = %s", string(t)))
-
 	storageProvision := k8s.GenerateStorageProvision(context.Background(), kubeClient, clusterSummary)
 	if viper.GetBool(NO_PVC_FLAG) {
 		storageProvision.PersistentStorage = false
@@ -138,20 +152,8 @@ func ValidateAndConfirm(ctx context.Context) error {
 		sentry_utils.SetTagOnCurrentScope(sentry_utils.PERSISTENT_STORAGE_TAG, "false")
 	}
 
-	var shouldInstall bool
-	if (ctxValue != nil){
-		shouldInstall = ctxValue.(Values).Get(SHOULD_VALIDATE) == YES
-		if !shouldInstall {
-			return ErrExecutionAborted
-		}
-	}
-	
-	if shouldInstall, err = promptInstallSummary(
-		clusterSummary.ClusterName, clusterSummary.Namespace, len(deployableNodes), nodesReport.NodesCount(), storageProvision); err != nil {
-		return err
-	}
-
-	if !shouldInstall {
+	if !promptInstallSummary(clusterSummary.ClusterName, clusterSummary.Namespace, len(deployableNodes),
+		nodesReport.NodesCount(), storageProvision, tolerations) {
 		return ErrExecutionAborted
 	}
 
@@ -268,53 +270,45 @@ func promptTaints(tolerationManager *k8s.TolerationManager, sentryKubeContext *s
 	return allowedTaints, nil
 }
 
-func promptInstallSummary(clusterName string, namespace string, deployableNodesCount, nodesCount int, storageProvision k8s.StorageProvision) (bool, error) {
-	ui.GlobalWriter.PrintlnWithPrefixln("Installing groundcover:")
+func promptInstallSummary(clusterName string, namespace string, deployableNodesCount, nodesCount int, storageProvision k8s.StorageProvision, tolerations []map[string]interface{}) bool {
+	ui.GlobalWriter.PrintlnWithPrefixln("Installing Zerok:")
 
 	if !storageProvision.PersistentStorage {
 		ui.GlobalWriter.Printf("Using emptyDir storage, reason: %s\n", storageProvision.Reason)
 	}
+	t, _ := json.Marshal(tolerations)
 
 	var promptMessage string = fmt.Sprintf(
-		"Deploy Zerok (cluster: %s, namespace: %s, compatible nodes: %d/%d)",
-		clusterName, namespace, deployableNodesCount, nodesCount,
+		"Deploy Zerok (cluster: %s, namespace: %s, compatible nodes: %d/%d, tolerations: %s)",
+		clusterName, namespace, deployableNodesCount, nodesCount, string(t),
 	)
 
-	return ui.GlobalWriter.YesNoPrompt(promptMessage, false), nil
+	return ui.GlobalWriter.YesNoPrompt(promptMessage, false)
 }
 
-// func promptInstallSummary(isUpgrade bool, releaseName string, clusterName string, namespace string, release *helm.Release, chart *helm.Chart, deployableNodesCount, nodesCount int, storageProvision k8s.StorageProvision, sentryHelmContext *sentry_utils.HelmContext) (bool, error) {
-// 	ui.GlobalWriter.PrintlnWithPrefixln("Installing groundcover:")
+func installBackendCLI(ctx context.Context) error {
 
-// 	if !storageProvision.PersistentStorage {
-// 		ui.GlobalWriter.Printf("Using emptyDir storage, reason: %s\n", storageProvision.Reason)
-// 	}
+	use_version := "latest"
+	artifact_bucket := "pixie-dev-public"
+	if strings.Contains(use_version, "-") {
+		artifact_bucket = "pixie-prod-artifacts"
+	}
+	artifact_base_path := fmt.Sprintf("https://storage.googleapis.com/%s/cli", artifact_bucket)
 
-// 	var promptMessage string
-// 	if isUpgrade {
-// 		sentryHelmContext.Upgrade = isUpgrade
-// 		sentryHelmContext.PreviousChartVersion = release.Version().String()
-// 		sentry_utils.SetTagOnCurrentScope(sentry_utils.UPGRADE_TAG, strconv.FormatBool(isUpgrade))
-// 		sentryHelmContext.SetOnCurrentScope()
+	err := utils.BackendCLIExists()
+	if err != nil {
+		ui.GlobalWriter.PrintflnWithPrefixArrow("installing full CLI support")
 
-// 		if chart.Version().GT(release.Version()) {
-// 			promptMessage = fmt.Sprintf(
-// 				"Your groundcover version is out of date (cluster: %s, namespace: %s, version: %s), The latest version is %s.\nDo you want to upgrade?",
-// 				clusterName, namespace, release.Version(), chart.Version(),
-// 			)
-// 		} else {
-// 			promptMessage = fmt.Sprintf(
-// 				"Latest version of groundcover is already installed in your cluster! (cluster: %s, namespace: %s, version: %s).\nDo you want to redeploy?",
-// 				clusterName, namespace, chart.Version(),
-// 			)
-// 		}
-// 	} else {
-// 		promptMessage = fmt.Sprintf(
-// 			"Deploy groundcover (cluster: %s, namespace: %s, compatible nodes: %d/%d, version: %s)",
-// 			clusterName, namespace, deployableNodesCount, nodesCount, chart.Version(),
-// 		)
-// 	}
+		artifact_name := "cli_darwin_universal"
+		if runtime.GOOS == "linux" {
+			artifact_name = "cli_linux_amd64"
+		}
+		url := fmt.Sprintf("%s/%s/%s", artifact_base_path, use_version, artifact_name)
+		// ui.GlobalWriter.Printf("downloading %s to %s \n", url, backend_cli_filepath)
 
-// 	return ui.GlobalWriter.YesNoPrompt(promptMessage, !isUpgrade), nil
-// }
-
+		err = utils.DownloadBackendCLI(url)
+	} else {
+		ui.GlobalWriter.PrintSuccessMessage("full CLI support already installed\n")
+	}
+	return err
+}

@@ -1,4 +1,4 @@
-module github.com/zerok-ai/zk-cli/zkctl
+module zkctl
 
 go 1.19
 

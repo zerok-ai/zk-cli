@@ -3,8 +3,9 @@ package k8s_test
 import (
 	"testing"
 
+	"zkctl/cmd/pkg/k8s"
+
 	"github.com/stretchr/testify/suite"
-	"github.com/zerok-ai/zk-cli/zkctl/cmd/pkg/k8s"
 	v1 "k8s.io/api/core/v1"
 )
 
