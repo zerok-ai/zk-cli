@@ -93,7 +93,6 @@ func (ns *ZkNamespace) AddLabel(key string, value string) error {
 	} else {
 		ui.GlobalWriter.PrintSuccessMessageln(fmt.Sprintf(labelAlreadyPresentMessage, ns.namespaceName))
 	}
-	// printAllLabels(namespace)
 
 	return nil
 }
@@ -135,9 +134,28 @@ func printAllLabels(namespace *v1.Namespace) {
 	}
 }
 
-func (ns *ZkNamespace) DoRollingRestart(namespaceString string) error {
+func (ns *ZkNamespace) DoRollingRestart() error {
 
-	depI := ns.clientset.AppsV1().Deployments(namespaceString)
+	pods := ns.clientset.CoreV1().Pods(ns.namespaceName)
+	podList, err := pods.List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+
+	for _, pod := range podList.Items {
+		pods.Delete(context.Background(), pod.Name, metav1.DeleteOptions{})
+		if err != nil {
+			ui.GlobalWriter.PrintflnWithPrefixln("Error deleting pod '%s' - %v: \n", pod.Name, err)
+		}
+	}
+
+	return nil
+}
+
+func (ns *ZkNamespace) DoRollingRestartThroughDeployment() error {
+
+	ui.GlobalWriter.PrintflnWithPrefixArrow("DoRollingRestart for the namespace '%s'", ns.namespaceName)
+	depI := ns.clientset.AppsV1().Deployments(ns.namespaceName)
 	depList, err := depI.List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return err
@@ -151,7 +169,7 @@ func (ns *ZkNamespace) DoRollingRestart(namespaceString string) error {
 			ui.GlobalWriter.PrintErrorMessageln(fmt.Sprintf(messageErrorGettingScale, deployment.Name, err))
 			continue
 		}
-		var currRepCount int32 = scale.Spec.Replicas
+		var currRepCount int32 = 1 //scale.Spec.Replicas
 
 		// scaledown
 		errDownScale := scaleDeployment(scale, depI, deployment.Name, 0)

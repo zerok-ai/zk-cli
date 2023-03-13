@@ -61,9 +61,6 @@ var (
 	ErrExecutionAborted = errors.New("execution aborted")
 
 	ErrForceAborted = errors.New("force abort")
-
-	// private variables
-	cfgFile string
 )
 
 func ExecuteContext(ctx context.Context) error {
@@ -80,11 +77,7 @@ func ExecuteContext(ctx context.Context) error {
 
 func init() {
 
-	ui.GlobalWriter.PrintSuccessMessageln("lowering the temperature")
 	cobra.OnInitialize(initConfigFromFile)
-
-	// path of the config file
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "zkctl config file (default is ${PWD}/zkctl.yaml)")
 
 	// cloud provider
 	RootCmd.PersistentFlags().String("cloudprovider", "P", "Name of a cloud provider. Allowed values gke|eks|minikube")
@@ -106,23 +99,29 @@ func init() {
 }
 
 func initConfigFromFile() {
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-		// Find in current directory.
-		workingDir, err := os.Getwd()
-		cobra.CheckErr(err)
-		viper.AddConfigPath(workingDir)
-		viper.SetConfigType("env")
-		viper.SetConfigName("zkctl")
-	}
 
 	viper.AutomaticEnv()
-	err := viper.ReadInConfig()
-	if err != nil {
-		panic(err)
-	}
+
+	// if cfgFile != "" {
+	// 	// Use config file from the flag.
+	// 	viper.SetConfigFile(cfgFile)
+	// } else {
+	// Find in current directory.
+	// workingDir, err := os.Getwd()
+	// cobra.CheckErr(err)
+	// viper.AddConfigPath(workingDir)
+	// viper.SetConfigType("env")
+	// viper.SetConfigName("zkctl")
+	// }
+	// err := viper.ReadInConfig()
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	plc_cluster := viper.Get("CLUSTER_NAME")
+
+	viper.Set("PL_CLOUD_ADDR", fmt.Sprintf("%s.getanton.com", plc_cluster))
+	viper.Set("PLC_CLUSTER", fmt.Sprintf("gke_zerok-dev_us-west1-b_%s", plc_cluster))
 }
 
 func getZerokDirDefaultPath() string {

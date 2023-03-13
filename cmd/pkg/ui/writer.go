@@ -100,6 +100,11 @@ func (w *Writer) PrintSuccessMessageln(message string) {
 	fmt.Printf("%s %s\n", greenStatusOk, message)
 }
 
+func (w *Writer) PrintlnSuccessMessageln(message string) {
+	w.addMessage(fmt.Sprintf("%s %s", writenStatusOk, message))
+	fmt.Printf("\n%s %s\n", greenStatusOk, message)
+}
+
 func (w *Writer) PrintErrorMessage(message string) {
 	w.addMessage(fmt.Sprintf("%s %s", writenStatusErr, message))
 	fmt.Printf("%s %s", redStatusErr, message)

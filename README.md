@@ -8,22 +8,10 @@ If you are running the code instead of the executable set the following alias
 alias zkctl="go run main.go"
 ```
 
-## install zerok operator
+## install zerok 
 
 ```sh
-zkctl install operator
-```
-
-## install backend
-
-```sh
-zkctl install backend
-```
-
-## perform post backend installation tasks
-
-```sh
-zkctl install backend postsetup
+zkctl install 
 ```
 
 ## activate zerok and do rolling restart

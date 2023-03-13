@@ -6,13 +6,17 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"zkctl/cmd/pkg/ui"
 )
 
 func main() {
+	ui.GlobalWriter.PrintSuccessMessageln("lowering the temperature")
 	ctx, cleanup := contextWithSignalInterrupt()
 	defer cleanup()
 
 	cmd.ExecuteContext(ctx)
+
+	ui.GlobalWriter.PrintlnSuccessMessageln("installation done. back to room temperature")
 }
 
 func contextWithSignalInterrupt() (context.Context, func()) {

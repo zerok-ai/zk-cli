@@ -42,7 +42,7 @@ func RunActivateNamespaceCmd(cmd *cobra.Command, args []string) error {
 	zkNamespace := k8s.NewZkNamespace(namespaceString)
 	errorInMarking := zkNamespace.AddLabel(ZKMARKER_LABEL_KEY, ZKMARKER_LABEL_VALUE)
 	if errorInMarking == nil && rollingRestart {
-		return zkNamespace.DoRollingRestart(namespaceString)
+		return zkNamespace.DoRollingRestart()
 	}
 
 	return errorInMarking
@@ -53,7 +53,7 @@ func RunDeactivateNamespaceCmd(cmd *cobra.Command, args []string) error {
 	zkNamespace := k8s.NewZkNamespace(namespaceString)
 	errorInMarking := zkNamespace.RemoveLabel(ZKMARKER_LABEL_KEY)
 	if errorInMarking == nil && rollingRestart {
-		return zkNamespace.DoRollingRestart(namespaceString)
+		return zkNamespace.DoRollingRestart()
 	}
 
 	return errorInMarking

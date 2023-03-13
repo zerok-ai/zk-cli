@@ -14,9 +14,10 @@ import (
 )
 
 const (
-	ZEROK_DIR_PATH_FLAG 	= "zkdir"
-	BACKEND_CLI_NAME        = "daemon"
-	BACKEND_CLI_AUTH_FILENAME        = "auth.json"
+	ZEROK_DIR_PATH_FLAG 		= "zkdir"
+	BACKEND_CLI_NAME        	= "daemon"
+	BACKEND_CLI_AUTH_FILENAME   = "auth.json"
+	ERROR_DUMP_FILENAME        	= "dump"
 
 	px_dir_sym_name = ".pixie"
 	px_dir_name = "px"
@@ -166,6 +167,11 @@ func InitializeFolders() error {
 	return nil
 }
 
+func DumpError (errorText string) (string, error) {
+	dumpPath := GetErrorDumpPath()
+	return dumpPath, WriteTextToFile(errorText, dumpPath)
+}
+
 func GetPxRepoDir(zkdir string) string {
 	return fmt.Sprintf("%s%c%s", zkdir, os.PathSeparator, pxrepo_dir)
 }
@@ -197,6 +203,10 @@ func GetBackendCLIPath() string {
 
 func GetBackendAuthPath() string {
 	return fmt.Sprintf("%s%c%s", getPxDirSymbolicPath(), os.PathSeparator, BACKEND_CLI_AUTH_FILENAME)
+}
+
+func GetErrorDumpPath() string {
+	return fmt.Sprintf("%s%c%s", getBackendCLIDir(), os.PathSeparator, ERROR_DUMP_FILENAME)
 }
 
 func BackendCLIExists() error {

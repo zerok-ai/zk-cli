@@ -81,10 +81,10 @@ func RunInstallPreCmd(cmd *cobra.Command, args []string) error {
 
 func RunInstallCmd(cmd *cobra.Command, args []string) error {
 
-	LogicZkOperatorSetup(cmd.Context())
+	err := LogicZkOperatorSetup(cmd.Context())
 	// LogicZKBackendCmd(cmd.Context(), cmd, args)
 
-	return nil
+	return err
 }
 
 func PreInstallChecksAndTasks(ctx context.Context) error {
