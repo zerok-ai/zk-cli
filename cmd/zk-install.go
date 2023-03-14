@@ -84,6 +84,7 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 	err := LogicZkOperatorSetup(cmd.Context())
 	// LogicZKBackendCmd(cmd.Context(), cmd, args)
 
+	ui.GlobalWriter.PrintlnSuccessMessageln("installation done")
 	return err
 }
 

@@ -10,13 +10,13 @@ import (
 )
 
 func main() {
-	ui.GlobalWriter.PrintSuccessMessageln("lowering the temperature")
+	ui.GlobalWriter.Println("❄ lowering the temperature \n")
 	ctx, cleanup := contextWithSignalInterrupt()
 	defer cleanup()
 
 	cmd.ExecuteContext(ctx)
 
-	ui.GlobalWriter.PrintlnSuccessMessageln("installation done. back to room temperature")
+	ui.GlobalWriter.Println("\n♨ thawing complete. back to room temperature")
 }
 
 func contextWithSignalInterrupt() (context.Context, func()) {

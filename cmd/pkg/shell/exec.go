@@ -45,7 +45,7 @@ func ShelloutWithSpinner(command string, spinnerText, successText, failureText s
 
 func Shellout(command string, printLogsOnConsole bool) (string, error) {
 
-	fmt.Println("command: " + command)
+	// fmt.Println("command: " + command)
 	// send the output to console as well as to a buffer
 	var stdBuffer bytes.Buffer
 	cmd := exec.Command(ShellToUse, "-c", command)

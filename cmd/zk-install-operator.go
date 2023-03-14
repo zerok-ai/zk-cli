@@ -107,12 +107,15 @@ func installPXOperator(ctx context.Context) (err error) {
 		// deploy px operator
 		ui.GlobalWriter.PrintflnWithPrefixArrow("installing operator for managing data store")
 
-		cmd := utils.GetBackendCLIPath() + " deploy"
-		// cmd := utils.GetBackendCLIPath() + " deploy 2>&1 > ./dump | tail -f ./dump | perl -p -e \"s/Pixie/ZeroK/g\""
-
 		var out string
+		/*/
+		cmd := utils.GetBackendCLIPath() + " deploy"
 		out, err := shell.ExecWithLogsDurationAndSuccessM(cmd, "Zerok daemon installed successfully")
-		// out, err = shell.ShelloutWithSpinner(cmd, diSpinnerText, diSuccessText, diFailureText)
+		/*/
+		cmd := utils.GetBackendCLIPath() + " deploy 2>&1 > ./dump | tail -f ./dump | perl -p -e \"s/Pixie/ZeroK/g\""
+		out, err = shell.ShelloutWithSpinner(cmd, diSpinnerText, diSuccessText, diFailureText)
+		/**/
+
 		filePath, _ := utils.DumpError(out)
 		if err != nil {
 			// send to sentry and print
