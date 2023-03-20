@@ -112,7 +112,7 @@ func installPXOperator(ctx context.Context) (err error) {
 		cmd := utils.GetBackendCLIPath() + " deploy"
 		out, err := shell.ExecWithLogsDurationAndSuccessM(cmd, "Zerok daemon installed successfully")
 		/*/
-		cmd := utils.GetBackendCLIPath() + " deploy 2>&1 > ./dump | tail -f ./dump | perl -p -e \"s/Pixie/ZeroK/g\""
+		cmd := utils.GetBackendCLIPath() + " deploy"
 		out, err = shell.ShelloutWithSpinner(cmd, diSpinnerText, diSuccessText, diFailureText)
 		/**/
 
@@ -135,10 +135,12 @@ func installPXOperator(ctx context.Context) (err error) {
 
 	// set ingress to post deploy settings
 	// ui.GlobalWriter.PrintflnWithPrefixArrow("Waiting for %d sec for the pods to get deployed", waitTimeForPodsInSeconds)
-	time.Sleep(waitTimeForPodsInSeconds * time.Second)
 
-	if err != nil {
-		return err
+	for i := 0; i <= waitTimeForPodsInSeconds; i++ {
+		time.Sleep(1 * time.Second)
+		if err != nil {
+			return err
+		}
 	}
 
 	if err = setIngress(zerokcloudContext, "deploy"); err != nil {
@@ -149,12 +151,14 @@ func installPXOperator(ctx context.Context) (err error) {
 	if err != nil {
 		return err
 	}
-	time.Sleep(waitTimeForService * time.Second)
 
-	if err != nil {
-		return err
+	for i := 0; i <= waitTimeForService; i++ {
+		time.Sleep(1 * time.Second)
+		if err != nil {
+			return err
+		}
 	}
-	
+
 	return nil
 }
 

@@ -4,12 +4,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 	"time"
+	"context"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/fatih/color"
 	"github.com/spf13/viper"
+
+	"cloud.google.com/go/errorreporting"
 )
 
 const (
@@ -26,6 +30,8 @@ var (
 	writenStatusOk   = "V"
 	writenStatusErr  = "X"
 	writenStatusWarn = "!"
+
+	ErrorReporter *errorreporting.Client
 )
 
 func NewWriter() *Writer {
@@ -191,4 +197,40 @@ func (w *Writer) addMessage(message string) {
 
 func (w *Writer) Dump() string {
 	return strings.Join(w.writen, "\n")
+}
+
+func LogAndPrintError(err error) {
+	ErrorReporter.Report(errorreporting.Entry{
+		Error: err,
+	})
+	log.Print(err)
+}
+
+// initialize the error reporter and return a `cleanup` function.
+// cleanup function should be ideally called at the end of the program
+func InitializeErrorReportor (ctx context.Context) (func()){
+	
+	// Sets your Google Cloud Platform project ID.
+	projectID := "zerok-dev"
+
+	var err error
+	ErrorReporter, err = errorreporting.NewClient(ctx, projectID, errorreporting.Config{
+			ServiceName: "zkcli",
+			ServiceVersion: "v1.0",
+			OnError: func(err error) {
+				log.Printf("Could not log error: %v", err)
+			},
+	})
+	var cleanup func()
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		cleanup = func() {
+			if err := ErrorReporter.Close(); err != nil {
+				log.Printf("failed to report errors to Cloud Error Reporting: %v", err)
+			}
+		}
+	}
+
+	return cleanup
 }

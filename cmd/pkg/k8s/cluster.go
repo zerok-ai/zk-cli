@@ -16,7 +16,7 @@ import (
 const (
 	CLUSTER_TYPE_REPORT_MESSAGE_FORMAT          = "K8s cluster type supported"
 	CLUSTER_VERSION_REPORT_MESSAGE_FORMAT       = "K8s server version >= %s"
-	CLUSTER_AUTHORIZATION_REPORT_MESSAGE_FORMAT = "K8s user authorized for groundcover installation"
+	CLUSTER_AUTHORIZATION_REPORT_MESSAGE_FORMAT = "K8s user authorized for zerok installation"
 	CLUSTER_CLI_AUTH_SUPPORTED                  = "K8s CLI auth supported"
 )
 

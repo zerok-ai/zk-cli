@@ -106,7 +106,7 @@ func (suite *KubeClusterTestSuite) TestClusterReportSuccess() {
 		UserAuthorized: k8s.Requirement{
 			IsCompatible:    true,
 			IsNonCompatible: false,
-			Message:         "K8s user authorized for groundcover installation",
+			Message:         "K8s user authorized for zerok installation",
 		},
 		ClusterTypeAllowed: k8s.Requirement{
 			IsCompatible:    true,
@@ -145,7 +145,7 @@ func (suite *KubeClusterTestSuite) TestClusterReportUserAuthorizedDenied() {
 	expected := k8s.Requirement{
 		IsCompatible:    false,
 		IsNonCompatible: true,
-		Message:         "K8s user authorized for groundcover installation",
+		Message:         "K8s user authorized for zerok installation",
 		ErrorMessages:   []string{"denied permissions on resource: pods"},
 	}
 
@@ -183,7 +183,7 @@ func (suite *KubeClusterTestSuite) TestClusterReportUserAuthorizedAPIError() {
 	expected := k8s.Requirement{
 		IsCompatible:    false,
 		IsNonCompatible: true,
-		Message:         "K8s user authorized for groundcover installation",
+		Message:         "K8s user authorized for zerok installation",
 		ErrorMessages: []string{
 			"denied permissions on resource: pods",
 			"api error on resource: services: selfsubjectaccessreviews.authorization.k8s.io \"\" already exists",

@@ -1,11 +1,10 @@
 package main
 
 import (
-	"zkctl/cmd"
-
 	"context"
 	"os"
 	"os/signal"
+	"zkctl/cmd"
 	"zkctl/cmd/pkg/ui"
 )
 
@@ -13,6 +12,10 @@ func main() {
 	ui.GlobalWriter.Println("❄ lowering the temperature \n")
 	ctx, cleanup := contextWithSignalInterrupt()
 	defer cleanup()
+
+	var cleanErrorReporter func()
+	cleanErrorReporter = ui.InitializeErrorReportor(ctx)
+	defer cleanErrorReporter()
 
 	cmd.ExecuteContext(ctx)
 

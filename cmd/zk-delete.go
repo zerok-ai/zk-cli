@@ -9,12 +9,13 @@ import (
 	"zkctl/cmd/pkg/utils"
 
 	"github.com/spf13/cobra"
+	
 )
 
 const (
 	delSpinnerText = "deleting zerok daemon and associated CRDs"
 	delSuccessText = "zerok removed from the cluster successfully"
-	delFailureText = "failed to install zerok daemon"
+	delFailureText = "failed to delete zerok daemon"
 )
 
 var deleteCmd = &cobra.Command{

@@ -93,7 +93,7 @@ func PreInstallChecksAndTasks(ctx context.Context) error {
 	utils.InitializeFolders()
 
 	err := validateAndConfirm(ctx)
-	ui.GlobalWriter.PrintflnWithPrefixlnAndArrow("running pre-installation checks")
+	ui.GlobalWriter.PrintflnWithPrefixArrow("running pre-installation checks")
 	if err != nil {
 		ui.GlobalWriter.Printf("In PreInstallChecksAndTasks err %s \n", err)
 		return err
@@ -112,7 +112,7 @@ func validateAndConfirm(ctx context.Context) error {
 		return nil
 	}
 
-	return nil
+	// return nil
 
 	namespace := viper.GetString(NAMESPACE_FLAG)
 	kubeconfig := viper.GetString(KUBECONFIG_FLAG)
@@ -262,7 +262,7 @@ func promptTaints(tolerationManager *k8s.TolerationManager, sentryKubeContext *s
 		return nil, err
 	}
 
-	allowedTaints := ui.GlobalWriter.MultiSelectPrompt("Do you want set tolerations to allow scheduling groundcover on following taints:", taints, taints)
+	allowedTaints := ui.GlobalWriter.MultiSelectPrompt("Do you want set tolerations to allow scheduling zerok on following taints:", taints, taints)
 
 	sentryKubeContext.TolerationsAndTaintsRatio = fmt.Sprintf("%d/%d", len(allowedTaints), len(taints))
 	sentryKubeContext.SetOnCurrentScope()
@@ -280,8 +280,8 @@ func promptInstallSummary(clusterName string, namespace string, deployableNodesC
 	t, _ := json.Marshal(tolerations)
 
 	var promptMessage string = fmt.Sprintf(
-		"Deploy Zerok (cluster: %s, namespace: %s, compatible nodes: %d/%d, tolerations: %s)",
-		clusterName, namespace, deployableNodesCount, nodesCount, string(t),
+		"Deploy Zerok (cluster: %s, compatible nodes: %d/%d, tolerations: %s)",
+		clusterName, deployableNodesCount, nodesCount, string(t),
 	)
 
 	return ui.GlobalWriter.YesNoPrompt(promptMessage, false)

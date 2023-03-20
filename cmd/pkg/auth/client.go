@@ -8,13 +8,13 @@ import (
 
 var DefaultClient *Client = &Client{
 	httpClient: http.DefaultClient,
-	Audience:   "https://groundcover",
+	Audience:   "https://getanton",
 	Scope:      "access:router offline_access",
 	ClientId:   "UkQmsxoqC8OzajqptiADtAZD6GS2mG9U",
 	baseUrl: &url.URL{
 		Scheme: "https",
 		Path:   "/oauth/",
-		Host:   "auth.groundcover.com",
+		Host:   "auth.getanton.com",
 	},
 }
 

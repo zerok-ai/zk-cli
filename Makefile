@@ -1,9 +1,10 @@
 BINARY_NAME=zkcli
+VERSION=0.0.1
 
 build:
-	GOARCH=amd64 GOOS=darwin go build -o ./builds/${BINARY_NAME}-darwin main.go
-	GOARCH=amd64 GOOS=linux go build -o ./builds/${BINARY_NAME}-linux main.go
-	GOARCH=amd64 GOOS=windows go build -o ./builds/${BINARY_NAME}-windows main.go
+	GOARCH=amd64 GOOS=darwin  go build -o ./builds/${VERSION}/${BINARY_NAME}-darwin  -ldflags="-X 'root.version=${VERSION}'" main.go
+	GOARCH=amd64 GOOS=linux   go build -o ./builds/${VERSION}/${BINARY_NAME}-linux   -ldflags="-X 'root.version=${VERSION}'" main.go
+	GOARCH=amd64 GOOS=windows go build -o ./builds/${VERSION}/${BINARY_NAME}-windows -ldflags="-X 'root.version=${VERSION}'" main.go
 
 run: build
 	./${BINARY_NAME}
