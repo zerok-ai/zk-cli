@@ -3,6 +3,7 @@ module zkctl
 go 1.19
 
 require (
+	cloud.google.com/go/errorreporting v0.3.0
 	github.com/AlecAivazis/survey/v2 v2.3.6
 	github.com/MicahParks/keyfunc v1.9.0
 	github.com/blang/semver/v4 v4.0.0
@@ -27,7 +28,6 @@ require (
 require (
 	cloud.google.com/go/compute v1.14.0 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
-	cloud.google.com/go/errorreporting v0.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v3 v3.0.0 // indirect
 	github.com/emicklei/go-restful/v3 v3.9.0 // indirect

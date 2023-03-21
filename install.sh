@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-: "${GITHUB_REPO:="cli"}"
+: "${GITHUB_REPO:="zk-cli"}"
 : "${GITHUB_OWNER:="zerok-ai"}"
 : "${BINARY_NAME:="zkctl"}"
 : "${INSTALL_DIR:="${HOME}/.zerok/bin"}"
@@ -109,7 +109,10 @@ initOS() {
 
 # initLatestTag discovers latest version on GitHub releases.
 initLatestTag() {
-  local latest_release_url="https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/releases/latest"
+  if [[ -n "${GITHUB_TOKEN}" ]]; then 
+    git_token="${GITHUB_TOKEN}@"
+  fi
+  local latest_release_url="https://${git_token}api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/releases/latest"
   LATEST_TAG=$(curl -Ls "${latest_release_url}" | awk -F\" '/tag_name/{print $(NF-1)}')
   if [ -z "${LATEST_TAG}" ]; then
     error "Failed to fetch latest version from ${latest_release_url}"
@@ -179,7 +182,12 @@ checkInstalledVersion() {
 # downloadFile downloads the latest binary package.
 downloadFile() {
   ARCHIVE_NAME="${BINARY_NAME}_${LATEST_TAG#v}_${OS}_${ARCH}.tar.gz"
-  DOWNLOAD_URL="https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/releases/download/${LATEST_TAG}/${ARCHIVE_NAME}"
+
+  if [[ -n "$GITHUB_TOKEN" ]]; then 
+    git_token="${GITHUB_TOKEN}@"
+  fi
+  DOWNLOAD_URL="https://${git_token}github.com/${GITHUB_OWNER}/${GITHUB_REPO}/releases/download/${LATEST_TAG}/${ARCHIVE_NAME}"
+  
   TMP_ROOT="$(mktemp -dt zerok-installer-XXXXXX)"
   ARCHIVE_TMP_PATH="${TMP_ROOT}/${ARCHIVE_NAME}"
   info "Downloading ${DOWNLOAD_URL}"
@@ -241,10 +249,10 @@ parseArguments "$@"
 initArch
 initOS
 initLatestTag
-# if ! checkInstalledVersion; then
-#   downloadFile
-#   installFile
-# fi
+if ! checkInstalledVersion; then
+  downloadFile
+  installFile
+fi
 # appendShellPath
 # completed "zerok cli was successfully installed!"
 # if [ -z "${token}" ]
