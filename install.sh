@@ -107,13 +107,25 @@ initOS() {
   esac
 }
 
-# initLatestTag discovers latest version on GitHub releases.
-initLatestTag() {
+latestReleaseMetaData() {
   if [[ -n "${GITHUB_TOKEN}" ]]; then 
     git_token="${GITHUB_TOKEN}@"
   fi
   local latest_release_url="https://${git_token}api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/releases/latest"
-  LATEST_TAG=$(curl -Ls "${latest_release_url}" | awk -F\" '/tag_name/{print $(NF-1)}')
+  LATEST_TAG=$(curl -Ls "${latest_release_url}")
+  echo "$LATEST_TAG"
+}
+
+# initLatestTag discovers latest version on GitHub releases.
+initLatestTag() {
+
+  latestReleaseData="${1}"
+  if [[ -z "${latestReleaseData}" ]]; then 
+    latestReleaseData=$(latestReleaseMetaData)
+  fi
+
+  LATEST_TAG=$( echo "${latestReleaseData}" | awk -F\" '/tag_name/{print $(NF-1)}')
+
   if [ -z "${LATEST_TAG}" ]; then
     error "Failed to fetch latest version from ${latest_release_url}"
     exit 1
@@ -180,15 +192,57 @@ checkInstalledVersion() {
 }
 
 # downloadFile downloads the latest binary package.
-downloadFile() {
+getAssetUrl() {
+
+  latestReleaseData="${1}"
+  if [[ -z "${latestReleaseData}" ]]; then 
+    latestReleaseData=$(latestReleaseMetaData)
+  fi
+
   ARCHIVE_NAME="${BINARY_NAME}_${LATEST_TAG#v}_${OS}_${ARCH}.tar.gz"
 
+  # info $ARCHIVE_NAME
   if [[ -n "$GITHUB_TOKEN" ]]; then 
     git_token="${GITHUB_TOKEN}@"
+    git_token=""
   fi
-  DOWNLOAD_URL="https://${git_token}github.com/${GITHUB_OWNER}/${GITHUB_REPO}/releases/download/${LATEST_TAG}/${ARCHIVE_NAME}"
+
+  eval $(echo "$latestReleaseData" | grep -C3 "name.:.\+$ARCHIVE_NAME" | grep -w id | tr : = | tr -cd '[[:alnum:]]=')
+  echo "********** ${id}"
+
+  DOWNLOAD_URL="https://api.github.com/repos/zerok-ai/zk-cli/releases/assets/${id}"
+  # DOWNLOAD_URL="https://objects.githubusercontent.com/github-production-release-asset-2e65be/588087067/aefa03cb-bfae-47ff-acae-9f4daf25a3cb?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAIWNJYAX4CSVEH53A%2F20230323%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20230323T063122Z&X-Amz-Expires=300&X-Amz-Signature=57d86899633482da413f47f15369b1247169c531fd6f511f927f77a9ce576097&X-Amz-SignedHeaders=host&actor_id=1810216&key_id=0&repo_id=588087067&response-content-disposition=attachment%3B%20filename%3Dzkctl_0.0.1_windows_amd64.zip&response-content-type=application%2Foctet-stream"
+
+
+  yo=$(curl -L -H "Accept: Accept:application/octet-stream" -H "Authorization: Bearer $GITHUB_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" $DOWNLOAD_URL)
   
-  TMP_ROOT="$(mktemp -dt zerok-installer-XXXXXX)"
+  info "yo ${yo}"
+  # | grep "${ARCHIVE_NAME}"
+  
+  
+  
+
+  
+  TMP_ROOT="."
+  # TMP_ROOT="$(mktemp -dt zerok-installer-XXXXXX)"
+  ARCHIVE_TMP_PATH="${TMP_ROOT}/${ARCHIVE_NAME}"
+
+  echo "${ARCHIVE_TMP_PATH}"
+  # curl -SsL "${DOWNLOAD_URL}" -o "${ARCHIVE_TMP_PATH}"
+
+  # curl "${DOWNLOAD_URL}" -o "${ARCHIVE_TMP_PATH}"
+}
+
+downloadFile() {
+
+  ARCHIVE_NAME="${BINARY_NAME}_${LATEST_TAG#v}_${OS}_${ARCH}.tar.gz"
+
+  DOWNLOAD_URL=$1
+  if [[ -z "${DOWNLOAD_URL}" ]]; then
+    DOWNLOAD_URL="https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/releases/download/${LATEST_TAG}/${ARCHIVE_NAME}"
+  fi
+  
+  TMP_ROOT="$(mktemp -dt groundcover-installer-XXXXXX)"
   ARCHIVE_TMP_PATH="${TMP_ROOT}/${ARCHIVE_NAME}"
   info "Downloading ${DOWNLOAD_URL}"
   curl -SsL "${DOWNLOAD_URL}" -o "${ARCHIVE_TMP_PATH}"
@@ -243,15 +297,20 @@ fail_trap() {
 trap "fail_trap" EXIT
 set -e
 
+latestRelease=$(latestReleaseMetaData)
 
 printBanner
 parseArguments "$@"
 initArch
 initOS
-initLatestTag
+
+initLatestTag 
 if ! checkInstalledVersion; then
-  downloadFile
-  installFile
+  # downloadFile
+  assetUrl=$(getAssetUrl)
+  echo "assetUrl=${assetUrl}"
+  # downloadFilePrivateRepo "${assetUrl}"
+  # installFile
 fi
 # appendShellPath
 # completed "zerok cli was successfully installed!"
