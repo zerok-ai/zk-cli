@@ -29,11 +29,12 @@ const (
 
 var (
 	RootCmd = &cobra.Command{
-		Use:           "zkctl",
-		SilenceUsage:  true,
-		SilenceErrors: true,
-		Short:         "zkctl - a CLI to interact with ZeroK",
-		Version:       "0.0.1",
+		Use:               "zkctl",
+		CompletionOptions: cobra.CompletionOptions{DisableDefaultCmd: true},
+		SilenceUsage:      true,
+		SilenceErrors:     true,
+		Short:             "zkctl - a CLI to interact with ZeroK",
+		// Version:           "0.0.1",
 		Long: `
   
 	❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄
@@ -45,17 +46,28 @@ var (
 	❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄
 	
 	 	`,
-		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Fprintf(os.Stderr, "Nothing to run here. Use --help for details \n")
-		},
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-
-			// this code is inherited by all the commands and run
-
-			// #### Add session logic here ##################
-
-			return nil
-		},
+		// Run: func(cmd *cobra.Command, args []string) {
+		// 	fmt.Fprintf(os.Stderr, "Nothing to run here. Use --help for details \n")
+		// },
+		// PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		// 	var err error
+	
+		// 	segment.SetScope(cmd.Name())
+		// 	sentry_utils.SetTransactionOnCurrentScope(cmd.Name())
+	
+		// 	event := segment.NewEvent(cmd.Name())
+		// 	defer event.Start()
+	
+		// 	if err = validateAuthentication(cmd, args); err != nil {
+		// 		return err
+		// 	}
+	
+		// 	if !viper.GetBool(SKIP_CLI_UPDATE_FLAG) {
+		// 		return checkAndUpgradeVersion(cmd.Context())
+		// 	}
+	
+		// 	return nil
+		// },
 	}
 
 	ErrExecutionAborted = errors.New("execution aborted")

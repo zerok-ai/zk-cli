@@ -32,7 +32,7 @@ const (
 	waitTimeForService               = 60
 	waitTimeForInstallationInSeconds = 240
 
-	zkInstallOperator  string = "/operator/install-demo.sh"
+	zkInstallOperator  string = "/operator/buildAndInstall.sh"
 	pxDownloadAuthJson string = "/zpx/scripts/setup-px-auth-json.sh"
 	pxSetupDomain      string = "/zpx/scripts/setup-domain.sh"
 	pxSetupIngress     string = "/zpx/scripts/setup-ingress.sh"
@@ -50,9 +50,10 @@ func runZkOperatorCmd(cmd *cobra.Command, args []string) error {
 }
 
 func LogicZkOperatorSetup(ctx context.Context) error {
-	// var err error
+
 	_, err := shell.ExecWithDurationAndSuccessM(shell.GetPWD()+zkInstallOperator, "zeroK operator installed successfully")
 	if err != nil {
+		ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", err))
 		return err
 	}
 

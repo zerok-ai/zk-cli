@@ -84,7 +84,9 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 	err := LogicZkOperatorSetup(cmd.Context())
 	// LogicZKBackendCmd(cmd.Context(), cmd, args)
 
-	ui.GlobalWriter.PrintlnSuccessMessageln("installation done")
+	if err == nil {
+		ui.GlobalWriter.PrintlnSuccessMessageln("installation done")
+	}
 	return err
 }
 
@@ -284,7 +286,7 @@ func promptInstallSummary(clusterName string, namespace string, deployableNodesC
 		clusterName, deployableNodesCount, nodesCount, string(t),
 	)
 
-	return ui.GlobalWriter.YesNoPrompt(promptMessage, false)
+	return ui.GlobalWriter.YesNoPrompt(promptMessage, true)
 }
 
 func installBackendCLI(ctx context.Context) error {
