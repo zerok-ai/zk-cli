@@ -131,6 +131,9 @@ func initConfigFromFile() {
 	// }
 
 	plc_cluster := viper.Get("CLUSTER_NAME")
+	if (plc_cluster == nil){
+		plc_cluster = "zkcloud01"
+	}
 
 	os.Setenv("PL_CLOUD_ADDR", fmt.Sprintf("%s.getanton.com", plc_cluster))
 
