@@ -11,7 +11,7 @@
             "request": "launch",
             "mode": "debug",
             "program": "${workspaceFolder}/main.go",
-            "args": ["install"],
+            "args": ["install", "operator", "--apikey", "px-api-219ce3b3-3948-4c6d-a666-8509af119b74"],
             // "args": ["install", "backend", "operator"],
             "console": "integratedTerminal"
         }

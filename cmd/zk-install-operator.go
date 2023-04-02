@@ -2,10 +2,11 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 
-	// "sync"
 	"time"
 
 	"zkctl/cmd/pkg/shell"
@@ -42,6 +43,9 @@ const (
 	diSpinnerText = "installing zerok daemon and associated CRDs"
 	diSuccessText = "zerok daemon installed successfully"
 	diFailureText = "failed to install zerok daemon"
+
+	//TODO: Change it to prod url later
+	ZKCLOUD_ADDRESS = "http://auth.avinpx01.getanton.com:80"
 )
 
 func runZkOperatorCmd(cmd *cobra.Command, args []string) error {
@@ -60,41 +64,40 @@ func LogicZkOperatorSetup(ctx context.Context) error {
 	return installPXOperator(ctx)
 }
 
-func loginToPX(ctx context.Context) error {
+func loginToPX(ctx context.Context, apiKey string) error {
 
 	ui.GlobalWriter.PrintflnWithPrefixArrow("trying to authenticate")
 
-	/**/
+	path := "v1/p/auth/login"
+	urlToBeCalled := fmt.Sprintf("%s/%s?apikey=%s", ZKCLOUD_ADDRESS, path, apiKey)
+	shellOut, err := shell.Shellout("curl -lsS '" + urlToBeCalled + "'", false)
+	if (err != nil){
+		return err
+	}
+	jsonResponse := map[string]any{}
+	json.Unmarshal([]byte(shellOut), &jsonResponse)
+	if (int(jsonResponse["status"].(float64)) != 200){
+		//TODO: A better error?
+		return errors.New("Something went wrong")
+	}
+
 	authPath := utils.GetBackendAuthPath()
 	os.Remove(authPath)
-
-	cmd := fmt.Sprintf("%s%s %s", shell.GetPWD(), pxCreateAuthJson, viper.Get("PL_CLOUD_ADDR"))
-
-	auth, err := shell.ExecWithDurationAndSuccessM(cmd, "Credential file created for operator")
+	
+	authTokenPayload := jsonResponse["payload"]
+	authTokenPayloadBytes, err := json.Marshal(authTokenPayload)
 	if err == nil {
-		return utils.WriteTextToFile(auth, authPath)
+		return utils.WriteTextToFile(string(authTokenPayloadBytes), authPath)
 	}
 	return err
 }
 
 func installPXOperator(ctx context.Context) (err error) {
 
-	zerokcloudContext := viper.Get("PLC_CLUSTER").(string)
-
-	// deploy setup connection with zerok backend
-	if out, err := shell.ExecWithDurationAndSuccessM(shell.GetPWD()+pxSetupDomain, "setting up the connection with zerok backend"); err != nil {
-		// send to sentry and print
-		ui.GlobalWriter.Errorf("===setup domain %v err=%s", err, out)
-	}
-
-	// set ingress to predeploy settings
-	if err = setIngress(zerokcloudContext, "predeploy"); err != nil {
-		// send to sentry and print
-		return ui.GlobalWriter.Errorf("===predeploy %v", err)
-	}
+	apiKey := viper.Get("apikey").(string)
 
 	// login to px
-	if err = loginToPX(ctx); err != nil {
+	if err = loginToPX(ctx, apiKey); err != nil {
 		// send to sentry and print
 		return ui.GlobalWriter.Errorf("===loginToPX %v", err)
 	}
@@ -144,11 +147,6 @@ func installPXOperator(ctx context.Context) (err error) {
 		}
 	}
 
-	if err = setIngress(zerokcloudContext, "deploy"); err != nil {
-		// send to sentry and print
-		return ui.GlobalWriter.Errorf("===deploy %v", err)
-	}
-
 	if err != nil {
 		return err
 	}
@@ -158,40 +156,6 @@ func installPXOperator(ctx context.Context) (err error) {
 		if err != nil {
 			return err
 		}
-	}
-
-	return nil
-}
-
-func setIngress(zerokcloudContext, command string) (err error) {
-
-	// get current context
-	curClusterContext, err := shell.Shellout("kubectl config current-context", false)
-	if err != nil {
-		// send to sentry and print
-		return ui.GlobalWriter.Errorf("===current-context %v", err)
-	}
-
-	defer func() {
-		// set current context to zerokcloud
-		if out, err1 := shell.Shellout("kubectl config use-context "+curClusterContext, false); err1 != nil {
-			// send to sentry and print
-			if err == nil {
-				err = ui.GlobalWriter.Errorf("===use-context %v %s", err1, out)
-			}
-		}
-	}()
-
-	// set current context to zerokcloud
-	if out, err := shell.Shellout("kubectl config use-context "+zerokcloudContext, false); err != nil {
-		// send to sentry and print
-		return ui.GlobalWriter.Errorf("===use-context %v %s", err, out)
-	}
-
-	// px operator predeploy/deploy
-	if out, err := shell.Shellout(shell.GetPWD()+pxSetupIngress+" "+command, false); err != nil {
-		// send to sentry and print
-		return ui.GlobalWriter.Errorf("===command %v \n%s", err, out)
 	}
 
 	return nil
