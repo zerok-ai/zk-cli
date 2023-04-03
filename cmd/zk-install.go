@@ -47,6 +47,7 @@ const (
 	APPLY_POLLING_RETRIES  = 1
 	APPLY_POLLING_TIMEOUT  = time.Minute * 3
 	APPLY_POLLING_INTERVAL = time.Second / 10
+	API_KEY_FLAG = "apikey"
 )
 
 type ContextKey struct {
@@ -73,6 +74,9 @@ var installCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(installCmd)
 	installCmd.AddCommand(ZkOperatorCmd)
+
+	installCmd.PersistentFlags().String(API_KEY_FLAG, "", "API Key")
+	viper.BindPFlag(API_KEY_FLAG, installCmd.PersistentFlags().Lookup(API_KEY_FLAG))
 }
 
 func RunInstallPreCmd(cmd *cobra.Command, args []string) error {
@@ -101,6 +105,13 @@ func PreInstallChecksAndTasks(ctx context.Context) error {
 		return err
 	}
 
+	//Check if API Key is passed or not
+	apiKey := viper.Get(API_KEY_FLAG);
+	ui.GlobalWriter.Printf("Found apiKey %s \n", apiKey)
+	if(apiKey == nil || apiKey == ""){
+		return errors.New("apikey is not set. Run the help command for more details")
+	}
+	
 	// install px cli
 	return installBackendCLI(ctx)
 }
