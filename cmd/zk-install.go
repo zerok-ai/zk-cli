@@ -19,6 +19,12 @@ import (
 )
 
 const (
+	API_KEY_FLAG            = "apikey"
+	API_KEY_ENV_FLAG        = "API_KEY"
+	API_KEY_WARNING_MESSAGE = "api key is not set. To continue, please get the apikey from zerok dashboard and paste below."
+	API_KEY_QUESTION        = "enter api key"
+	API_KEY_ERROR_MESSAGE   = "apikey is not set. Run the help command for more details"
+
 	VALUES_FLAG                         = "values"
 	EXPERIMENTAL_FLAG                   = "experimental"
 	NO_PVC_FLAG                         = "no-pvc"
@@ -47,7 +53,6 @@ const (
 	APPLY_POLLING_RETRIES  = 1
 	APPLY_POLLING_TIMEOUT  = time.Minute * 3
 	APPLY_POLLING_INTERVAL = time.Second / 10
-	API_KEY_FLAG = "apikey"
 )
 
 type ContextKey struct {
@@ -75,8 +80,9 @@ func init() {
 	RootCmd.AddCommand(installCmd)
 	installCmd.AddCommand(ZkOperatorCmd)
 
-	installCmd.PersistentFlags().String(API_KEY_FLAG, "", "API Key")
+	installCmd.PersistentFlags().String(API_KEY_FLAG, "", "api key. This can also be set through environment variable "+API_KEY_ENV_FLAG+" instead of passing the parameter")
 	viper.BindPFlag(API_KEY_FLAG, installCmd.PersistentFlags().Lookup(API_KEY_FLAG))
+	viper.BindEnv(API_KEY_FLAG, API_KEY_ENV_FLAG)
 }
 
 func RunInstallPreCmd(cmd *cobra.Command, args []string) error {
@@ -105,13 +111,16 @@ func PreInstallChecksAndTasks(ctx context.Context) error {
 		return err
 	}
 
-	//Check if API Key is passed or not
-	apiKey := viper.Get(API_KEY_FLAG);
-	ui.GlobalWriter.Printf("Found apiKey %s \n", apiKey)
-	if(apiKey == nil || apiKey == ""){
-		return errors.New("apikey is not set. Run the help command for more details")
+	//Check if API Key is present
+	apiKey := viper.Get(API_KEY_FLAG)
+	if apiKey == nil || apiKey == "" {
+		ui.GlobalWriter.PrintlnWarningMessageln(API_KEY_WARNING_MESSAGE)
+		apiKey = ui.GlobalWriter.QuestionPrompt(API_KEY_QUESTION)
+		if apiKey == "" {
+			return errors.New(API_KEY_ERROR_MESSAGE)
+		}
 	}
-	
+
 	// install px cli
 	return installBackendCLI(ctx)
 }
