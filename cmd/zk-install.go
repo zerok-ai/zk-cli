@@ -1,24 +1,40 @@
 package cmd
 
 import (
-	"context"
-	"encoding/json"
-	"errors"
+	"os"
 	"fmt"
+	"time"
+	"errors"
 	"runtime"
 	"strings"
-	"time"
+	"context"
+	"net/http"
+	"encoding/json"
 
 	"zkctl/cmd/pkg/k8s"
-	sentry_utils "zkctl/cmd/pkg/sentry"
+	"zkctl/cmd/pkg/shell"
 	"zkctl/cmd/pkg/ui"
 	"zkctl/cmd/pkg/utils"
-
+	
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	sentry_utils "zkctl/cmd/pkg/sentry"
 )
 
+
+type AuthPayload struct {
+	Payload AuthRefreshToken `json:"payload"`
+}
+
+type AuthRefreshToken struct {
+	Token     string `json:"token"`
+	ExpiresAt int64  `json:"expiresAt"`
+	OrgName   string `json:"orgName,omitempty"`
+	OrgID     string `json:"orgID,omitempty"`
+}
+
 const (
+	ZK_CLOUD_ADDRESS_FLAG   = "ZK_CLOUD_ADDRESS"
 	API_KEY_FLAG            = "apikey"
 	API_KEY_ENV_FLAG        = "API_KEY"
 	API_KEY_WARNING_MESSAGE = "api key is not set. To continue, please get the apikey from zerok dashboard and paste below."
@@ -53,6 +69,24 @@ const (
 	APPLY_POLLING_RETRIES  = 1
 	APPLY_POLLING_TIMEOUT  = time.Minute * 3
 	APPLY_POLLING_INTERVAL = time.Second / 10
+
+	waitTimeForPodsInSeconds         = 100
+	waitTimeForService               = 60
+	waitTimeForInstallationInSeconds = 240
+
+	zkInstallOperator  string = "/operator/buildAndInstall.sh"
+	pxDownloadAuthJson string = "/zpx/scripts/setup-px-auth-json.sh"
+	pxSetupDomain      string = "/zpx/scripts/setup-domain.sh"
+	pxSetupIngress     string = "/zpx/scripts/setup-ingress.sh"
+
+	diSpinnerText = "installing zerok daemon and associated CRDs"
+	diSuccessText = "zerok daemon installed successfully"
+	diFailureText = "failed to install zerok daemon"
+)
+
+var (
+	authAddress string
+	apiKey      string
 )
 
 type ContextKey struct {
@@ -78,51 +112,75 @@ var installCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(installCmd)
-	installCmd.AddCommand(ZkOperatorCmd)
 
 	installCmd.PersistentFlags().String(API_KEY_FLAG, "", "api key. This can also be set through environment variable "+API_KEY_ENV_FLAG+" instead of passing the parameter")
 	viper.BindPFlag(API_KEY_FLAG, installCmd.PersistentFlags().Lookup(API_KEY_FLAG))
 	viper.BindEnv(API_KEY_FLAG, API_KEY_ENV_FLAG)
+
+	viper.BindEnv("PL_CLOUD_ADDR", ZK_CLOUD_ADDRESS_FLAG)
+}
+
+func CheckFlags() error {
+
+	//Check if API Key is present
+	apiKey = viper.Get(API_KEY_FLAG).(string)
+	if apiKey == "" {
+		ui.GlobalWriter.PrintlnWarningMessageln(API_KEY_WARNING_MESSAGE)
+		apiKey = ui.GlobalWriter.QuestionPrompt(API_KEY_QUESTION)
+		if apiKey == "" {
+			return errors.New(API_KEY_ERROR_MESSAGE)
+		}
+		viper.Set(API_KEY_FLAG, apiKey)
+	}
+
+	// set cloud address as an env variable for shell scripts
+	var pl_cloud_addr string = viper.Get(ZK_CLOUD_ADDRESS_FLAG).(string)
+	if pl_cloud_addr == "" {
+		pl_cloud_addr = "zkcloud02.getanton.com"
+		viper.Set("ZK_CLOUD_ADDRESS_FLAG", pl_cloud_addr)
+		os.Setenv("PL_CLOUD_ADDR", pl_cloud_addr)
+	}
+
+	//TODO: Change it to https
+	authAddress = fmt.Sprintf("http://api.%s", pl_cloud_addr)
+	return nil
 }
 
 func RunInstallPreCmd(cmd *cobra.Command, args []string) error {
-	return PreInstallChecksAndTasks(cmd.Context())
-}
+	ctx := cmd.Context()
 
-func RunInstallCmd(cmd *cobra.Command, args []string) error {
-
-	err := LogicZkOperatorSetup(cmd.Context())
-	// LogicZKBackendCmd(cmd.Context(), cmd, args)
-
-	if err == nil {
-		ui.GlobalWriter.PrintlnSuccessMessageln("installation done")
+	err := CheckFlags()
+	if err != nil {
+		return err
 	}
-	return err
-}
-
-func PreInstallChecksAndTasks(ctx context.Context) error {
 
 	utils.InitializeFolders()
 
-	err := validateAndConfirm(ctx)
+	err = validateAndConfirm(ctx)
 	ui.GlobalWriter.PrintflnWithPrefixArrow("running pre-installation checks")
 	if err != nil {
 		ui.GlobalWriter.Printf("In PreInstallChecksAndTasks err %s \n", err)
 		return err
 	}
 
-	//Check if API Key is present
-	apiKey := viper.Get(API_KEY_FLAG)
-	if apiKey == nil || apiKey == "" {
-		ui.GlobalWriter.PrintlnWarningMessageln(API_KEY_WARNING_MESSAGE)
-		apiKey = ui.GlobalWriter.QuestionPrompt(API_KEY_QUESTION)
-		if apiKey == "" {
-			return errors.New(API_KEY_ERROR_MESSAGE)
-		}
-	}
-
 	// install px cli
 	return installBackendCLI(ctx)
+}
+
+func RunInstallCmd(cmd *cobra.Command, args []string) error {
+
+	_, err := shell.ExecWithDurationAndSuccessM(shell.GetPWD()+zkInstallOperator, "zeroK operator installed successfully")
+	if err != nil {
+		ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", err))
+		return err
+	}
+
+	err = installPXOperator(cmd.Context(), apiKey)
+
+	if err == nil {
+		ui.GlobalWriter.PrintlnSuccessMessageln("installation done")
+	}
+	return err
 }
 
 func validateAndConfirm(ctx context.Context) error {
@@ -134,11 +192,11 @@ func validateAndConfirm(ctx context.Context) error {
 		return nil
 	}
 
-	// return nil
-
 	namespace := viper.GetString(NAMESPACE_FLAG)
 	kubeconfig := viper.GetString(KUBECONFIG_FLAG)
 	kubecontext := viper.GetString(KUBECONTEXT_FLAG)
+
+	return nil
 
 	sentryKubeContext := sentry_utils.NewKubeContext(kubeconfig, kubecontext)
 	sentryKubeContext.SetOnCurrentScope()
@@ -334,4 +392,105 @@ func installBackendCLI(ctx context.Context) error {
 		ui.GlobalWriter.PrintSuccessMessage("full CLI support already installed\n")
 	}
 	return err
+}
+
+func LoginToPX(ctx context.Context, apiKey string) error {
+
+	ui.GlobalWriter.PrintflnWithPrefixArrow("trying to authenticate")
+	path := "v1/p/auth/login"
+	urlToBeCalled := fmt.Sprintf("%s/%s?apikey=%s", authAddress, path, apiKey)
+
+	// download from server
+	jsonResponse := new(AuthPayload)
+	err := GetHTTPGETResponse(urlToBeCalled, jsonResponse)
+	if err != nil {
+		return fmt.Errorf("error in auth %v", err)
+	}
+	authTokenPayloadBytes, err := json.Marshal(jsonResponse.Payload)
+	if err != nil {
+		return err
+	}
+
+	//write to file
+	authPath := utils.GetBackendAuthPath()
+	os.Remove(authPath)
+	return utils.WriteTextToFile(string(authTokenPayloadBytes), authPath)
+}
+
+var myClient = &http.Client{Timeout: 10 * time.Second}
+
+func GetHTTPGETResponse(url string, target interface{}) error {
+	response, err := myClient.Get(url)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+	return json.NewDecoder(response.Body).Decode(target)
+}
+
+func installPXOperator(ctx context.Context, apiKey string) (err error) {
+
+	// login to px
+	if err = LoginToPX(ctx, apiKey); err != nil {
+		// send to sentry and print
+		return ui.GlobalWriter.Errorf("login error %v", err)
+	}
+
+	// wg.Add(1)
+
+	go func() {
+
+		// defer wg.Done()
+		// go func() error {
+		// deploy px operator
+		ui.GlobalWriter.PrintflnWithPrefixArrow("installing operator for managing data store")
+
+		var out string
+		/*/
+		cmd := utils.GetBackendCLIPath() + " deploy"
+		out, err := shell.ExecWithLogsDurationAndSuccessM(cmd, "Zerok daemon installed successfully")
+		/*/
+		cmd := utils.GetBackendCLIPath() + " deploy"
+		out, err = shell.ShelloutWithSpinner(cmd, diSpinnerText, diSuccessText, diFailureText)
+		/**/
+
+		filePath, _ := utils.DumpError(out)
+		if err != nil {
+			// send to sentry and print
+			ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("installation failed, Check %s for details\n", filePath))
+			// wg.Done()
+		}
+		// return nil
+		// }()
+
+		// ui.GlobalWriter.PrintflnWithPrefixArrow("Waiting for %d sec for the installation", waitTimeForInstallationInSeconds)
+		// time.Sleep(waitTimeForInstallationInSeconds * time.Second)
+	}()
+
+	if err != nil {
+		return err
+	}
+
+	// set ingress to post deploy settings
+	// ui.GlobalWriter.PrintflnWithPrefixArrow("Waiting for %d sec for the pods to get deployed", waitTimeForPodsInSeconds)
+
+	for i := 0; i <= waitTimeForPodsInSeconds; i++ {
+		time.Sleep(1 * time.Second)
+		if err != nil {
+			return err
+		}
+	}
+
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i <= waitTimeForService; i++ {
+		time.Sleep(1 * time.Second)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

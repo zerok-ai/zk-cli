@@ -126,22 +126,7 @@ func initConfigFromFile() {
 	// 	panic(err)
 	// }
 
-	plc_cluster := viper.Get("CLUSTER_NAME")
-	if (plc_cluster == nil){
-		plc_cluster = "zkcloud01"
-	}
-
-	os.Setenv("PL_CLOUD_ADDR", fmt.Sprintf("%s.getanton.com", plc_cluster))
-
-	pl_cloud_addr := viper.Get("PL_CLOUD_ADDR") //, fmt.Sprintf("%s.getanton.com", plc_cluster))
-
-	if pl_cloud_addr == nil {
-		err := fmt.Errorf("PL_CLOUD_ADDR not set, set it to \n\nexport PL_CLOUD_ADDR=%s.getanton.com", plc_cluster)
-		ui.LogAndPrintError(err)
-		panic(err)
-	}
-
-	viper.Set("PLC_CLUSTER", fmt.Sprintf("gke_zerok-dev_us-west1-b_%s", plc_cluster))
+	// viper.Set("PLC_CLUSTER", fmt.Sprintf("gke_zerok-dev_us-west1-b_%s", plc_cluster))
 }
 
 func getZerokDirDefaultPath() string {
