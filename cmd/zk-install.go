@@ -1,26 +1,26 @@
 package cmd
 
 import (
-	"os"
-	"fmt"
-	"time"
+	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"net/http"
+	"os"
 	"runtime"
 	"strings"
-	"context"
-	"net/http"
-	"encoding/json"
+	"time"
 
 	"zkctl/cmd/pkg/k8s"
 	"zkctl/cmd/pkg/shell"
 	"zkctl/cmd/pkg/ui"
 	"zkctl/cmd/pkg/utils"
-	
+
+	sentry_utils "zkctl/cmd/pkg/sentry"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	sentry_utils "zkctl/cmd/pkg/sentry"
 )
-
 
 type AuthPayload struct {
 	Payload AuthRefreshToken `json:"payload"`
@@ -116,14 +116,17 @@ func init() {
 	installCmd.PersistentFlags().String(API_KEY_FLAG, "", "api key. This can also be set through environment variable "+API_KEY_ENV_FLAG+" instead of passing the parameter")
 	viper.BindPFlag(API_KEY_FLAG, installCmd.PersistentFlags().Lookup(API_KEY_FLAG))
 	viper.BindEnv(API_KEY_FLAG, API_KEY_ENV_FLAG)
-
-	viper.BindEnv("PL_CLOUD_ADDR", ZK_CLOUD_ADDRESS_FLAG)
 }
 
 func CheckFlags() error {
 
 	//Check if API Key is present
-	apiKey = viper.Get(API_KEY_FLAG).(string)
+	if viper.Get(API_KEY_FLAG) != nil {
+		apiKey = viper.Get(API_KEY_FLAG).(string)
+	} else {
+		apiKey = ""
+	}
+
 	if apiKey == "" {
 		ui.GlobalWriter.PrintlnWarningMessageln(API_KEY_WARNING_MESSAGE)
 		apiKey = ui.GlobalWriter.QuestionPrompt(API_KEY_QUESTION)
@@ -134,15 +137,17 @@ func CheckFlags() error {
 	}
 
 	// set cloud address as an env variable for shell scripts
-	var pl_cloud_addr string = viper.Get(ZK_CLOUD_ADDRESS_FLAG).(string)
-	if pl_cloud_addr == "" {
-		pl_cloud_addr = "zkcloud02.getanton.com"
-		viper.Set("ZK_CLOUD_ADDRESS_FLAG", pl_cloud_addr)
-		os.Setenv("PL_CLOUD_ADDR", pl_cloud_addr)
+	zk_cloud_addr := viper.Get(ZK_CLOUD_ADDRESS_FLAG)
+	if zk_cloud_addr == nil {
+		zk_cloud_addr = "zkcloud02.getanton.com"
+		viper.Set(ZK_CLOUD_ADDRESS_FLAG, zk_cloud_addr)
 	}
 
+	pl_cloud_addr := "px." + zk_cloud_addr.(string)
+	os.Setenv("PL_CLOUD_ADDR", pl_cloud_addr)
+
 	//TODO: Change it to https
-	authAddress = fmt.Sprintf("http://api.%s", pl_cloud_addr)
+	authAddress = fmt.Sprintf("http://api.%s", zk_cloud_addr)
 	return nil
 }
 
@@ -195,8 +200,6 @@ func validateAndConfirm(ctx context.Context) error {
 	namespace := viper.GetString(NAMESPACE_FLAG)
 	kubeconfig := viper.GetString(KUBECONFIG_FLAG)
 	kubecontext := viper.GetString(KUBECONTEXT_FLAG)
-
-	return nil
 
 	sentryKubeContext := sentry_utils.NewKubeContext(kubeconfig, kubecontext)
 	sentryKubeContext.SetOnCurrentScope()
@@ -385,8 +388,6 @@ func installBackendCLI(ctx context.Context) error {
 			artifact_name = "cli_linux_amd64"
 		}
 		url := fmt.Sprintf("%s/%s/%s", artifact_base_path, use_version, artifact_name)
-		// ui.GlobalWriter.Printf("downloading %s to %s \n", url, backend_cli_filepath)
-
 		err = utils.DownloadBackendCLI(url)
 	} else {
 		ui.GlobalWriter.PrintSuccessMessage("full CLI support already installed\n")
