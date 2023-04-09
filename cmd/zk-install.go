@@ -70,8 +70,7 @@ const (
 	APPLY_POLLING_TIMEOUT  = time.Minute * 3
 	APPLY_POLLING_INTERVAL = time.Second / 10
 
-	waitTimeForPodsInSeconds         = 100
-	waitTimeForService               = 60
+	waitTimeForService               = 160
 	waitTimeForInstallationInSeconds = 240
 
 	zkInstallOperator  string = "/operator/buildAndInstall.sh"
@@ -437,55 +436,23 @@ func installPXOperator(ctx context.Context, apiKey string) (err error) {
 		return ui.GlobalWriter.Errorf("login error %v", err)
 	}
 
-	// wg.Add(1)
-
+	// start deployment in background
 	go func() {
 
-		// defer wg.Done()
-		// go func() error {
-		// deploy px operator
 		ui.GlobalWriter.PrintflnWithPrefixArrow("installing operator for managing data store")
 
 		var out string
-		/*/
-		cmd := utils.GetBackendCLIPath() + " deploy"
-		out, err := shell.ExecWithLogsDurationAndSuccessM(cmd, "Zerok daemon installed successfully")
-		/*/
 		cmd := utils.GetBackendCLIPath() + " deploy"
 		out, err = shell.ShelloutWithSpinner(cmd, diSpinnerText, diSuccessText, diFailureText)
-		/**/
 
 		filePath, _ := utils.DumpError(out)
 		if err != nil {
-			// send to sentry and print
 			ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("installation failed, Check %s for details\n", filePath))
-			// wg.Done()
 		}
-		// return nil
-		// }()
-
-		// ui.GlobalWriter.PrintflnWithPrefixArrow("Waiting for %d sec for the installation", waitTimeForInstallationInSeconds)
-		// time.Sleep(waitTimeForInstallationInSeconds * time.Second)
 	}()
 
-	if err != nil {
-		return err
-	}
-
-	// set ingress to post deploy settings
-	// ui.GlobalWriter.PrintflnWithPrefixArrow("Waiting for %d sec for the pods to get deployed", waitTimeForPodsInSeconds)
-
-	for i := 0; i <= waitTimeForPodsInSeconds; i++ {
-		time.Sleep(1 * time.Second)
-		if err != nil {
-			return err
-		}
-	}
-
-	if err != nil {
-		return err
-	}
-
+	// wait for `waitTimeForService` seconds for the service
+	// TODO: replace this code with proper health check
 	for i := 0; i <= waitTimeForService; i++ {
 		time.Sleep(1 * time.Second)
 		if err != nil {

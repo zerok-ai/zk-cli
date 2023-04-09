@@ -37,7 +37,7 @@ func logicZkDelete(ctx context.Context) error {
 
 	var out string
 
-	cmd := utils.GetBackendCLIPath() + " delete 2>&1 > ./dump"
+	cmd := utils.GetBackendCLIPath() + " delete"
 
 	out, err := shell.ShelloutWithSpinner(cmd, delSpinnerText, delSuccessText, delFailureText)
 
