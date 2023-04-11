@@ -73,10 +73,8 @@ const (
 	waitTimeForService               = 160
 	waitTimeForInstallationInSeconds = 240
 
-	zkInstallOperator  string = "/operator/buildAndInstall.sh"
-	pxDownloadAuthJson string = "/zpx/scripts/setup-px-auth-json.sh"
-	pxSetupDomain      string = "/zpx/scripts/setup-domain.sh"
-	pxSetupIngress     string = "/zpx/scripts/setup-ingress.sh"
+	zkInstallOperator    string = "/operator/buildAndInstall.sh"
+	pxVizierDevModeSetup string = "/zpx/scripts/setup-vizier-cli.sh"
 
 	diSpinnerText = "installing zerok daemon and associated CRDs"
 	diSuccessText = "zerok daemon installed successfully"
@@ -403,6 +401,7 @@ func LoginToPX(ctx context.Context, apiKey string) error {
 	// download from server
 	jsonResponse := new(AuthPayload)
 	err := GetHTTPGETResponse(urlToBeCalled, jsonResponse)
+	// ui.GlobalWriter.PrintflnWithPrefixlnAndArrow("urlToBeCalled = %s\njsonResponse=%v", urlToBeCalled, jsonResponse)
 	if err != nil {
 		return fmt.Errorf("error in auth %v", err)
 	}
@@ -422,6 +421,11 @@ var myClient = &http.Client{Timeout: 10 * time.Second}
 func GetHTTPGETResponse(url string, target interface{}) error {
 	response, err := myClient.Get(url)
 	if err != nil {
+		if response != nil {
+			if response.StatusCode < 200 || response.StatusCode >= 299 {
+				return fmt.Errorf(fmt.Sprintf("Error response code = %d", response.StatusCode), err)
+			}
+		}
 		return err
 	}
 	defer response.Body.Close()
@@ -433,7 +437,7 @@ func installPXOperator(ctx context.Context, apiKey string) (err error) {
 	// login to px
 	if err = LoginToPX(ctx, apiKey); err != nil {
 		// send to sentry and print
-		return ui.GlobalWriter.Errorf("login error %v", err)
+		return err
 	}
 
 	// start deployment in background
@@ -445,8 +449,8 @@ func installPXOperator(ctx context.Context, apiKey string) (err error) {
 		cmd := utils.GetBackendCLIPath() + " deploy"
 		out, err = shell.ShelloutWithSpinner(cmd, diSpinnerText, diSuccessText, diFailureText)
 
-		filePath, _ := utils.DumpError(out)
 		if err != nil {
+			filePath, _ := utils.DumpError(out)
 			ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("installation failed, Check %s for details\n", filePath))
 		}
 	}()
@@ -458,6 +462,13 @@ func installPXOperator(ctx context.Context, apiKey string) (err error) {
 		if err != nil {
 			return err
 		}
+	}
+
+	// install the kustomization for vizier over the default code
+	out, err := shell.Shellout("./"+pxVizierDevModeSetup, false)
+	if err != nil {
+		filePath, _ := utils.DumpError(out)
+		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("vizier installation failed, Check %s for details\n", filePath))
 	}
 
 	return nil

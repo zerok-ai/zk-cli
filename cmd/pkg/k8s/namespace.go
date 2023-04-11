@@ -152,7 +152,7 @@ func (ns *ZkNamespace) DoRollingRestart() error {
 	return nil
 }
 
-func (ns *ZkNamespace) DoRollingRestartThroughDeployment() error {
+func (ns *ZkNamespace) DoRollingRestartAllDeployments() error {
 
 	ui.GlobalWriter.PrintflnWithPrefixArrow("DoRollingRestart for the namespace '%s'", ns.namespaceName)
 	depI := ns.clientset.AppsV1().Deployments(ns.namespaceName)
@@ -199,4 +199,29 @@ func scaleDeployment(scale *autoscalingv1.Scale, depI appsv1.DeploymentInterface
 		return errorScale
 	}
 	return errorScale
+}
+
+func (ns *ZkNamespace) Delete() error {
+	ui.GlobalWriter.PrintflnWithPrefixArrow("deleting namespace '%s'", ns.namespaceName)
+	return ns.clientset.CoreV1().Namespaces().Delete(context.Background(), ns.namespaceName, metav1.DeleteOptions{})
+}
+
+func DeleteNamespaces(namespace []string) error {
+	clientsetLocal, errClient := getKubeClientSet()
+	if errClient != nil {
+		panic(errClient)
+	}
+
+	var i int
+	var err error
+	size := len(namespace)
+	for i = 0; i < size; i++ {
+		err = clientsetLocal.CoreV1().Namespaces().Delete(context.Background(), namespace[i], metav1.DeleteOptions{})
+		if err !=nil {
+			return err
+		}
+		ui.GlobalWriter.PrintflnWithPrefixArrow("namespace '%s' deleted", namespace[i])
+	}
+	
+	return nil
 }
