@@ -23,7 +23,12 @@ import (
 )
 
 type AuthPayload struct {
-	Payload AuthRefreshToken `json:"payload"`
+	Payload AuthCompletePayload `json:"payload"`
+}
+
+type AuthCompletePayload struct {
+	CliAuthPayload      AuthRefreshToken `json:"cliAuth"`
+	OperatorAuthPayload OperatorToken    `json:"operatorAuth"`
 }
 
 type AuthRefreshToken struct {
@@ -31,6 +36,10 @@ type AuthRefreshToken struct {
 	ExpiresAt int64  `json:"expiresAt"`
 	OrgName   string `json:"orgName,omitempty"`
 	OrgID     string `json:"orgID,omitempty"`
+}
+
+type OperatorToken struct {
+	ClusterKey string `json:"cluster_key"`
 }
 
 const (
@@ -84,6 +93,7 @@ const (
 var (
 	authAddress string
 	apiKey      string
+	clusterName string
 )
 
 type ContextKey struct {
@@ -144,7 +154,7 @@ func CheckFlags() error {
 	os.Setenv("PL_CLOUD_ADDR", pl_cloud_addr)
 
 	//TODO: Change it to https
-	authAddress = fmt.Sprintf("http://api.%s", zk_cloud_addr)
+	authAddress = fmt.Sprintf("https://api.%s", zk_cloud_addr)
 	return nil
 }
 
@@ -171,6 +181,7 @@ func RunInstallPreCmd(cmd *cobra.Command, args []string) error {
 
 func RunInstallCmd(cmd *cobra.Command, args []string) error {
 
+	//TODO:AVIN Setup and install through helm
 	_, err := shell.ExecWithDurationAndSuccessM(shell.GetPWD()+zkInstallOperator, "zeroK operator installed successfully")
 	if err != nil {
 		ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", err))
@@ -253,6 +264,8 @@ func validateCluster(ctx context.Context, kubeClient *k8s.Client, namespace stri
 		return nil, err
 	}
 	ui.GlobalWriter.Printf("Validating cluster compatibility for cluster: %s\n", clusterSummary.ClusterName)
+	//TODO:AVIN Is there a better place to populate this variable?
+	clusterName = clusterSummary.ClusterName
 
 	clusterReport := k8s.DefaultClusterRequirements.Validate(ctx, kubeClient, clusterSummary)
 
@@ -396,7 +409,7 @@ func LoginToPX(ctx context.Context, apiKey string) error {
 
 	ui.GlobalWriter.PrintflnWithPrefixArrow("trying to authenticate")
 	path := "v1/p/auth/login"
-	urlToBeCalled := fmt.Sprintf("%s/%s?apikey=%s", authAddress, path, apiKey)
+	urlToBeCalled := fmt.Sprintf("%s/%s?apikey=%s&clusterName=%s", authAddress, path, apiKey, clusterName)
 
 	// download from server
 	jsonResponse := new(AuthPayload)
@@ -405,9 +418,15 @@ func LoginToPX(ctx context.Context, apiKey string) error {
 	if err != nil {
 		return fmt.Errorf("error in auth %v", err)
 	}
-	authTokenPayloadBytes, err := json.Marshal(jsonResponse.Payload)
+
+	//TODO:AVIN Put a proper check (if cliAuth is null or not)
+	authTokenPayloadBytes, err := json.Marshal(jsonResponse.Payload.CliAuthPayload)
 	if err != nil {
 		return err
+	}
+	clusterKey := jsonResponse.Payload.OperatorAuthPayload.ClusterKey
+	if clusterKey != "" {
+		//TODO:AVIN Create the secret
 	}
 
 	//write to file
@@ -420,14 +439,21 @@ var myClient = &http.Client{Timeout: 10 * time.Second}
 
 func GetHTTPGETResponse(url string, target interface{}) error {
 	response, err := myClient.Get(url)
+	var resErr error = nil
+	if response != nil {
+		if response.StatusCode < 200 || response.StatusCode >= 299 {
+			resErr = errors.New(fmt.Sprintf("Error response code = %d", response.StatusCode))
+		}
+	}
 	if err != nil {
-		if response != nil {
-			if response.StatusCode < 200 || response.StatusCode >= 299 {
-				return fmt.Errorf(fmt.Sprintf("Error response code = %d", response.StatusCode), err)
-			}
+		if resErr != nil {
+			return fmt.Errorf(resErr.Error(), err)
 		}
 		return err
+	} else if resErr != nil {
+		return resErr
 	}
+
 	defer response.Body.Close()
 	return json.NewDecoder(response.Body).Decode(target)
 }

@@ -2,9 +2,8 @@ package k8s
 
 import (
 	"fmt"
-	"io/fs"
-
 	"github.com/pkg/errors"
+	"io/fs"
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	restclient "k8s.io/client-go/rest"
