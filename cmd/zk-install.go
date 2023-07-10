@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"runtime"
@@ -82,6 +83,7 @@ const (
 	waitTimeForService               = 160
 	waitTimeForInstallationInSeconds = 240
 
+	zkInstallClient      string = "/zk-client/install.sh"
 	zkInstallOperator    string = "/operator/buildAndInstall.sh"
 	pxVizierDevModeSetup string = "/zpx/scripts/setup-vizier-cli.sh"
 
@@ -94,6 +96,7 @@ var (
 	authAddress string
 	apiKey      string
 	clusterName string
+	clusterKey  string
 )
 
 type ContextKey struct {
@@ -181,14 +184,20 @@ func RunInstallPreCmd(cmd *cobra.Command, args []string) error {
 
 func RunInstallCmd(cmd *cobra.Command, args []string) error {
 
+	pxErr := installPXOperator(cmd.Context(), apiKey)
+	if pxErr != nil {
+		return pxErr
+	}
+
 	//TODO:AVIN Setup and install through helm
-	_, err := shell.ExecWithDurationAndSuccessM(shell.GetPWD()+zkInstallOperator, "zeroK operator installed successfully")
+	out, err := shell.ExecWithDurationAndSuccessM(shell.GetPWD()+zkInstallClient+" PX_API_KEY="+apiKey+" PX_CLUSTER_KEY="+clusterKey+" APP_NAME=zerok-cli", "zeroK operator installed successfully")
 	if err != nil {
 		ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", err))
 		return err
+	} else {
+		//TODO:AVIN DEBUG Remove this later
+		log.Println("helm install output\n", out)
 	}
-
-	err = installPXOperator(cmd.Context(), apiKey)
 
 	if err == nil {
 		ui.GlobalWriter.PrintlnSuccessMessageln("installation done")
@@ -424,11 +433,12 @@ func LoginToPX(ctx context.Context, apiKey string) error {
 	if err != nil {
 		return err
 	}
-	clusterKey := jsonResponse.Payload.OperatorAuthPayload.ClusterKey
-	if clusterKey != "" {
+	clusterKeyLocal := jsonResponse.Payload.OperatorAuthPayload.ClusterKey
+	if clusterKeyLocal != "" {
 		//TODO:AVIN Create the secret
 	}
-
+	//TODO:AVIN is there a better way/place to set this?
+	clusterKey = clusterKeyLocal
 	//write to file
 	authPath := utils.GetBackendAuthPath()
 	os.Remove(authPath)
@@ -465,6 +475,11 @@ func installPXOperator(ctx context.Context, apiKey string) (err error) {
 		// send to sentry and print
 		return err
 	}
+
+	////TODO:AVIN
+	//if true {
+	//	return nil
+	//}
 
 	// start deployment in background
 	go func() {
