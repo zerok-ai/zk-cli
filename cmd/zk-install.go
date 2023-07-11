@@ -190,6 +190,10 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	//TODO:AVIN Setup and install through helm
+	_, err := shell.ExecWithDurationAndSuccessM("chmod +x "+shell.GetPWD()+zkInstallClient, "")
+	if err != nil {
+		ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", err))
+	}
 	out, err := shell.ExecWithDurationAndSuccessM(shell.GetPWD()+zkInstallClient+" PX_API_KEY="+apiKey+" PX_CLUSTER_KEY="+clusterKey+" APP_NAME=zerok-cli", "zeroK operator installed successfully")
 	if err != nil {
 		ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", err))
