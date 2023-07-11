@@ -7,3 +7,9 @@
 [submodule "zk-client"]
 	path = zk-client
 	url = git@github.com:zerok-ai/zk-client.git
+[submodule "zk-wsp"]
+	path = zk-wsp
+	url = git@github.com:zerok-ai/zk-wsp.git
+[submodule "zk-axon"]
+	path = zk-axon
+	url = git@github.com:zerok-ai/zk-axon.git
