@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"runtime"
@@ -189,18 +188,19 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 		return pxErr
 	}
 
-	//TODO:AVIN Setup and install through helm
-	_, err := shell.ExecWithDurationAndSuccessM("chmod +x "+shell.GetPWD()+zkInstallClient, "")
-	if err != nil {
-		ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", err))
+	_, chmodErr := shell.ExecWithDurationAndSuccessM("chmod +x "+shell.GetPWD()+zkInstallClient, "")
+	if chmodErr != nil {
+		ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", chmodErr))
 	}
-	out, err := shell.ExecWithDurationAndSuccessM(shell.GetPWD()+zkInstallClient+" PX_API_KEY="+apiKey+" PX_CLUSTER_KEY="+clusterKey+" APP_NAME=zerok-cli", "zeroK operator installed successfully")
+	zkCloudAddr := viper.Get(ZK_CLOUD_ADDRESS_FLAG).(string)
+	_, err := shell.ExecWithDurationAndSuccessM(shell.GetPWD()+zkInstallClient+
+		" ZK_CLOUD_ADDR="+zkCloudAddr+
+		" PX_API_KEY="+apiKey+
+		" PX_CLUSTER_KEY="+clusterKey+
+		" APP_NAME=zerok-cli", "zeroK operator installed successfully")
 	if err != nil {
 		ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", err))
 		return err
-	} else {
-		//TODO:AVIN DEBUG Remove this later
-		log.Println("helm install output\n", out)
 	}
 
 	if err == nil {
@@ -277,7 +277,6 @@ func validateCluster(ctx context.Context, kubeClient *k8s.Client, namespace stri
 		return nil, err
 	}
 	ui.GlobalWriter.Printf("Validating cluster compatibility for cluster: %s\n", clusterSummary.ClusterName)
-	//TODO:AVIN Is there a better place to populate this variable?
 	clusterName = clusterSummary.ClusterName
 
 	clusterReport := k8s.DefaultClusterRequirements.Validate(ctx, kubeClient, clusterSummary)
@@ -432,16 +431,19 @@ func LoginToPX(ctx context.Context, apiKey string) error {
 		return fmt.Errorf("error in auth %v", err)
 	}
 
-	//TODO:AVIN Put a proper check (if cliAuth is null or not)
+	if jsonResponse.Payload.CliAuthPayload.Token == "" {
+		//TODO:AVIN Put a proper error message
+		return errors.New("error in auth")
+	}
 	authTokenPayloadBytes, err := json.Marshal(jsonResponse.Payload.CliAuthPayload)
 	if err != nil {
 		return err
 	}
 	clusterKeyLocal := jsonResponse.Payload.OperatorAuthPayload.ClusterKey
-	if clusterKeyLocal != "" {
-		//TODO:AVIN Create the secret
+	if clusterKeyLocal == "" {
+		//TODO:AVIN Put proper error message
+		return errors.New("error in auth")
 	}
-	//TODO:AVIN is there a better way/place to set this?
 	clusterKey = clusterKeyLocal
 	//write to file
 	authPath := utils.GetBackendAuthPath()
@@ -480,7 +482,7 @@ func installPXOperator(ctx context.Context, apiKey string) (err error) {
 		return err
 	}
 
-	////TODO:AVIN
+	//TODO:AVIN DEBUG - REMOVE THIS
 	//if true {
 	//	return nil
 	//}
