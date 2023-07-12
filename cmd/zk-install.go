@@ -43,6 +43,7 @@ type OperatorToken struct {
 }
 
 const (
+	VIZIER_TAG_FLAG         = "VIZIER_TAG"
 	ZK_CLOUD_ADDRESS_FLAG   = "ZK_CLOUD_ADDRESS"
 	API_KEY_FLAG            = "apikey"
 	API_KEY_ENV_FLAG        = "API_KEY"
@@ -96,6 +97,7 @@ var (
 	apiKey      string
 	clusterName string
 	clusterKey  string
+	vizierTag   string
 )
 
 type ContextKey struct {
@@ -150,6 +152,12 @@ func CheckFlags() error {
 	if zk_cloud_addr == nil {
 		zk_cloud_addr = "zkcloud02.getanton.com"
 		viper.Set(ZK_CLOUD_ADDRESS_FLAG, zk_cloud_addr)
+	}
+
+	// set vizier tag
+	vizierTagInterface := viper.Get(VIZIER_TAG_FLAG)
+	if vizierTagInterface != nil {
+		vizierTag = vizierTagInterface.(string)
 	}
 
 	pl_cloud_addr := "px." + zk_cloud_addr.(string)
@@ -512,7 +520,7 @@ func installPXOperator(ctx context.Context, apiKey string) (err error) {
 	}
 
 	// install the kustomization for vizier over the default code
-	out, err := shell.Shellout("./"+pxVizierDevModeSetup, false)
+	out, err := shell.Shellout("VIZIER_TAG="+vizierTag+" ./"+pxVizierDevModeSetup, false)
 	if err != nil {
 		filePath, _ := utils.DumpError(out)
 		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("vizier installation failed, Check %s for details\n", filePath))
