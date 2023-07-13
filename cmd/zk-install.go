@@ -84,6 +84,7 @@ const (
 	waitTimeForInstallationInSeconds = 240
 
 	zkInstallClient      string = "/zk-client/install.sh"
+	zkUnInstallClient    string = "/zk-client/uninstall.sh"
 	zkInstallOperator    string = "/operator/buildAndInstall.sh"
 	pxVizierDevModeSetup string = "/zpx/scripts/setup-vizier-cli.sh"
 

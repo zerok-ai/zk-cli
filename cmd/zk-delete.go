@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-
 	// "zkctl/cmd/pkg/k8s"
 	"zkctl/cmd/pkg/shell"
 	"zkctl/cmd/pkg/ui"
@@ -39,27 +38,40 @@ func RunDeleteCmd(cmd *cobra.Command, args []string) error {
 
 func logicZkDelete(ctx context.Context) error {
 
+	//TODO:AVIN DEBUG Removing using kubectl script
+	//Uninstall zk-client
+	_, chmodErr := shell.ExecWithDurationAndSuccessM("chmod +x "+shell.GetPWD()+zkUnInstallClient, "")
+	if chmodErr != nil {
+		ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", chmodErr))
+		return chmodErr
+	}
+	_, err := shell.ExecWithDurationAndSuccessM(shell.GetPWD()+zkUnInstallClient, "zeroK operator uninstalled successfully")
+	if err != nil {
+		ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", err))
+		return err
+	}
+
 	cmd := utils.GetBackendCLIPath() + " delete"
 
-	out, err := shell.ShelloutWithSpinner(cmd, delSpinnerText, delSuccessText, delFailureText)
+	out, cmdErr := shell.ShelloutWithSpinner(cmd, delSpinnerText, delSuccessText, delFailureText)
 
-	if err != nil {
+	if cmdErr != nil {
 		filePath, _ := utils.DumpError(out)
 		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("installation failed, Check %s for details\n", filePath))
-		return err
+		return cmdErr
 	}
 
 	// delete namespaces
-	// return k8s.DeleteNamespaces([]string{"zerok-injector", "zerok-operator-system"})
+	//return k8s.DeleteNamespaces([]string{"pl", "olm", "zk-client", "px-operator"})
 
-	out, err = shell.ExecWithDurationAndSuccessM(shell.GetPWD()+zkUninstallOperator, "zeroK operator uninstalled successfully")
-	if err != nil {
-		filePath, _ := utils.DumpError(out)
-		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("installation failed, Check %s for details\n", filePath))
-		return err
-	}
+	//TODO:AVIN Commenting it out for now - deleting through kubectl instead
+	//out, err = shell.ExecWithDurationAndSuccessM(shell.GetPWD()+zkUninstallOperator, "zeroK operator uninstalled successfully")
+	//if err != nil {
+	//	filePath, _ := utils.DumpError(out)
+	//	ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("installation failed, Check %s for details\n", filePath))
+	//	return err
+	//}
 
 	//TODO: check all the namespaces and deactivate them
-
 	return nil
 }
