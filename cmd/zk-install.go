@@ -191,11 +191,13 @@ func RunInstallPreCmd(cmd *cobra.Command, args []string) error {
 
 func RunInstallCmd(cmd *cobra.Command, args []string) error {
 
+	//Install default pixie - pl
 	pxErr := installPXOperator(cmd.Context(), apiKey)
 	if pxErr != nil {
 		return pxErr
 	}
 
+	//Install zk-client
 	_, chmodErr := shell.ExecWithDurationAndSuccessM("chmod +x "+shell.GetPWD()+zkInstallClient, "")
 	if chmodErr != nil {
 		ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", chmodErr))
@@ -209,6 +211,14 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", err))
 		return err
+	}
+
+	// install the kustomization for vizier over the default code
+	// doing it later as it needs the redis instance to come up
+	out, err := shell.Shellout("VIZIER_TAG="+vizierTag+" ./"+pxVizierDevModeSetup, false)
+	if err != nil {
+		filePath, _ := utils.DumpError(out)
+		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("vizier installation failed, Check %s for details\n", filePath))
 	}
 
 	if err == nil {
@@ -519,12 +529,12 @@ func installPXOperator(ctx context.Context, apiKey string) (err error) {
 		}
 	}
 
-	// install the kustomization for vizier over the default code
-	out, err := shell.Shellout("VIZIER_TAG="+vizierTag+" ./"+pxVizierDevModeSetup, false)
-	if err != nil {
-		filePath, _ := utils.DumpError(out)
-		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("vizier installation failed, Check %s for details\n", filePath))
-	}
+	//// install the kustomization for vizier over the default code
+	//out, err := shell.Shellout("VIZIER_TAG="+vizierTag+" ./"+pxVizierDevModeSetup, false)
+	//if err != nil {
+	//	filePath, _ := utils.DumpError(out)
+	//	ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("vizier installation failed, Check %s for details\n", filePath))
+	//}
 
 	return nil
 }
