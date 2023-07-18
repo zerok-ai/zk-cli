@@ -10,6 +10,3 @@
 [submodule "zk-wsp"]
 	path = zk-wsp
 	url = git@github.com:zerok-ai/zk-wsp.git
-[submodule "zk-axon"]
-	path = zk-axon
-	url = git@github.com:zerok-ai/zk-axon.git
