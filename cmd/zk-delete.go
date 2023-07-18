@@ -3,7 +3,10 @@ package cmd
 import (
 	"context"
 	"fmt"
-	// "zkctl/cmd/pkg/k8s"
+	"github.com/spf13/viper"
+	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"zkctl/cmd/pkg/k8s"
 	"zkctl/cmd/pkg/shell"
 	"zkctl/cmd/pkg/ui"
 	"zkctl/cmd/pkg/utils"
@@ -38,19 +41,7 @@ func RunDeleteCmd(cmd *cobra.Command, args []string) error {
 
 func logicZkDelete(ctx context.Context) error {
 
-	//TODO:AVIN DEBUG Removing using kubectl script
-	//Uninstall zk-client
-	_, chmodErr := shell.ExecWithDurationAndSuccessM("chmod +x "+shell.GetPWD()+zkUnInstallClient, "")
-	if chmodErr != nil {
-		ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", chmodErr))
-		return chmodErr
-	}
-	_, err := shell.ExecWithDurationAndSuccessM(shell.GetPWD()+zkUnInstallClient, "zeroK operator uninstalled successfully")
-	if err != nil {
-		ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", err))
-		return err
-	}
-
+	// Step1: Uninstalling backend cli daemon
 	cmd := utils.GetBackendCLIPath() + " delete"
 
 	out, cmdErr := shell.ShelloutWithSpinner(cmd, delSpinnerText, delSuccessText, delFailureText)
@@ -61,10 +52,50 @@ func logicZkDelete(ctx context.Context) error {
 		return cmdErr
 	}
 
-	// delete namespaces
-	//return k8s.DeleteNamespaces([]string{"pl", "olm", "zk-client", "px-operator"})
+	// Step2: Adding finalizer to zk-client namespace so that zk-operator can properly shut itself down
+	kubeconfig := viper.GetString(KUBECONFIG_FLAG)
+	kubecontext := viper.GetString(KUBECONTEXT_FLAG)
 
-	//TODO:AVIN Commenting it out for now - deleting through kubectl instead
+	kubeClient, err := k8s.NewKubeClient(kubeconfig, kubecontext)
+	if err != nil {
+		return err
+	}
+	namespace, err := kubeClient.CoreV1().Namespaces().Get(context.TODO(), "zk-client", metav1.GetOptions{})
+	if err != nil {
+		if !errors.IsNotFound(err) {
+			return err
+		}
+	} else {
+		finalizer := "operator/cleanup-pods"
+		finalizerAlreadyPresent := false
+		for _, f := range namespace.ObjectMeta.Finalizers {
+			if f == finalizer {
+				finalizerAlreadyPresent = true
+				break
+			}
+		}
+		if !finalizerAlreadyPresent {
+			namespace.ObjectMeta.Finalizers = append(namespace.ObjectMeta.Finalizers, finalizer)
+			_, err = kubeClient.CoreV1().Namespaces().Update(context.TODO(), namespace, metav1.UpdateOptions{})
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	// Step3: delete namespaces
+	// iterating one by one as deleting all namespaces using k8s is throwing error in case a namespace doesn;t exists
+	namespaces := []string{"pl", "olm", "zk-client", "px-operator"}
+	for _, namespaceName := range namespaces {
+		err := kubeClient.CoreV1().Namespaces().Delete(context.TODO(), namespaceName, metav1.DeleteOptions{})
+		if err != nil {
+			if !errors.IsNotFound(err) {
+				return err
+			}
+		}
+	}
+
+	//Old code
 	//out, err = shell.ExecWithDurationAndSuccessM(shell.GetPWD()+zkUninstallOperator, "zeroK operator uninstalled successfully")
 	//if err != nil {
 	//	filePath, _ := utils.DumpError(out)
