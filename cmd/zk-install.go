@@ -84,6 +84,7 @@ const (
 	waitTimeForInstallationInSeconds = 240
 
 	zkInstallClient      string = "/zk-client/install.sh"
+	zkInstallStores      string = "/zk-client/install-db.sh"
 	zkUnInstallClient    string = "/zk-client/uninstall.sh"
 	zkInstallOperator    string = "/operator/buildAndInstall.sh"
 	pxVizierDevModeSetup string = "/zpx/scripts/setup-vizier-cli.sh"
@@ -192,6 +193,17 @@ func RunInstallPreCmd(cmd *cobra.Command, args []string) error {
 
 func RunInstallCmd(cmd *cobra.Command, args []string) error {
 
+	//Install zk-client stores
+	_, chmodDbErr := shell.ExecWithDurationAndSuccessM("chmod +x "+shell.GetPWD()+zkInstallStores, "")
+	if chmodDbErr != nil {
+		ui.LogAndPrintError(fmt.Errorf("failed to install zeroK stores: %v", chmodDbErr))
+	}
+	_, installDbErr := shell.ExecWithDurationAndSuccessM("APP_NAME=zk-stores "+shell.GetPWD()+zkInstallStores, "zeroK stores installed successfully")
+	if installDbErr != nil {
+		ui.LogAndPrintError(fmt.Errorf("failed to install zeroK stores: %v", installDbErr))
+		return installDbErr
+	}
+
 	//Install default pixie - pl
 	pxErr := installPXOperator(cmd.Context(), apiKey)
 	if pxErr != nil {
@@ -208,7 +220,7 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 		" ZK_CLOUD_ADDR="+zkCloudAddr+
 		" PX_API_KEY="+apiKey+
 		" PX_CLUSTER_KEY="+clusterKey+
-		" APP_NAME=zerok-cli", "zeroK operator installed successfully")
+		" APP_NAME=zk-client", "zeroK operator installed successfully")
 	if err != nil {
 		ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", err))
 		return err
