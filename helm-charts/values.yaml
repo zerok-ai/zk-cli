@@ -1,0 +1,24 @@
+# Default values for curbiq.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+global:
+  namespace: zk-client
+  zkcloud:
+    host: ""
+    port: 443
+  vizier:
+    tag: ""
+  data:
+    PX_API_KEY: ""
+    cluster_key: ""
+
+zk-wsp:
+  routes:
+    zkCloudAddr: "loadcloud01.getanton.com"
+
+zk-scenario-manager:
+  postgres:
+    password: ""
+
+
+

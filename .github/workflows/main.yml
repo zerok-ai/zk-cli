@@ -1,0 +1,43 @@
+name: helm-publish
+on:
+  workflow_dispatch:
+jobs:          
+  helm-publish:
+    runs-on: self-hosted
+    environment: poc
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: install-aws-cli
+        id: install-aws-cli
+        uses: unfor19/install-aws-cli-action@master
+        
+
+      - name: Set up helm
+        run: |-
+           curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+           chmod 700 get_helm.sh
+           ./get_helm.sh
+      - name: s3 sync repo
+        run: aws s3 sync  ${{ vars.S3_BUCKET_NAME }}/zk-client/  .
+      - name: helm package
+        run: |-  
+              helm dependency update helm-charts
+              helm package helm-charts
+      - name: helm index
+        run: |-  
+              helm repo index ./ --url https://helm.zerok.ai/zk-client/
+      - name: s3 sync
+        run: |-
+             aws s3 cp . ${{ vars.S3_BUCKET_NAME }}/zk-client/  --recursive --exclude "*" --include "index.yaml"  --include "*.tgz" --exclude "*/*"
+
+      - name: Clear CF Cache
+        run: aws cloudfront create-invalidation --distribution-id ${{ vars.CF_DIST_ID }} --paths "/*"
+          
+     
