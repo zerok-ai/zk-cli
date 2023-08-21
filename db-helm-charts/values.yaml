@@ -1,0 +1,161 @@
+# Default values for curbiq.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+global:
+  image:
+    pullPolicy: Always
+
+zk-wsp:
+  routes:
+    zkCloudAddr: "loadcloud01.getanton.com"
+
+redis:
+  enabled: true
+  architecture: "standalone"
+  nameOverride: redis
+  fullnameOverride: redis
+  auth:
+    enabled: false
+  image:
+    tag: "6.2.12-debian-11-r23"
+
+postgresql:
+  enabled: true
+  architecture: "standalone"
+  nameOverride: postgres
+  fullnameOverride: postgres
+  global:
+    postgresql:
+      auth:
+        postgresPassword: "eo1Mgtm6HI"
+  primary:
+    initdb:
+      scripts:
+        init.sql: |
+          CREATE DATABASE pl;
+          
+          \c pl
+          
+          CREATE TABLE IF NOT EXISTS issue
+          (
+            id               SERIAL PRIMARY KEY,
+            issue_hash       VARCHAR(255) UNIQUE,
+            issue_title      VARCHAR(255),
+            scenario_id      VARCHAR(255),
+            scenario_version VARCHAR(255)
+          );
+          
+          CREATE TABLE incident
+          (
+            id                       SERIAL PRIMARY KEY,
+            issue_hash               VARCHAR(255),
+            trace_id                 VARCHAR(40),
+            incident_collection_time TIMESTAMP,
+            CONSTRAINT unique_issue UNIQUE (issue_hash, trace_id)
+          );
+          
+          CREATE TABLE IF NOT EXISTS span
+          (
+            id               SERIAL PRIMARY KEY,
+            trace_id         VARCHAR(255),
+            span_id          VARCHAR(255),
+            parent_span_id   VARCHAR(255),
+            source           VARCHAR(255),
+            destination      VARCHAR(255),
+            workload_id_list TEXT[],
+            status           VARCHAR(255),
+            metadata         TEXT,
+            latency_ms       FLOAT,
+            protocol         VARCHAR(255),
+            issue_hash_list  TEXT[],
+            time             TIMESTAMP,
+            CONSTRAINT unique_span UNIQUE (trace_id, span_id)
+          );
+          
+          CREATE TABLE IF NOT EXISTS span_raw_data
+          (
+            id               SERIAL PRIMARY KEY,
+            trace_id         VARCHAR(255),
+            span_id          VARCHAR(255),
+            request_payload  BYTEA,
+            response_payload BYTEA,
+            CONSTRAINT unique_span_raw_data UNIQUE (trace_id, span_id)
+          );
+
+
+replicaCount: 1
+
+restartPolicy: OnFailure
+imagePullSecrets: [ ]
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: { }
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: "zk-operator"
+
+podAnnotations: { }
+
+podSecurityContext: { }
+# fsGroup: 2000
+
+securityContext: { }
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+# runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 8472
+
+ingress:
+  enabled: false
+  className: ""
+  annotations:
+  # kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
+
+  hosts:
+    - host: ''
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: [ ]
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+
+  limits:
+    cpu: 500m
+    memory: 128Mi
+  requests:
+    cpu: 10m
+    memory: 64Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  averageUtilization: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: { }
+
+tolerations: [ ]
+
+affinity: { }
+

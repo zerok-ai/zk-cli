@@ -83,10 +83,9 @@ const (
 	waitTimeForService               = 160
 	waitTimeForInstallationInSeconds = 240
 
-	zkInstallClient      string = "/zk-client/install.sh"
-	zkInstallStores      string = "/zk-client/install-db.sh"
-	zkUnInstallClient    string = "/zk-client/uninstall.sh"
-	zkInstallOperator    string = "/operator/buildAndInstall.sh"
+	zkInstallClient      string = "/helm-charts/install.sh"
+	zkInstallStores      string = "/db-helm-charts/install-db.sh"
+	zkUnInstallClient    string = "/helm-charts/uninstall.sh"
 	pxVizierDevModeSetup string = "/zpx/scripts/setup-vizier-cli.sh"
 
 	diSpinnerText = "installing zerok daemon and associated CRDs"
