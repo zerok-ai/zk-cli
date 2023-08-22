@@ -21,6 +21,13 @@ on:
         description: 'API KEY - you can get it from px dashboard'
         required: true
         default: 'px-api-e0593597-de51-44cd-bc72-6cbdb881b2be'
+      ACTION:
+        type: choice
+        required: true
+        description: 'Choose action to perform'
+        options:
+          - install
+          - uninstall
   workflow_call:
     inputs:
       VERSION:
@@ -37,6 +44,7 @@ env:
   GKE_CLUSTER: ${{ github.event.inputs.GKE_CLUSTER }}
   ZK_CLOUD_ADDRESS: ${{ github.event.inputs.ZK_CLOUD_ADDRESS }}
   ZK_API_KEY: ${{ github.event.inputs.ZK_API_KEY }}
+  ACTION: ${{ github.event.inputs.ACTION }}
   GOOS: ${{ vars.GOOS }}
   GOARCH: ${{ vars.GOARCH }}
   CGO_ENABLED: ${{ vars.CGO_ENABLED }}
@@ -52,7 +60,6 @@ env:
   POSTGRES_DB: ${{ vars.POSTGRES_DB }}
   POSTGRES_HOST: ${{ vars.POSTGRES_HOST }}
   POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-
 jobs:
   init:
     runs-on: zk-self-hosted
@@ -132,8 +139,14 @@ jobs:
           cluster_name: '${{ needs.init.outputs.CLUSTERNAME }}'
           location: '${{ env.GKE_ZONE }}'
 
-      - name: Deploy
+      - name: Install
+        if: ${{ env.ACTION == 'install' }}
         run: |-
           export CLUSTER_NAME=$CLUSTERNAME
           export ZK_CLOUD_ADDRESS=$ZK_CLOUD_ADDRESS
           go run main.go install --apikey $ZK_API_KEY
+
+      - name: Uninstall
+        if: ${{ env.ACTION == 'uninstall' }}
+        run: |-
+          go run main.go delete

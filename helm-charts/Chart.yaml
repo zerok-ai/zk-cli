@@ -17,7 +17,7 @@ dependencies:
 #    repository: https://charts.bitnami.com/bitnami
 
   - name: zk-operator
-    version: "0.0.1"
+    version: "0.1.0"
     repository: https://helm.zerok.ai/zk-client/zk-operator
 
   - name: zk-daemonset
