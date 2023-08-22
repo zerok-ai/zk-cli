@@ -134,7 +134,6 @@ jobs:
 
       - name: Deploy
         run: |-
-          alias zkctl="go run main.go"
           export CLUSTER_NAME=$CLUSTERNAME
           export ZK_CLOUD_ADDRESS=$ZK_CLOUD_ADDRESS
-          zkctl install --apikey $ZK_API_KEY
+          go run main.go install --apikey $ZK_API_KEY
