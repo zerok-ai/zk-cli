@@ -45,6 +45,31 @@ jobs:
         run: |-
           aws s3 cp . ${{ vars.PUBLIC_HELM_S3_BUCKET }}/zk-client  --recursive --exclude "*" --include "index.yaml"  --include "*.tgz" --exclude "*/*"
 
+
+      - name: s3 sync helm notes repo
+        run: aws s3 sync ${{ vars.HELM_RELEASE_NOTES_S3_BUCKET }} .
+
+      - name: create entry for this helm version
+        run: |-
+          rm -f zk-client-$HELM_VERSION.notes
+          touch zk-client-$HELM_VERSION.notes
+          printf "%-22s %s\n" "zk-client:" "$HELM_VERSION" >> zk-client-$HELM_VERSION.notes
+          yaml_content=$(cat ./helm-charts/Chart.yaml)
+          
+          names=($(echo "$yaml_content" | grep -oP '(?<=name: ).*'))
+          versions=($(echo "$yaml_content" | grep -oP '(?<=version: ).*'))
+          
+          for ((i=0; i<${#names[@]}; i++)); do
+            if [[ ${names[i]} != "zk-client" ]]
+            then
+              printf "  %-20s %s\n" "${names[$i]}:" "${versions[$i]}" >> zk-client-$HELM_VERSION.notes
+            fi
+          done
+
+      - name: s3 upload helm notes
+        run: |-
+          aws s3 cp . ${{ vars.HELM_RELEASE_NOTES_S3_BUCKET }}  --recursive --exclude "*" --include "index.yaml"  --include "*.notes" --exclude "*/*"
+
       - name: Clear CF Cache
         run: aws cloudfront create-invalidation --distribution-id ${{ vars.CF_DIST_ID }} --paths "/*"
 
