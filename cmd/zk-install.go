@@ -149,10 +149,10 @@ func CheckFlags() error {
 	}
 
 	// set cloud address as an env variable for shell scripts
-	zk_cloud_addr := viper.Get(ZK_CLOUD_ADDRESS_FLAG)
-	if zk_cloud_addr == nil {
-		zk_cloud_addr = "zkcloud02.getanton.com"
-		viper.Set(ZK_CLOUD_ADDRESS_FLAG, zk_cloud_addr)
+	zkCloudAddr := viper.Get(ZK_CLOUD_ADDRESS_FLAG)
+	if zkCloudAddr == nil {
+		zkCloudAddr = "zkcloud02.getanton.com"
+		viper.Set(ZK_CLOUD_ADDRESS_FLAG, zkCloudAddr)
 	}
 
 	// set vizier tag
@@ -161,11 +161,10 @@ func CheckFlags() error {
 		vizierTag = vizierTagInterface.(string)
 	}
 
-	pl_cloud_addr := "px." + zk_cloud_addr.(string)
-	os.Setenv("PL_CLOUD_ADDR", pl_cloud_addr)
+	plCloudAddr := "px." + zkCloudAddr.(string)
+	os.Setenv("PL_CLOUD_ADDR", plCloudAddr)
 
-	//TODO: Change it to https
-	authAddress = fmt.Sprintf("https://api.%s", zk_cloud_addr)
+	authAddress = fmt.Sprintf("https://api.%s", zkCloudAddr)
 	return nil
 }
 
@@ -177,7 +176,10 @@ func RunInstallPreCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	utils.InitializeFolders()
+	err = utils.InitializeFolders()
+	if err != nil {
+		return err
+	}
 
 	err = validateAndConfirm(ctx)
 	ui.GlobalWriter.PrintflnWithPrefixArrow("running pre-installation checks")
@@ -414,10 +416,16 @@ func promptInstallSummary(clusterName string, namespace string, deployableNodesC
 	}
 	t, _ := json.Marshal(tolerations)
 
-	var promptMessage string = fmt.Sprintf(
+	promptMessage := fmt.Sprintf(
 		"Deploy Zerok (cluster: %s, compatible nodes: %d/%d, tolerations: %s)",
 		clusterName, deployableNodesCount, nodesCount, string(t),
 	)
+
+	yesFlag := viper.GetBool(YES_FLAG)
+	if yesFlag {
+		ui.GlobalWriter.Println(promptMessage + " (yes flag is set)")
+		return true
+	}
 
 	return ui.GlobalWriter.YesNoPrompt(promptMessage, true)
 }
