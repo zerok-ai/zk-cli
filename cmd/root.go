@@ -25,6 +25,7 @@ const (
 	KUBECONFIG_FLAG   = "kubeconfig"
 	KUBECONTEXT_FLAG  = "kube-context"
 	CLUSTER_NAME_FLAG = "cluster-name"
+	YES_FLAG          = "yes"
 )
 
 var (
@@ -96,6 +97,9 @@ func init() {
 
 	RootCmd.PersistentFlags().String(CLUSTER_NAME_FLAG, "", "cluster name")
 	viper.BindPFlag(CLUSTER_NAME_FLAG, RootCmd.PersistentFlags().Lookup(CLUSTER_NAME_FLAG))
+
+	RootCmd.PersistentFlags().BoolP(YES_FLAG, "y", false, "Automatic yes to prompts")
+	viper.BindPFlag(YES_FLAG, RootCmd.PersistentFlags().Lookup(YES_FLAG))
 
 	RootCmd.PersistentFlags().String(KUBECONTEXT_FLAG, "", "name of the kubeconfig context to use")
 	viper.BindPFlag(KUBECONTEXT_FLAG, RootCmd.PersistentFlags().Lookup(KUBECONTEXT_FLAG))
