@@ -1,0 +1,6 @@
+dependencies:
+- name: zk-scenario-manager
+  repository: https://helm.zerok.ai/zk-client/zk-scenario-manager
+  version: 0.0.1
+digest: sha256:0034ad491582ba0a4026c7e9ad10cb1b9dbaae59ba329b95cdbb852c22006d76
+generated: "2023-08-22T17:08:39.303479+05:30"
