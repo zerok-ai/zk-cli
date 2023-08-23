@@ -20,7 +20,7 @@ done
 #  exit 1
 #fi
 
-if [ -z "$ZK_SCENARIO_MANAGER_VERSION" ] || [ -z "$ZK_AXON_VERSION" ] || [ -z "$ZK_DAEMONSET_VERSION" ] || [ -z "$ZK_GPT_VERSION" ] || [ -z "$ZK_WSP_CLIENT_VERSION" ]
+if [ -z "$ZK_SCENARIO_MANAGER_VERSION" ] || [ -z "$ZK_AXON_VERSION" ] || [ -z "$ZK_DAEMONSET_VERSION" ] || [ -z "$ZK_GPT_VERSION" ] || [ -z "$ZK_WSP_CLIENT_VERSION" ] || [ -z "$ZK_CLOUD_ADDR" ]
 then
   echo "Invalid cli arguments. ERR #2"
   exit 1
@@ -52,5 +52,5 @@ helm upgrade zk-gpt zk-gpt/zk-gpt --install --create-namespace --namespace zk-cl
 
 helm repo add zk-wsp-client https://helm.zerok.ai/zk-client/zk-wsp-client
 helm repo update
-helm upgrade zk-wsp-client zk-wsp-client/zk-wsp-client --install --create-namespace --namespace zk-client --version $ZK_WSP_CLIENT_VERSION
+helm upgrade zk-wsp-client zk-wsp-client/zk-wsp-client --install --create-namespace --namespace zk-client --version $ZK_WSP_CLIENT_VERSION --set=global.zkcloud.host=$ZK_CLOUD_ADDR
 
