@@ -23,6 +23,11 @@ const (
 )
 
 var (
+	namespacesToDelete  = []string{"pl", "zk-client", "px-operator"}
+	crdsToDelete        = []string{"zerokops.operator.zerok.ai"}
+	clusterRoles        = []string{"zk-daemonset", "zk-operator-metrics-reader", "zk-operator-proxy-role", "zk-operator-role"}
+	clusterRoleBindings = []string{"zk-daemonset", "zk-operator-proxy-rolebinding", "zk-operator-rolebinding"}
+
 	deleteCmd = &cobra.Command{
 		Use:   "delete",
 		Short: "Delete ZeroK",
@@ -39,8 +44,14 @@ func RunDeleteCmd(cmd *cobra.Command, args []string) error {
 	return err
 }
 
-func deleteClusterRoles(clientset *k8s.Client, names ...string) error {
-	policyClient := clientset.RbacV1().ClusterRoles()
+func deleteClusterRolesSilent(client *k8s.Client, names ...string) {
+	err := deleteClusterRoles(client, names...)
+	if err != nil {
+		return
+	}
+}
+func deleteClusterRoles(client *k8s.Client, names ...string) error {
+	policyClient := client.RbacV1().ClusterRoles()
 
 	for _, name := range names {
 		deletePropagation := metav1.DeletePropagationForeground
@@ -59,8 +70,15 @@ func deleteClusterRoles(clientset *k8s.Client, names ...string) error {
 	return nil
 }
 
-func deleteNamespaces(clientset *k8s.Client, names ...string) error {
-	namespacesSet := clientset.CoreV1().Namespaces()
+func deleteNamespacesSilent(client *k8s.Client, names ...string) {
+	err := deleteNamespaces(client, names...)
+	if err != nil {
+		return
+	}
+}
+
+func deleteNamespaces(client *k8s.Client, names ...string) error {
+	namespacesSet := client.CoreV1().Namespaces()
 
 	for _, namespaceName := range names {
 		err := namespacesSet.Delete(context.TODO(), namespaceName, metav1.DeleteOptions{})
@@ -74,17 +92,31 @@ func deleteNamespaces(clientset *k8s.Client, names ...string) error {
 	return nil
 }
 
-func deleteCRD(name string) error {
-	cmd := "kubectl delete crd " + name
-	_, cmdErr := shell.Shellout(cmd, false)
-	if cmdErr != nil {
-		return cmdErr
+func deleteCRDSilent(name []string) {
+	err := deleteCRD(name)
+	if err != nil {
+		return
+	}
+}
+func deleteCRD(names []string) error {
+	for _, name := range names {
+		cmd := "kubectl delete crd " + name
+		_, cmdErr := shell.Shellout(cmd, false)
+		if !errors.IsNotFound(cmdErr) {
+			return fmt.Errorf("failed to delete CRD %q: %v", name, cmdErr)
+		}
 	}
 	return nil
 }
 
-func deleteClusterRoleBindings(clientset *k8s.Client, names ...string) error {
-	authClient := clientset.RbacV1().ClusterRoleBindings()
+func deleteClusterRoleBindingsSilent(client *k8s.Client, names ...string) {
+	err := deleteClusterRoleBindings(client, names...)
+	if err != nil {
+		return
+	}
+}
+func deleteClusterRoleBindings(client *k8s.Client, names ...string) error {
+	authClient := client.RbacV1().ClusterRoleBindings()
 
 	for _, name := range names {
 		deletePropagation := metav1.DeletePropagationForeground
@@ -105,11 +137,32 @@ func deleteClusterRoleBindings(clientset *k8s.Client, names ...string) error {
 
 func logicZkDelete(ctx context.Context) error {
 
+	kubeConfig := viper.GetString(KUBECONFIG_FLAG)
+	kubeContext := viper.GetString(KUBECONTEXT_FLAG)
+	kubeClient, err := k8s.NewKubeClient(kubeConfig, kubeContext)
+	if err != nil {
+		return err
+	}
+	namespace, err := kubeClient.CoreV1().Namespaces().Get(context.TODO(), "zk-client", metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+
+	// Step0: Getting confirmation from user for deleting ZeroK from cluster
+	clusterName, err = kubeClient.GetClusterName()
+	promptMessage := fmt.Sprintf(
+		"Remove Zerok from cluster (cluster: %s)", clusterName,
+	)
+	yesFlag := viper.GetBool(YES_FLAG)
+	if yesFlag {
+		ui.GlobalWriter.Println(promptMessage + " (yes flag is set)")
+	} else if !ui.GlobalWriter.YesNoPrompt(promptMessage, true) {
+		return ErrExecutionAborted
+	}
+
 	// Step1: Uninstalling backend cli daemon
 	cmd := utils.GetBackendCLIPath() + " delete"
-
 	out, cmdErr := shell.ShelloutWithSpinner(cmd, delSpinnerText, delSuccessText, delFailureText)
-
 	if cmdErr != nil {
 		filePath, _ := utils.DumpError(out)
 		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("installation failed, Check %s for details\n", filePath))
@@ -117,64 +170,27 @@ func logicZkDelete(ctx context.Context) error {
 	}
 
 	// Step2: Adding finalizer to zk-client namespace so that zk-operator can properly shut itself down
-	kubeconfig := viper.GetString(KUBECONFIG_FLAG)
-	kubecontext := viper.GetString(KUBECONTEXT_FLAG)
-
-	kubeClient, err := k8s.NewKubeClient(kubeconfig, kubecontext)
-	if err != nil {
-		return err
+	finalizer := "operator/cleanup-pods"
+	finalizerAlreadyPresent := false
+	for _, f := range namespace.ObjectMeta.Finalizers {
+		if f == finalizer {
+			finalizerAlreadyPresent = true
+			break
+		}
 	}
-	namespace, err := kubeClient.CoreV1().Namespaces().Get(context.TODO(), "zk-client", metav1.GetOptions{})
-	if err != nil {
-		if !errors.IsNotFound(err) {
+	if !finalizerAlreadyPresent {
+		namespace.ObjectMeta.Finalizers = append(namespace.ObjectMeta.Finalizers, finalizer)
+		_, err = kubeClient.CoreV1().Namespaces().Update(context.TODO(), namespace, metav1.UpdateOptions{})
+		if err != nil {
 			return err
 		}
-	} else {
-		finalizer := "operator/cleanup-pods"
-		finalizerAlreadyPresent := false
-		for _, f := range namespace.ObjectMeta.Finalizers {
-			if f == finalizer {
-				finalizerAlreadyPresent = true
-				break
-			}
-		}
-		if !finalizerAlreadyPresent {
-			namespace.ObjectMeta.Finalizers = append(namespace.ObjectMeta.Finalizers, finalizer)
-			_, err = kubeClient.CoreV1().Namespaces().Update(context.TODO(), namespace, metav1.UpdateOptions{})
-			if err != nil {
-				return err
-			}
-		}
 	}
 
-	// Step3: delete namespaces
-	// iterating one by one as deleting all namespaces using k8s is throwing error in case a namespace doesn;t exists
-	deleteNamespaces(kubeClient, "pl", "olm", "zk-client", "px-operator")
-	//namespaces := []string{"pl", "olm", "zk-client", "px-operator"}
-	//for _, namespaceName := range namespaces {
-	//	err := kubeClient.CoreV1().Namespaces().Delete(context.TODO(), namespaceName, metav1.DeleteOptions{})
-	//	if err != nil {
-	//		if !errors.IsNotFound(err) {
-	//			return err
-	//		}
-	//	}
-	//}
+	// Step3: Delete namespaces, CRDs, clusterRoles and clusterRoleBindings
+	deleteNamespacesSilent(kubeClient, namespacesToDelete...)
+	deleteCRDSilent(crdsToDelete)
+	deleteClusterRolesSilent(kubeClient, clusterRoles...)
+	deleteClusterRoleBindingsSilent(kubeClient, clusterRoleBindings...)
 
-	//Deleting CRD
-	deleteCRD("zerokops.operator.zerok.ai")
-
-	//Deleting clusterRoleBindings
-	deleteClusterRoles(kubeClient, "zk-daemonset", "zk-operator-metrics-reader", "zk-operator-proxy-role", "zk-operator-role")
-	deleteClusterRoleBindings(kubeClient, "zk-daemonset", "zk-operator-proxy-rolebinding", "zk-operator-rolebinding")
-
-	//Old code
-	//out, err = shell.ExecWithDurationAndSuccessM(shell.GetPWD()+zkUninstallOperator, "zeroK operator uninstalled successfully")
-	//if err != nil {
-	//	filePath, _ := utils.DumpError(out)
-	//	ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("installation failed, Check %s for details\n", filePath))
-	//	return err
-	//}
-
-	//TODO: check all the namespaces and deactivate them
 	return nil
 }

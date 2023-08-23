@@ -432,22 +432,22 @@ func promptInstallSummary(clusterName string, namespace string, deployableNodesC
 
 func installBackendCLI(ctx context.Context) error {
 
-	use_version := "latest"
-	artifact_bucket := "pixie-dev-public"
-	if strings.Contains(use_version, "-") {
-		artifact_bucket = "pixie-prod-artifacts"
+	useVersion := "latest"
+	artifactBucket := "pixie-dev-public"
+	if strings.Contains(useVersion, "-") {
+		artifactBucket = "pixie-prod-artifacts"
 	}
-	artifact_base_path := fmt.Sprintf("https://storage.googleapis.com/%s/cli", artifact_bucket)
+	artifactBasePath := fmt.Sprintf("https://storage.googleapis.com/%s/cli", artifactBucket)
 
 	err := utils.BackendCLIExists()
 	if err != nil {
 		ui.GlobalWriter.PrintflnWithPrefixArrow("installing full CLI support")
 
-		artifact_name := "cli_darwin_universal"
+		artifactName := "cli_darwin_universal"
 		if runtime.GOOS == "linux" {
-			artifact_name = "cli_linux_amd64"
+			artifactName = "cli_linux_amd64"
 		}
-		url := fmt.Sprintf("%s/%s/%s", artifact_base_path, use_version, artifact_name)
+		url := fmt.Sprintf("%s/%s/%s", artifactBasePath, useVersion, artifactName)
 		err = utils.DownloadBackendCLI(url)
 	} else {
 		ui.GlobalWriter.PrintSuccessMessage("full CLI support already installed\n")
