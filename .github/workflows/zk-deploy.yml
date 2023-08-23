@@ -29,24 +29,24 @@ on:
           - install
           - uninstall
           - dev-install
-      ZK_SCENARIO_MANAGER_VERSION:
-        description: 'Scenario manager version'
-        default: '0.0.1-dev'
-      ZK_AXON_VERSION:
-        description: 'Axon version'
-        default: '0.0.1-dev'
-      ZK_DAEMONSET_VERSION:
-        description: 'Daemonset version'
-        default: '0.0.1-dev'
-      ZK_GPT_VERSION:
-        description: 'GPT version'
-        default: '0.0.1-dev'
-      ZK_WSP_CLIENT_VERSION:
-        description: 'Wsp client version'
-        default: '0.0.1-dev'
-      ZK_OPERATOR_VERSION:
-        description: 'Operator version'
-        default: '0.0.1-dev'
+#      ZK_SCENARIO_MANAGER_VERSION:
+#        description: 'Scenario manager version'
+#        default: '0.0.1-dev'
+#      ZK_AXON_VERSION:
+#        description: 'Axon version'
+#        default: '0.0.1-dev'
+#      ZK_DAEMONSET_VERSION:
+#        description: 'Daemonset version'
+#        default: '0.0.1-dev'
+#      ZK_GPT_VERSION:
+#        description: 'GPT version'
+#        default: '0.0.1-dev'
+#      ZK_WSP_CLIENT_VERSION:
+#        description: 'Wsp client version'
+#        default: '0.0.1-dev'
+#      ZK_OPERATOR_VERSION:
+#        description: 'Operator version'
+#        default: '0.0.1-dev'
   workflow_call:
     inputs:
       VERSION:
