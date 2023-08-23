@@ -170,7 +170,7 @@ jobs:
         run: |-
           export CLUSTER_NAME=$CLUSTERNAME
           export ZK_CLOUD_ADDRESS=$ZK_CLOUD_ADDRESS
-          go run main.go install --apikey $ZK_API_KEY
+          go run main.go install -y --apikey $ZK_API_KEY
 
       - name: Install
         if: ${{ env.ACTION == 'dev-install' }}
@@ -183,9 +183,9 @@ jobs:
           export ZK_GPT_VERSION=$ZK_GPT_VERSION
           export ZK_WSP_CLIENT_VERSION=$ZK_WSP_CLIENT_VERSION
           export ZK_OPERATOR_VERSION=$ZK_OPERATOR_VERSION
-          go run main.go install --apikey $ZK_API_KEY --dev=zk-scenario-manager=$ZK_SCENARIO_MANAGER_VERSION,zk-axon=$ZK_AXON_VERSION,zk-daemonset=$ZK_DAEMONSET_VERSION,zk-gpt=$ZK_GPT_VERSION,zk-wsp-client=$ZK_WSP_CLIENT_VERSION,zk-operator=$ZK_OPERATOR_VERSION
+          go run main.go install -y --apikey $ZK_API_KEY --dev=zk-scenario-manager=$ZK_SCENARIO_MANAGER_VERSION,zk-axon=$ZK_AXON_VERSION,zk-daemonset=$ZK_DAEMONSET_VERSION,zk-gpt=$ZK_GPT_VERSION,zk-wsp-client=$ZK_WSP_CLIENT_VERSION,zk-operator=$ZK_OPERATOR_VERSION
 
       - name: Uninstall
         if: ${{ env.ACTION == 'uninstall' }}
         run: |-
-          go run main.go delete
+          go run main.go delete -y
