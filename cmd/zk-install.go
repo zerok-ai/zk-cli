@@ -285,7 +285,7 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 			ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", chmodErr))
 		}
 		zkCloudAddr := viper.Get(ZK_CLOUD_ADDRESS_FLAG).(string)
-		outerr, err := shell.ExecWithDurationAndSuccessM(shell.GetPWD()+zkInstallDevClient+
+		_, err := shell.ExecWithDurationAndSuccessM(shell.GetPWD()+zkInstallDevClient+
 			" ZK_CLOUD_ADDR="+zkCloudAddr+
 			" ZK_SCENARIO_MANAGER_VERSION="+keyValueMap["zk-scenario-manager"]+
 			" ZK_AXON_VERSION="+keyValueMap["zk-axon"]+
