@@ -46,7 +46,9 @@ const (
 	VIZIER_TAG_FLAG         = "VIZIER_TAG"
 	ZK_CLOUD_ADDRESS_FLAG   = "ZK_CLOUD_ADDRESS"
 	API_KEY_FLAG            = "apikey"
+	DEV_KEY_FLAG            = "dev"
 	API_KEY_ENV_FLAG        = "API_KEY"
+	DEV_KEY_ENV_FLAG        = "ZK_DEV"
 	API_KEY_WARNING_MESSAGE = "api key is not set. To continue, please get the apikey from zerok dashboard and paste below."
 	API_KEY_QUESTION        = "enter api key"
 	API_KEY_ERROR_MESSAGE   = "apikey is not set. Run the help command for more details"
@@ -83,7 +85,8 @@ const (
 	waitTimeForService               = 160
 	waitTimeForInstallationInSeconds = 240
 
-	zkInstallClient      string = "/helm-charts/install.sh"
+	zkInstallClient      string = "/base-charts/install.sh"
+	zkInstallDevClient   string = "/scripts/install-dev.sh"
 	zkInstallStores      string = "/db-helm-charts/install-db.sh"
 	zkUnInstallClient    string = "/helm-charts/uninstall.sh"
 	pxVizierDevModeSetup string = "/zpx/scripts/setup-vizier-cli.sh"
@@ -128,6 +131,10 @@ func init() {
 	installCmd.PersistentFlags().String(API_KEY_FLAG, "", "api key. This can also be set through environment variable "+API_KEY_ENV_FLAG+" instead of passing the parameter")
 	viper.BindPFlag(API_KEY_FLAG, installCmd.PersistentFlags().Lookup(API_KEY_FLAG))
 	viper.BindEnv(API_KEY_FLAG, API_KEY_ENV_FLAG)
+
+	installCmd.PersistentFlags().String(DEV_KEY_FLAG, "z", "For internal use only")
+	viper.BindPFlag(DEV_KEY_FLAG, installCmd.PersistentFlags().Lookup(DEV_KEY_FLAG))
+	viper.BindEnv(DEV_KEY_FLAG, DEV_KEY_ENV_FLAG)
 }
 
 func CheckFlags() error {
@@ -138,6 +145,26 @@ func CheckFlags() error {
 	} else {
 		apiKey = ""
 	}
+
+	//if viper.Get(DEV_KEY_FLAG) != nil {
+	//	devKey := viper.Get(DEV_KEY_FLAG).(string)
+	//	pairs := strings.Split(devKey, ",") // Split by comma
+	//	keyValueMap := make(map[string]string)
+	//	for _, pair := range pairs {
+	//		parts := strings.Split(pair, "=") // Split by equal sign
+	//		if len(parts) == 2 {
+	//			key := parts[0]
+	//			value := parts[1]
+	//			keyValueMap[key] = value
+	//		}
+	//	}
+	//	log.Println(" ZK_SCENARIO_MANAGER_VERSION=" + keyValueMap["zk-scenario-manager"])
+	//	log.Println(" ZK_AXON_VERSION=" + keyValueMap["zk-axon"])
+	//	log.Println(" ZK_DAEMONSET_VERSION=" + keyValueMap["zk-daemonset"])
+	//	log.Println(" ZK_GPT_VERSION=" + keyValueMap["zk-gpt"])
+	//	log.Println(" ZK_WSP_CLIENT_VERSION=" + keyValueMap["zk-wsp-client"])
+	//	log.Println(" ZK_OPERATOR_VERSION=" + keyValueMap["zk-operator"])
+	//}
 
 	if apiKey == "" {
 		ui.GlobalWriter.PrintlnWarningMessageln(API_KEY_WARNING_MESSAGE)
@@ -194,6 +221,16 @@ func RunInstallPreCmd(cmd *cobra.Command, args []string) error {
 
 func RunInstallCmd(cmd *cobra.Command, args []string) error {
 
+	//if true {
+	//	return nil
+	//}
+
+	// login to px
+	if err := LoginToPX(cmd.Context(), apiKey); err != nil {
+		// send to sentry and print
+		return err
+	}
+
 	//Install zk-client stores
 	_, chmodDbErr := shell.ExecWithDurationAndSuccessM("chmod +x "+shell.GetPWD()+zkInstallStores, "")
 	if chmodDbErr != nil {
@@ -212,19 +249,57 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	//Install zk-client
-	_, chmodErr := shell.ExecWithDurationAndSuccessM("chmod +x "+shell.GetPWD()+zkInstallClient, "")
-	if chmodErr != nil {
-		ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", chmodErr))
-	}
-	zkCloudAddr := viper.Get(ZK_CLOUD_ADDRESS_FLAG).(string)
-	_, err := shell.ExecWithDurationAndSuccessM(shell.GetPWD()+zkInstallClient+
-		" ZK_CLOUD_ADDR="+zkCloudAddr+
-		" PX_API_KEY="+apiKey+
-		" PX_CLUSTER_KEY="+clusterKey+
-		" APP_NAME=zk-client", "zeroK operator installed successfully")
-	if err != nil {
-		ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", err))
-		return err
+	if viper.Get(DEV_KEY_FLAG) == nil {
+		//prod mode
+		_, chmodErr := shell.ExecWithDurationAndSuccessM("chmod +x "+shell.GetPWD()+zkInstallClient, "")
+		if chmodErr != nil {
+			ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", chmodErr))
+		}
+		zkCloudAddr := viper.Get(ZK_CLOUD_ADDRESS_FLAG).(string)
+		_, err := shell.ExecWithDurationAndSuccessM(shell.GetPWD()+zkInstallClient+
+			" ZK_CLOUD_ADDR="+zkCloudAddr+
+			" PX_API_KEY="+apiKey+
+			" PX_CLUSTER_KEY="+clusterKey+
+			" APP_NAME=zk-client", "zeroK operator installed successfully")
+		if err != nil {
+			ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", err))
+			return err
+		}
+	} else {
+		ui.GlobalWriter.Println("zerok dev mode is enabled")
+		//dev mode
+		devKey := viper.Get(DEV_KEY_FLAG).(string)
+		pairs := strings.Split(devKey, ",") // Split by comma
+		keyValueMap := make(map[string]string)
+		for _, pair := range pairs {
+			parts := strings.Split(pair, "=") // Split by equal sign
+			if len(parts) == 2 {
+				key := parts[0]
+				value := parts[1]
+				keyValueMap[key] = value
+			}
+		}
+
+		_, chmodErr := shell.ExecWithDurationAndSuccessM("chmod +x "+shell.GetPWD()+zkInstallDevClient, "")
+		if chmodErr != nil {
+			ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", chmodErr))
+		}
+		zkCloudAddr := viper.Get(ZK_CLOUD_ADDRESS_FLAG).(string)
+		outerr, err := shell.ExecWithDurationAndSuccessM(shell.GetPWD()+zkInstallDevClient+
+			" ZK_CLOUD_ADDR="+zkCloudAddr+
+			" ZK_SCENARIO_MANAGER_VERSION="+keyValueMap["zk-scenario-manager"]+
+			" ZK_AXON_VERSION="+keyValueMap["zk-axon"]+
+			" ZK_DAEMONSET_VERSION="+keyValueMap["zk-daemonset"]+
+			" ZK_GPT_VERSION="+keyValueMap["zk-gpt"]+
+			" ZK_WSP_CLIENT_VERSION="+keyValueMap["zk-wsp-client"]+
+			" ZK_OPERATOR_VERSION="+keyValueMap["zk-operator"]+
+			" PX_API_KEY="+apiKey+
+			" PX_CLUSTER_KEY="+clusterKey, "zeroK operator installed successfully")
+		//log.Println(outerr)
+		if err != nil {
+			ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", err))
+			return err
+		}
 	}
 
 	// install the kustomization for vizier over the default code
@@ -513,17 +588,6 @@ func GetHTTPGETResponse(url string, target interface{}) error {
 }
 
 func installPXOperator(ctx context.Context, apiKey string) (err error) {
-
-	// login to px
-	if err = LoginToPX(ctx, apiKey); err != nil {
-		// send to sentry and print
-		return err
-	}
-
-	//TODO:AVIN DEBUG - REMOVE THIS
-	//if true {
-	//	return nil
-	//}
 
 	// start deployment in background
 	go func() {
