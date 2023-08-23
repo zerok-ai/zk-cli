@@ -28,6 +28,25 @@ on:
         options:
           - install
           - uninstall
+          - dev-install
+      ZK_SCENARIO_MANAGER_VERSION:
+        description: 'Scenario manager version'
+        default: '0.0.1-dev'
+      ZK_AXON_VERSION:
+        description: 'Axon version'
+        default: '0.0.1-dev'
+      ZK_DAEMONSET_VERSION:
+        description: 'Daemonset version'
+        default: '0.0.1-dev'
+      ZK_GPT_VERSION:
+        description: 'GPT version'
+        default: '0.0.1-dev'
+      ZK_WSP_CLIENT_VERSION:
+        description: 'Wsp client version'
+        default: '0.0.1-dev'
+      ZK_OPERATOR_VERSION:
+        description: 'Operator version'
+        default: '0.0.1-dev'
   workflow_call:
     inputs:
       VERSION:
@@ -60,6 +79,13 @@ env:
   POSTGRES_DB: ${{ vars.POSTGRES_DB }}
   POSTGRES_HOST: ${{ vars.POSTGRES_HOST }}
   POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+  ZK_SCENARIO_MANAGER_VERSION: ${{ vars.ZK_SCENARIO_MANAGER_VERSION }}
+  ZK_AXON_VERSION: ${{ vars.ZK_AXON_VERSION }}
+  ZK_DAEMONSET_VERSION: ${{ vars.ZK_DAEMONSET_VERSION }}
+  ZK_GPT_VERSION: ${{ vars.ZK_GPT_VERSION }}
+  ZK_WSP_CLIENT_VERSION: ${{ vars.ZK_WSP_CLIENT_VERSION }}
+  ZK_OPERATOR_VERSION: ${{ vars.ZK_OPERATOR_VERSION }}
+
 jobs:
   init:
     runs-on: zk-self-hosted
@@ -145,6 +171,19 @@ jobs:
           export CLUSTER_NAME=$CLUSTERNAME
           export ZK_CLOUD_ADDRESS=$ZK_CLOUD_ADDRESS
           go run main.go install --apikey $ZK_API_KEY
+
+      - name: Install
+        if: ${{ env.ACTION == 'dev-install' }}
+        run: |-
+          export CLUSTER_NAME=$CLUSTERNAME
+          export ZK_CLOUD_ADDRESS=$ZK_CLOUD_ADDRESS
+          export ZK_SCENARIO_MANAGER_VERSION=$ZK_SCENARIO_MANAGER_VERSION
+          export ZK_AXON_VERSION=$ZK_AXON_VERSION
+          export ZK_DAEMONSET_VERSION=$ZK_DAEMONSET_VERSION
+          export ZK_GPT_VERSION=$ZK_GPT_VERSION
+          export ZK_WSP_CLIENT_VERSION=$ZK_WSP_CLIENT_VERSION
+          export ZK_OPERATOR_VERSION=$ZK_OPERATOR_VERSION
+          go run main.go install --apikey $ZK_API_KEY --dev=zk-scenario-manager=$ZK_SCENARIO_MANAGER_VERSION,zk-axon=$ZK_AXON_VERSION,zk-daemonset=$ZK_DAEMONSET_VERSION,zk-gpt=$ZK_GPT_VERSION,zk-wsp-client=$ZK_WSP_CLIENT_VERSION,zk-operator=$ZK_OPERATOR_VERSION
 
       - name: Uninstall
         if: ${{ env.ACTION == 'uninstall' }}
