@@ -45,31 +45,18 @@ type OperatorToken struct {
 const (
 	VIZIER_TAG_FLAG         = "VIZIER_TAG"
 	ZK_CLOUD_ADDRESS_FLAG   = "ZK_CLOUD_ADDRESS"
-	API_KEY_FLAG            = "apikey"
 	DEV_KEY_FLAG            = "dev"
-	API_KEY_ENV_FLAG        = "API_KEY"
 	DEV_KEY_ENV_FLAG        = "ZK_DEV"
+	VERSION_KEY_FLAG        = "zkVersion"
+	VERSION_KEY_ENV_FLAG    = "ZK_VERSION"
+	API_KEY_FLAG            = "apikey"
+	API_KEY_ENV_FLAG        = "ZK_API_KEY"
 	API_KEY_WARNING_MESSAGE = "api key is not set. To continue, please get the apikey from zerok dashboard and paste below."
 	API_KEY_QUESTION        = "enter api key"
 	API_KEY_ERROR_MESSAGE   = "apikey is not set. Run the help command for more details"
 
-	VALUES_FLAG                         = "values"
-	EXPERIMENTAL_FLAG                   = "experimental"
-	NO_PVC_FLAG                         = "no-pvc"
-	LOW_RESOURCES_FLAG                  = "low-resources"
-	STORE_ISSUES_LOGS_ONLY_FLAG         = "store-issues-logs-only"
-	STORE_ISSUES_LOGS_ONLY_KEY          = "storeIssuesLogsOnly"
-	COMMIT_HASH_KEY_NAME_FLAG           = "git-commit-hash-key-name"
-	REPOSITORY_URL_KEY_NAME_FLAG        = "git-repository-url-key-name"
-	EXPERIMENTAL_PRESET_PATH            = "presets/agent/experimental.yaml"
-	LOW_RESOURCES_NOTICE_MESSAGE_FORMAT = "We get it, you like things light 🪁\n   But since you’re deploying on a %s we’ll have to limit some of our features to make sure it’s smooth sailing.\n   For the full experience, try deploying on a different cluster\n"
-	WAIT_FOR_GET_LATEST_CHART_FORMAT    = "Waiting for downloading latest chart to complete"
-	WAIT_FOR_GET_LATEST_CHART_SUCCESS   = "Downloading latest chart completed successfully"
-	WAIT_FOR_GET_LATEST_CHART_FAILURE   = "Latest chart download failed:"
-	WAIT_FOR_GET_LATEST_CHART_TIMEOUT   = "Latest chart download timeout"
-	GET_LATEST_CHART_POLLING_RETIRES    = 3
-	GET_LATEST_CHART_POLLING_INTERVAL   = time.Second * 1
-	GET_LATEST_CHART_POLLING_TIMEOUT    = time.Second * 10
+	NO_PVC_FLAG        = "no-pvc"
+	LOW_RESOURCES_FLAG = "low-resources"
 
 	CONTEXT                      = "ctx"
 	SHOULD_PRINT_SUCCESS_MESSAGE = "should_print_success_msg"
@@ -78,12 +65,7 @@ const (
 	YES                          = "yes"
 	NO                           = "no"
 
-	APPLY_POLLING_RETRIES  = 1
-	APPLY_POLLING_TIMEOUT  = time.Minute * 3
-	APPLY_POLLING_INTERVAL = time.Second / 10
-
-	waitTimeForService               = 160
-	waitTimeForInstallationInSeconds = 240
+	waitTimeForService = 160
 
 	zkInstallClient      string = "/base-charts/install.sh"
 	zkInstallDevClient   string = "/scripts/install-dev.sh"
@@ -128,13 +110,10 @@ var installCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(installCmd)
 
-	installCmd.PersistentFlags().String(API_KEY_FLAG, "", "api key. This can also be set through environment variable "+API_KEY_ENV_FLAG+" instead of passing the parameter")
-	viper.BindPFlag(API_KEY_FLAG, installCmd.PersistentFlags().Lookup(API_KEY_FLAG))
-	viper.BindEnv(API_KEY_FLAG, API_KEY_ENV_FLAG)
-
-	installCmd.PersistentFlags().String(DEV_KEY_FLAG, "z", "For internal use only")
-	viper.BindPFlag(DEV_KEY_FLAG, installCmd.PersistentFlags().Lookup(DEV_KEY_FLAG))
-	viper.BindEnv(DEV_KEY_FLAG, DEV_KEY_ENV_FLAG)
+	// add flags
+	utils.AddBoolFlag(RootCmd, DEV_KEY_FLAG, DEV_KEY_ENV_FLAG, "z", false, "for internal use only", true)
+	utils.AddStringFlag(RootCmd, API_KEY_FLAG, API_KEY_ENV_FLAG, "", "", "api key. This can also be set through environment variable "+API_KEY_ENV_FLAG+" instead of passing the parameter", false)
+	utils.AddStringFlag(RootCmd, VERSION_KEY_FLAG, VERSION_KEY_ENV_FLAG, "", "", "version of the installation", false)
 }
 
 func CheckFlags() error {
@@ -221,97 +200,92 @@ func RunInstallPreCmd(cmd *cobra.Command, args []string) error {
 
 func RunInstallCmd(cmd *cobra.Command, args []string) error {
 
-	//if true {
-	//	return nil
-	//}
+	var err error
+	var out string
+	ctx := cmd.Context()
 
-	// login to px
-	if err := LoginToPX(cmd.Context(), apiKey); err != nil {
+	// 1. login to px
+	if err = LoginToPX(ctx, apiKey); err != nil {
 		// send to sentry and print
 		return err
 	}
 
-	//Install zk-client stores
-	_, chmodDbErr := shell.ExecWithDurationAndSuccessM("chmod +x "+shell.GetPWD()+zkInstallStores, "")
-	if chmodDbErr != nil {
-		ui.LogAndPrintError(fmt.Errorf("failed to install zeroK stores: %v", chmodDbErr))
-	}
-	_, installDbErr := shell.ExecWithDurationAndSuccessM("APP_NAME=zk-stores "+shell.GetPWD()+zkInstallStores, "zeroK stores installed successfully")
-	if installDbErr != nil {
-		ui.LogAndPrintError(fmt.Errorf("failed to install zeroK stores: %v", installDbErr))
-		return installDbErr
+	// 2. Install zk-client stores
+	err = executeShellFile(shell.GetPWD()+zkInstallStores, " APP_NAME=zk-stores ",
+		"failed to install zk_stores", "zk_stores installed successfully")
+	if err != nil {
+		return err
 	}
 
-	//Install default pixie - pl
-	pxErr := installPXOperator(cmd.Context(), apiKey)
-	if pxErr != nil {
-		return pxErr
+	// 3. Install default pixie - pl
+	err = installPXOperator(ctx, apiKey)
+	if err != nil {
+		return err
 	}
 
-	//Install zk-client
-	if viper.Get(DEV_KEY_FLAG) == nil {
-		//prod mode
-		_, chmodErr := shell.ExecWithDurationAndSuccessM("chmod +x "+shell.GetPWD()+zkInstallClient, "")
-		if chmodErr != nil {
-			ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", chmodErr))
-		}
-		zkCloudAddr := viper.Get(ZK_CLOUD_ADDRESS_FLAG).(string)
-		_, err := shell.ExecWithDurationAndSuccessM(shell.GetPWD()+zkInstallClient+
-			" ZK_CLOUD_ADDR="+zkCloudAddr+
-			" PX_API_KEY="+apiKey+
-			" PX_CLUSTER_KEY="+clusterKey+
-			" APP_NAME=zk-client", "zeroK operator installed successfully")
-		if err != nil {
-			ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", err))
-			return err
-		}
-	} else {
-		ui.GlobalWriter.Println("zerok dev mode is enabled")
-		//dev mode
-		devKey := viper.Get(DEV_KEY_FLAG).(string)
-		pairs := strings.Split(devKey, ",") // Split by comma
-		keyValueMap := make(map[string]string)
-		for _, pair := range pairs {
-			parts := strings.Split(pair, "=") // Split by equal sign
-			if len(parts) == 2 {
-				key := parts[0]
-				value := parts[1]
-				keyValueMap[key] = value
-			}
-		}
-
-		_, chmodErr := shell.ExecWithDurationAndSuccessM("chmod +x "+shell.GetPWD()+zkInstallDevClient, "")
-		if chmodErr != nil {
-			ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", chmodErr))
-		}
-		zkCloudAddr := viper.Get(ZK_CLOUD_ADDRESS_FLAG).(string)
-		_, err := shell.ExecWithDurationAndSuccessM(shell.GetPWD()+zkInstallDevClient+
-			" ZK_CLOUD_ADDR="+zkCloudAddr+
-			" ZK_SCENARIO_MANAGER_VERSION="+keyValueMap["zk-scenario-manager"]+
-			" ZK_AXON_VERSION="+keyValueMap["zk-axon"]+
-			" ZK_DAEMONSET_VERSION="+keyValueMap["zk-daemonset"]+
-			" ZK_GPT_VERSION="+keyValueMap["zk-gpt"]+
-			" ZK_WSP_CLIENT_VERSION="+keyValueMap["zk-wsp-client"]+
-			" ZK_OPERATOR_VERSION="+keyValueMap["zk-operator"]+
-			" PX_API_KEY="+apiKey+
-			" PX_CLUSTER_KEY="+clusterKey, "zeroK operator installed successfully")
-		//log.Println(outerr)
-		if err != nil {
-			ui.LogAndPrintError(fmt.Errorf("failed to install zkoperator: %v", err))
-			return err
-		}
+	// 4. Install zk-client
+	err = installZKServices()
+	if err != nil {
+		return err
 	}
 
-	// install the kustomization for vizier over the default code
-	// doing it later as it needs the redis instance to come up
-	out, err := shell.Shellout("VIZIER_TAG="+vizierTag+" ./"+pxVizierDevModeSetup, false)
+	// 5. install the kustomization for vizier over the default code -- doing it later as it needs the redis instance to come up
+	out, err = shell.Shellout("VIZIER_TAG="+vizierTag+" ./"+pxVizierDevModeSetup, false)
 	if err != nil {
 		filePath, _ := utils.DumpError(out)
 		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("vizier installation failed, Check %s for details\n", filePath))
 	}
 
+	// 6. print success message
 	if err == nil {
 		ui.GlobalWriter.PrintlnSuccessMessageln("installation done")
+	}
+	return err
+}
+
+func installZKServices() error {
+	var inputToShellFile, shellFile string
+	zkCloudAddr := viper.Get(ZK_CLOUD_ADDRESS_FLAG).(string)
+	if viper.Get(DEV_KEY_FLAG) == true {
+		ui.GlobalWriter.Println("zerok dev mode is enabled")
+
+		//get the versions
+		versions := viper.Get(VERSION_KEY_FLAG).(string)
+		keyValueMap := utils.GetKVPairsFromCSV(versions)
+
+		shellFile = zkInstallDevClient
+		inputToShellFile = " ZK_CLOUD_ADDR=" + zkCloudAddr +
+			" ZK_SCENARIO_MANAGER_VERSION=" + keyValueMap["zk-scenario-manager"] +
+			" ZK_AXON_VERSION=" + keyValueMap["zk-axon"] +
+			" ZK_DAEMONSET_VERSION=" + keyValueMap["zk-daemonset"] +
+			" ZK_GPT_VERSION=" + keyValueMap["zk-gpt"] +
+			" ZK_WSP_CLIENT_VERSION=" + keyValueMap["zk-wsp-client"] +
+			" ZK_OPERATOR_VERSION=" + keyValueMap["zk-operator"] +
+			" PX_API_KEY=" + apiKey +
+			" PX_CLUSTER_KEY=" + clusterKey
+	} else {
+		shellFile = zkInstallClient
+		inputToShellFile = " ZK_CLOUD_ADDR=" + zkCloudAddr +
+			" PX_API_KEY=" + apiKey +
+			" PX_CLUSTER_KEY=" + clusterKey +
+			" APP_NAME=zk-client"
+	}
+	return executeShellFile(shell.GetPWD()+shellFile, inputToShellFile, "failed to install zk_operator", "zk_operator installed successfully")
+}
+
+func executeShellFile(shellFile, inputParameters, successMessage, errorMessage string) error {
+
+	// make the file executable
+	_, chmodErr := shell.ExecWithDurationAndSuccessM("chmod +x "+shellFile, "")
+	if chmodErr != nil {
+		ui.LogAndPrintError(fmt.Errorf(errorMessage+": %v", chmodErr))
+		return chmodErr
+	}
+
+	// execute the file
+	_, err := shell.ExecWithDurationAndSuccessM(shellFile+inputParameters, successMessage)
+	if err != nil {
+		ui.LogAndPrintError(fmt.Errorf(errorMessage+": %v", err))
 	}
 	return err
 }
