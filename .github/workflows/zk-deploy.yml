@@ -8,11 +8,15 @@ on:
       DOCKER_TAG:
         description: 'Docker Image Tag'
         required: true
-        default: 'latest'
+        default: '0.0.1-dev'
       GKE_CLUSTER:
         description: 'Cluster Name'
         required: true
-        default: 'pxclient02'
+        default: 'devclient03'
+      VIZIER_TAG:
+        description: 'Vizier Tag'
+        required: true
+        default: 'newcols0.0.1'
       ZK_CLOUD_ADDRESS:
         description: 'Url of ZK_CLOUD cluster'
         required: true
@@ -62,6 +66,7 @@ env:
   DOCKER_TAG: ${{ github.event.inputs.DOCKER_TAG }}
   GKE_CLUSTER: ${{ github.event.inputs.GKE_CLUSTER }}
   ZK_CLOUD_ADDRESS: ${{ github.event.inputs.ZK_CLOUD_ADDRESS }}
+  VIZIER_TAG: ${{ github.event.inputs.VIZIER_TAG }}
   ZK_API_KEY: ${{ github.event.inputs.ZK_API_KEY }}
   ACTION: ${{ github.event.inputs.ACTION }}
   GOOS: ${{ vars.GOOS }}
@@ -88,47 +93,11 @@ env:
 
 jobs:
   init:
-    runs-on: zk-self-hosted
-    outputs:
-      ENVIRONMENT: ${{ steps.extractEnvironment.outputs.EXTRACTED_ENVIRONMENT }}
-      CLUSTERNAME: ${{ steps.extractClusterAndVersion.outputs.TAG_CLUSTERNAME }}
-      VERSION: ${{ steps.extractClusterAndVersion.outputs.TAG_VERSION }}
-    steps:
-      - name: Set tag envt var
-        run: |
-          echo "GIT_TAG=${GITHUB_REF#refs/*/}" >> "$GITHUB_ENV"
-
-      - name: Extract cluster and version
-        id: extractClusterAndVersion
-        run: |
-          if [ "$DOCKER_TAG" == "" ]; then
-            part1=$(echo "$GIT_TAG" | cut -d'/' -f2)
-            part2=$(echo "$GIT_TAG" | cut -d'/' -f3)
-            echo "TAG_CLUSTERNAME=$part1" >> $GITHUB_OUTPUT
-            echo "TAG_VERSION=$part2" >> $GITHUB_OUTPUT
-            clusterName=$part1
-          else
-            echo "TAG_CLUSTERNAME=$GKE_CLUSTER" >> $GITHUB_OUTPUT
-            echo "TAG_VERSION=$DOCKER_TAG" >> $GITHUB_OUTPUT
-            clusterName=$GKE_CLUSTER
-          fi
-          TAG_CLUSTERNAME_CAPITAL=$(echo "$clusterName" | tr '[:lower:]' '[:upper:]')
-          echo "TAG_CLUSTERNAME_CAPITAL=$TAG_CLUSTERNAME_CAPITAL" >> $GITHUB_OUTPUT
-
-      - name: Extract environment
-        id: extractEnvironment
-        env:
-          ORG_VARIABLE_NAME: ${{ format('{0}_ENV', steps.extractClusterAndVersion.outputs.TAG_CLUSTERNAME_CAPITAL) }}
-          ORG_VARIABLE: ${{ vars[format('{0}_ENV', steps.extractClusterAndVersion.outputs.TAG_CLUSTERNAME_CAPITAL)] }}
-        run: |
-          echo "EXTRACTED_ENVIRONMENT=$ORG_VARIABLE" >> $GITHUB_OUTPUT
-          echo "$ORG_VARIABLE_NAME"
-          echo "$ORG_VARIABLE"
-
-      - name: Dump steps context
-        env:
-          STEPS_CONTEXT: ${{ toJson(steps) }}
-        run: echo "$STEPS_CONTEXT"
+    uses: zerok-ai/zk-git-actions/.github/workflows/zk-dev-init.yml@main
+    with:
+      GKE_CLUSTER: ${{ github.event.inputs.GKE_CLUSTER }}
+      GIT_TAG: ${{ github.ref }}
+      DOCKER_TAG: ${{ github.event.inputs.DOCKER_TAG }}
 
   deploy:
     needs: init
@@ -143,6 +112,12 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Configure git for private modules
+        run: git config --global url."https://$TOKEN:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+
+      - name: Configure giot submodules
+        run: git submodule update --init --recursive
 
       - name: Check output
         run: |
@@ -170,9 +145,11 @@ jobs:
         run: |-
           export CLUSTER_NAME=$CLUSTERNAME
           export ZK_CLOUD_ADDRESS=$ZK_CLOUD_ADDRESS
+          export VIZIER_TAG=$VIZIER_TAG
+          export ZPIXIE_REPO=https://$TOKEN:x-oauth-basic@github.com/zerok-ai/zpixie.git
           go run main.go install -y --apikey $ZK_API_KEY
 
-      - name: Install
+      - name: Dev Install
         if: ${{ env.ACTION == 'dev-install' }}
         run: |-
           export CLUSTER_NAME=$CLUSTERNAME
@@ -183,7 +160,9 @@ jobs:
           export ZK_GPT_VERSION=$ZK_GPT_VERSION
           export ZK_WSP_CLIENT_VERSION=$ZK_WSP_CLIENT_VERSION
           export ZK_OPERATOR_VERSION=$ZK_OPERATOR_VERSION
-          go run main.go install -y --apikey $ZK_API_KEY --dev=zk-scenario-manager=$ZK_SCENARIO_MANAGER_VERSION,zk-axon=$ZK_AXON_VERSION,zk-daemonset=$ZK_DAEMONSET_VERSION,zk-gpt=$ZK_GPT_VERSION,zk-wsp-client=$ZK_WSP_CLIENT_VERSION,zk-operator=$ZK_OPERATOR_VERSION
+          export VIZIER_TAG=$VIZIER_TAG
+          export ZPIXIE_REPO=https://$TOKEN:x-oauth-basic@github.com/zerok-ai/zpixie.git
+          go run main.go install -y --apikey $ZK_API_KEY -d --zkVersion=zk-scenario-manager=$ZK_SCENARIO_MANAGER_VERSION,zk-axon=$ZK_AXON_VERSION,zk-daemonset=$ZK_DAEMONSET_VERSION,zk-gpt=$ZK_GPT_VERSION,zk-wsp-client=$ZK_WSP_CLIENT_VERSION,zk-operator=$ZK_OPERATOR_VERSION
 
       - name: Uninstall
         if: ${{ env.ACTION == 'uninstall' }}

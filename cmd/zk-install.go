@@ -71,7 +71,9 @@ const (
 	zkInstallDevClient   string = "/scripts/install-dev.sh"
 	zkInstallStores      string = "/db-helm-charts/install-db.sh"
 	zkUnInstallClient    string = "/helm-charts/uninstall.sh"
-	pxVizierDevModeSetup string = "/zpx/scripts/setup-vizier-cli.sh"
+	pxVizierDevModeSetup string = "/zpx/scripts/setup-vizier-export.sh"
+	pxVizierYaml         string = "/zpx/scripts/modified/vizier/exported-vizier.yaml"
+	cliVizierYaml        string = "/vizier/vizier.yaml"
 
 	diSpinnerText = "installing zerok daemon and associated CRDs"
 	diSuccessText = "zerok daemon installed successfully"
@@ -200,9 +202,8 @@ func RunInstallPreCmd(cmd *cobra.Command, args []string) error {
 
 func RunInstallCmd(cmd *cobra.Command, args []string) error {
 
-	var err error
-	var out string
 	ctx := cmd.Context()
+	var err error
 
 	// 1. login to px
 	if err = LoginToPX(ctx, apiKey); err != nil {
@@ -230,15 +231,37 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// 5. install the kustomization for vizier over the default code -- doing it later as it needs the redis instance to come up
-	out, err = shell.Shellout("VIZIER_TAG="+vizierTag+" ./"+pxVizierDevModeSetup, false)
+	err = installVizier()
 	if err != nil {
-		filePath, _ := utils.DumpError(out)
-		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("vizier installation failed, Check %s for details\n", filePath))
+		return err
 	}
 
 	// 6. print success message
 	if err == nil {
 		ui.GlobalWriter.PrintlnSuccessMessageln("installation done")
+	}
+	return err
+}
+
+func installVizier() error {
+	out, err := shell.Shellout("VIZIER_TAG="+vizierTag+" ./"+pxVizierDevModeSetup, false)
+	if err != nil {
+		filePath, _ := utils.DumpError(out)
+		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("vizier export failed, Check %s for details\n", filePath))
+		return err
+	}
+
+	out, err = shell.Shellout("cp ./"+pxVizierYaml+" ./"+cliVizierYaml, false)
+	if err != nil {
+		filePath, _ := utils.DumpError(out)
+		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("vizier copy failed, Check %s for details\n", filePath))
+		return err
+	}
+
+	out, err = shell.Shellout("kubectl apply -f ./"+cliVizierYaml, true)
+	if err != nil {
+		filePath, _ := utils.DumpError(out)
+		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("vizier install failed, Check %s for details\n", filePath))
 	}
 	return err
 }
