@@ -1,11 +1,21 @@
-package utils
+package internal
 
 import (
+	"errors"
+	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"strings"
+	"zkctl/cmd/pkg/shell"
 	"zkctl/cmd/pkg/ui"
 )
+
+const (
+	YesFlag = "yes"
+	NoFlag  = "no"
+)
+
+var ErrExecutionAborted = errors.New("execution aborted")
 
 func AddBoolFlag(cmd *cobra.Command, name, envFlag, shorthand string, defaultValue bool, usage string, isHidden bool) {
 	err := addBoolFlagE(cmd, name, envFlag, shorthand, defaultValue, usage, isHidden)
@@ -73,4 +83,21 @@ func GetKVPairsFromCSV(csv string) map[string]string {
 		}
 	}
 	return keyValueMap
+}
+
+func ExecuteShellFile(shellFile, inputParameters, successMessage, errorMessage string) error {
+
+	// make the file executable
+	_, chmodErr := shell.ExecWithDurationAndSuccessM("chmod +x "+shellFile, "")
+	if chmodErr != nil {
+		ui.LogAndPrintError(fmt.Errorf(errorMessage+": %v", chmodErr))
+		return chmodErr
+	}
+
+	// execute the file
+	_, err := shell.ExecWithDurationAndSuccessM(shellFile+inputParameters, successMessage)
+	if err != nil {
+		ui.LogAndPrintError(fmt.Errorf(errorMessage+": %v", err))
+	}
+	return err
 }

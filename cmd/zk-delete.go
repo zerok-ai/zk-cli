@@ -3,15 +3,15 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"zkctl/cmd/internal"
 	"zkctl/cmd/pkg/k8s"
 	"zkctl/cmd/pkg/shell"
 	"zkctl/cmd/pkg/ui"
 	"zkctl/cmd/pkg/utils"
-
-	"github.com/spf13/cobra"
 )
 
 const (
@@ -153,11 +153,11 @@ func logicZkDelete(ctx context.Context) error {
 	promptMessage := fmt.Sprintf(
 		"Remove Zerok from cluster (cluster: %s)", clusterName,
 	)
-	yesFlag := viper.GetBool(YES_FLAG)
+	yesFlag := viper.GetBool(internal.YesFlag)
 	if yesFlag {
 		ui.GlobalWriter.Println(promptMessage + " (yes flag is set)")
 	} else if !ui.GlobalWriter.YesNoPrompt(promptMessage, true) {
-		return ErrExecutionAborted
+		return internal.ErrExecutionAborted
 	}
 
 	// Step1: Uninstalling backend cli daemon

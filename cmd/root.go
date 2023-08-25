@@ -6,10 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"zkctl/cmd/internal"
 	"zkctl/cmd/pkg/ui"
 	"zkctl/cmd/pkg/utils"
 
@@ -21,11 +21,9 @@ import (
 const (
 	zerok_dir_name = ".zerok"
 
-	NAMESPACE_FLAG    = "namespace"
 	KUBECONFIG_FLAG   = "kubeconfig"
 	KUBECONTEXT_FLAG  = "kube-context"
 	CLUSTER_NAME_FLAG = "cluster-name"
-	YES_FLAG          = "yes"
 )
 
 var (
@@ -47,33 +45,7 @@ var (
 	❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄
 	
 	 	`,
-		// Run: func(cmd *cobra.Command, args []string) {
-		// 	fmt.Fprintf(os.Stderr, "Nothing to run here. Use --help for details \n")
-		// },
-		// PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		// 	var err error
-	
-		// 	segment.SetScope(cmd.Name())
-		// 	sentry_utils.SetTransactionOnCurrentScope(cmd.Name())
-	
-		// 	event := segment.NewEvent(cmd.Name())
-		// 	defer event.Start()
-	
-		// 	if err = validateAuthentication(cmd, args); err != nil {
-		// 		return err
-		// 	}
-	
-		// 	if !viper.GetBool(SKIP_CLI_UPDATE_FLAG) {
-		// 		return checkAndUpgradeVersion(cmd.Context())
-		// 	}
-	
-		// 	return nil
-		// },
 	}
-
-	ErrExecutionAborted = errors.New("execution aborted")
-
-	ErrForceAborted = errors.New("force abort")
 )
 
 func ExecuteContext(ctx context.Context) error {
@@ -98,8 +70,8 @@ func init() {
 	RootCmd.PersistentFlags().String(CLUSTER_NAME_FLAG, "", "cluster name")
 	viper.BindPFlag(CLUSTER_NAME_FLAG, RootCmd.PersistentFlags().Lookup(CLUSTER_NAME_FLAG))
 
-	RootCmd.PersistentFlags().BoolP(YES_FLAG, "y", false, "Automatic yes to prompts")
-	viper.BindPFlag(YES_FLAG, RootCmd.PersistentFlags().Lookup(YES_FLAG))
+	RootCmd.PersistentFlags().BoolP(internal.YesFlag, "y", false, "Automatic yes to prompts")
+	viper.BindPFlag(internal.YesFlag, RootCmd.PersistentFlags().Lookup(internal.YesFlag))
 
 	RootCmd.PersistentFlags().String(KUBECONTEXT_FLAG, "", "name of the kubeconfig context to use")
 	viper.BindPFlag(KUBECONTEXT_FLAG, RootCmd.PersistentFlags().Lookup(KUBECONTEXT_FLAG))
