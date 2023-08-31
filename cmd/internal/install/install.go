@@ -51,8 +51,12 @@ const (
 
 	waitTimeForService = 160
 
-	DevKeyFlag        = "dev"
-	DevKeyEnvFlag     = "ZK_DEV"
+	DevKeyFlag    = "dev"
+	DevKeyEnvFlag = "ZK_DEV"
+
+	VizierSetupKeyFlag    = "vz-setup"
+	VizierSetupKeyEnvFlag = "VZ_SETUP"
+
 	VersionKeyFlag    = "zkVersion"
 	VersionKeyEnvFlag = "ZK_VERSION"
 
@@ -187,7 +191,7 @@ func InstallPXOperator(ctx context.Context, apiKey string) (err error) {
 	return nil
 }
 
-func InstallVizier(vizierTag string) error {
+func createVizierYaml(vizierTag string) error {
 	out, err := shell.Shellout("VIZIER_TAG="+vizierTag+" ./"+pxVizierDevModeSetup, false)
 	if err != nil {
 		filePath, _ := utils.DumpError(out)
@@ -199,10 +203,21 @@ func InstallVizier(vizierTag string) error {
 	if err != nil {
 		filePath, _ := utils.DumpError(out)
 		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("vizier copy failed, Check %s for details\n", filePath))
-		return err
+	}
+	return err
+}
+
+func InstallVizier(vizierTag string) error {
+
+	// generate the vizier yaml. only to be used in dev mode
+	if viper.Get(DevKeyFlag) == true && viper.Get(DevKeyFlag) == true {
+		err := createVizierYaml(vizierTag)
+		if err != nil {
+			return err
+		}
 	}
 
-	out, err = shell.Shellout("kubectl apply -f ./"+cliVizierYaml, true)
+	out, err := shell.Shellout("kubectl apply -f ./"+cliVizierYaml, true)
 	if err != nil {
 		filePath, _ := utils.DumpError(out)
 		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("vizier install failed, Check %s for details\n", filePath))

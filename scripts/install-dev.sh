@@ -34,27 +34,21 @@ else
     echo "helm binary found."
 fi
 
+# add all helm repos
 helm repo add zk-scenario-manager https://helm.zerok.ai/zk-client/zk-scenario-manager
-helm repo update
-helm upgrade zk-scenario-manager zk-scenario-manager/zk-scenario-manager --install --create-namespace --namespace zk-client --version $ZK_SCENARIO_MANAGER_VERSION
-
 helm repo add zk-axon https://helm.zerok.ai/zk-client/zk-axon
-helm repo update
-helm upgrade zk-axon zk-axon/zk-axon --install --create-namespace --namespace zk-client --version $ZK_AXON_VERSION
-
 helm repo add zk-daemonset https://helm.zerok.ai/zk-client/zk-daemonset
-helm repo update
-helm upgrade zk-daemonset zk-daemonset/zk-daemonset --install --create-namespace --namespace zk-client --version $ZK_DAEMONSET_VERSION
-
 helm repo add zk-gpt https://helm.zerok.ai/zk-client/zk-gpt
-helm repo update
-helm upgrade zk-gpt zk-gpt/zk-gpt --install --create-namespace --namespace zk-client --version $ZK_GPT_VERSION
-
 helm repo add zk-wsp-client https://helm.zerok.ai/zk-client/zk-wsp-client
-helm repo update
-helm upgrade zk-wsp-client zk-wsp-client/zk-wsp-client --install --create-namespace --namespace zk-client --version $ZK_WSP_CLIENT_VERSION --set=global.zkcloud.host=$ZK_CLOUD_ADDR
-
-
 helm repo add zk-operator https://helm.zerok.ai/zk-client/zk-operator
+
+# update
 helm repo update
+
+# install
+helm upgrade zk-scenario-manager zk-scenario-manager/zk-scenario-manager --install --create-namespace --namespace zk-client --version $ZK_SCENARIO_MANAGER_VERSION
+helm upgrade zk-axon zk-axon/zk-axon --install --create-namespace --namespace zk-client --version $ZK_AXON_VERSION
+helm upgrade zk-daemonset zk-daemonset/zk-daemonset --install --create-namespace --namespace zk-client --version $ZK_DAEMONSET_VERSION
+helm upgrade zk-gpt zk-gpt/zk-gpt --install --create-namespace --namespace zk-client --version $ZK_GPT_VERSION
+helm upgrade zk-wsp-client zk-wsp-client/zk-wsp-client --install --create-namespace --namespace zk-client --version $ZK_WSP_CLIENT_VERSION --set=global.zkcloud.host=$ZK_CLOUD_ADDR
 helm upgrade zk-operator zk-operator/zk-operator --install --create-namespace --namespace zk-client --version $ZK_OPERATOR_VERSION
