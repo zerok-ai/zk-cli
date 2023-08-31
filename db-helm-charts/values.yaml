@@ -11,13 +11,35 @@ zk-wsp:
 
 redis:
   enabled: true
-  architecture: "standalone"
   nameOverride: redis
   fullnameOverride: redis
   auth:
+    enabled: true
+  metrics:
     enabled: false
+    serviceMonitor:
+      enabled: false
   image:
     tag: "6.2.12-debian-11-r23"
+  master:
+    persistence:
+      enabled: true
+  replica:
+    persistence:
+      enabled: true
+    resources:
+      limits:
+        cpu: 1
+        memory: 1Gi
+  sentinel:
+    enabled: true
+  commonConfiguration: |-
+    # Enable AOF https://redis.io/topics/persistence#append-only-file
+    appendonly yes
+    maxmemory-policy volatile-ttl
+    maxmemory  800M
+    # Disable RDB persistence, AOF persistence already enabled.
+    save ""
 
 postgresql:
   enabled: true

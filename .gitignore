@@ -2,3 +2,5 @@ vendor
 .idea
 dist/
 builds
+db-helm-charts/charts/*.tgz
+db-helm-charts/*.lock
