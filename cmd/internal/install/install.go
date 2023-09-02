@@ -243,6 +243,7 @@ func InstallZKServices(apiKey, clusterKey string) error {
 			" ZK_GPT_VERSION=" + keyValueMap["zk-gpt"] +
 			" ZK_WSP_CLIENT_VERSION=" + keyValueMap["zk-wsp-client"] +
 			" ZK_OPERATOR_VERSION=" + keyValueMap["zk-operator"] +
+			" ZK_APP_INIT_CONTAINERS_VERSION=" + keyValueMap["zk-app-init-containers"] +
 			" PX_API_KEY=" + apiKey +
 			" PX_CLUSTER_KEY=" + clusterKey
 	} else {
