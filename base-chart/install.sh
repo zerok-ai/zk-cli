@@ -30,4 +30,4 @@ fi
 
 helm dependency build $THIS_DIR
 helm dependency update $THIS_DIR
-helm --install --set=zk-axon.releaseName=zk-axon --set=zk-scenario-manager.releaseName=zk-scenario-manager --set=global.vizier.tag=$VIZIER_TAG --set=global.zkcloud.host=$ZK_CLOUD_ADDR --set=global.data.cluster_key=$PX_CLUSTER_KEY --set=global.data.PX_API_KEY=$PX_API_KEY upgrade $APP_NAME $THIS_DIR/ --create-namespace --namespace zk-client
+helm --install --set=global.zkcloud.host=$ZK_CLOUD_ADDR --set=global.zkcloud.keys.cluster_key=$PX_CLUSTER_KEY --set=global.zkcloud.keys.PX_API_KEY=$PX_API_KEY upgrade $APP_NAME $THIS_DIR/ --create-namespace --namespace zk-client

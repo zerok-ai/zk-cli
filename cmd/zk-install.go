@@ -26,11 +26,11 @@ const (
 )
 
 var (
-	authAddress string
-	apiKey      string
-	clusterName string
-	clusterKey  string
-	vizierTag   string
+	authAddress     string
+	apiKey          string
+	clusterName     string
+	clusterKey      string
+	vizierDockerTag string
 )
 
 type ContextKey struct {
@@ -117,7 +117,7 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// 5. install the kustomization for vizier over the default code -- doing it later as it needs the redis instance to come up
-	err = install.InstallVizier(vizierTag)
+	err = install.InstallVizier(vizierDockerTag)
 	if err != nil {
 		return err
 	}
@@ -143,7 +143,9 @@ func LoadAndValidateFlags() error {
 	// set vizier tag
 	vizierTagInterface := viper.Get(VizierTagFlag)
 	if vizierTagInterface != nil {
-		vizierTag = vizierTagInterface.(string)
+		vizierDockerTag = vizierTagInterface.(string)
+	} else {
+		vizierDockerTag = "0.1.0-redisp"
 	}
 
 	// set auth address

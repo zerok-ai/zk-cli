@@ -708,7 +708,7 @@ apiVersion: v1
 data:
   zk-client-db-configmap.yaml: |-
     redis:
-      host: redis-master.zk-client.svc.cluster.local
+      host: redis.zk-client.svc.cluster.local
       port: 6379
       readTimeout: 20
 
@@ -935,7 +935,7 @@ spec:
         envFrom:
         - configMapRef:
             name: pl-tls-config
-        image: us-west1-docker.pkg.dev/zerok-dev/zk-scriber/gcr.io/pixie-oss/pixie-dev/vizier/kelvin_image:newcols0.0.1
+        image: us-west1-docker.pkg.dev/zerok-dev/zk-scriber/gcr.io/pixie-oss/pixie-dev/vizier/kelvin_image:0.1.0-redisp
         name: app
         ports:
         - containerPort: 59300
@@ -1113,7 +1113,7 @@ spec:
         - configMapRef:
             name: pl-cluster-config
             optional: true
-        image: us-west1-docker.pkg.dev/zerok-dev/zk-scriber/gcr.io/pixie-oss/pixie-dev/vizier/cloud_connector_server_image:newcols0.0.1
+        image: us-west1-docker.pkg.dev/zerok-dev/zk-scriber/gcr.io/pixie-oss/pixie-dev/vizier/cloud_connector_server_image:0.1.0-redisp
         livenessProbe:
           httpGet:
             path: /healthz
@@ -1271,7 +1271,7 @@ spec:
         envFrom:
         - configMapRef:
             name: pl-tls-config
-        image: us-west1-docker.pkg.dev/zerok-dev/zk-scriber/gcr.io/pixie-oss/pixie-dev/vizier/query_broker_server_image:newcols0.0.1
+        image: us-west1-docker.pkg.dev/zerok-dev/zk-scriber/gcr.io/pixie-oss/pixie-dev/vizier/query_broker_server_image:0.1.0-redisp
         livenessProbe:
           httpGet:
             path: /healthz
@@ -1429,7 +1429,7 @@ spec:
         envFrom:
         - configMapRef:
             name: pl-tls-config
-        image: us-west1-docker.pkg.dev/zerok-dev/zk-scriber/gcr.io/pixie-oss/pixie-dev/vizier/metadata_server_image:newcols0.0.1
+        image: us-west1-docker.pkg.dev/zerok-dev/zk-scriber/gcr.io/pixie-oss/pixie-dev/vizier/metadata_server_image:0.1.0-redisp
         livenessProbe:
           httpGet:
             path: /healthz
@@ -1590,6 +1590,11 @@ spec:
             secretKeyRef:
               key: jwt-signing-key
               name: pl-cluster-secrets
+        - name: PL_REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: redis-password
+              name: redis
         - name: PL_VIZIER_ID
           valueFrom:
             secretKeyRef:
@@ -1604,7 +1609,7 @@ spec:
               optional: true
         - name: PL_CLOCK_CONVERTER
           value: default
-        image: us-west1-docker.pkg.dev/zerok-dev/zk-scriber/gcr.io/pixie-oss/pixie-dev/vizier/pem_image:newcols0.0.1
+        image: us-west1-docker.pkg.dev/zerok-dev/zk-scriber/gcr.io/pixie-oss/pixie-dev/vizier/pem_image:0.1.0-redisp
         imagePullPolicy: Always
         name: pem
         resources: {}
@@ -1722,7 +1727,7 @@ spec:
         - configMapRef:
             name: pl-cluster-config
             optional: true
-        image: us-west1-docker.pkg.dev/zerok-dev/zk-scriber/gcr.io/pixie-oss/pixie-dev/vizier/cert_provisioner_image:newcols0.0.1
+        image: us-west1-docker.pkg.dev/zerok-dev/zk-scriber/gcr.io/pixie-oss/pixie-dev/vizier/cert_provisioner_image:0.1.0-redisp
         name: provisioner
         securityContext:
           allowPrivilegeEscalation: false

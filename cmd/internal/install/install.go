@@ -45,6 +45,10 @@ const (
 
 	ZkCloudAddressFlag = "ZK_CLOUD_ADDRESS"
 
+	preInstSpinnerText = "preparing to install zerok daemon and associated CRDs"
+	preInstSuccessText = "preparation successfully"
+	preInstFailureText = "failed in preinstallation steps"
+
 	diSpinnerText = "installing zerok daemon and associated CRDs"
 	diSuccessText = "zerok daemon installed successfully"
 	diFailureText = "failed to install zerok daemon"
@@ -155,12 +159,30 @@ func LoginToPX(authAddress, apiKey, clusterName string) (string, error) {
 	return clusterKeyLocal, utils.WriteTextToFile(string(authTokenPayloadBytes), authPath)
 }
 
+func copySecrets() error {
+	var out string
+	cmd := "kubectl -n zk-client get secret redis -o yaml | yq 'del(.metadata.creationTimestamp, .metadata.uid, .metadata.resourceVersion, .metadata.namespace)' | kubectl apply --namespace pl  -f -"
+	out, err := shell.ShelloutWithSpinner(cmd, preInstSpinnerText, preInstSuccessText, preInstFailureText)
+
+	if err != nil {
+		filePath, _ := utils.DumpError(out)
+		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("installation failed, Check %s for details\n", filePath))
+	}
+
+	return nil
+}
+
 func InstallPXOperator(ctx context.Context, apiKey string) (err error) {
 
 	// start deployment in background
 	go func() {
 
 		ui.GlobalWriter.PrintflnWithPrefixArrow("installing operator for managing data store")
+
+		err = copySecrets()
+		if err != nil {
+			return
+		}
 
 		var out string
 		cmd := utils.GetBackendCLIPath() + " deploy"
@@ -180,13 +202,6 @@ func InstallPXOperator(ctx context.Context, apiKey string) (err error) {
 			return err
 		}
 	}
-
-	//// install the kustomization for vizier over the default code
-	//out, err := shell.Shellout("VIZIER_TAG="+vizierTag+" ./"+pxVizierDevModeSetup, false)
-	//if err != nil {
-	//	filePath, _ := utils.DumpError(out)
-	//	ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("vizier installation failed, Check %s for details\n", filePath))
-	//}
 
 	return nil
 }
@@ -210,7 +225,7 @@ func createVizierYaml(vizierTag string) error {
 func InstallVizier(vizierTag string) error {
 
 	// generate the vizier yaml. only to be used in dev mode
-	if viper.Get(DevKeyFlag) == true && viper.Get(DevKeyFlag) == true {
+	if viper.Get(DevKeyFlag) == true && viper.Get(VizierSetupKeyFlag) == true {
 		err := createVizierYaml(vizierTag)
 		if err != nil {
 			return err
