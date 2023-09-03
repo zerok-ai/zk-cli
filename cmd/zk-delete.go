@@ -143,10 +143,6 @@ func logicZkDelete(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	namespace, err := kubeClient.CoreV1().Namespaces().Get(context.TODO(), "zk-client", metav1.GetOptions{})
-	if err != nil {
-		return err
-	}
 
 	// Step0: Getting confirmation from user for deleting ZeroK from cluster
 	clusterName, err = kubeClient.GetClusterName()
@@ -170,21 +166,25 @@ func logicZkDelete(ctx context.Context) error {
 	}
 
 	// Step2: Adding finalizer to zk-client namespace so that zk-operator can properly shut itself down
-	finalizer := "operator/cleanup-pods"
-	finalizerAlreadyPresent := false
-	for _, f := range namespace.ObjectMeta.Finalizers {
-		if f == finalizer {
-			finalizerAlreadyPresent = true
-			break
-		}
-	}
-	if !finalizerAlreadyPresent {
-		namespace.ObjectMeta.Finalizers = append(namespace.ObjectMeta.Finalizers, finalizer)
-		_, err = kubeClient.CoreV1().Namespaces().Update(context.TODO(), namespace, metav1.UpdateOptions{})
-		if err != nil {
-			return err
-		}
-	}
+	//finalizer := "operator/cleanup-pods"
+	//finalizerAlreadyPresent := false
+	//namespace, err := kubeClient.CoreV1().Namespaces().Get(context.TODO(), "zk-client", metav1.GetOptions{})
+	//if err != nil {
+	//	return err
+	//}
+	//for _, f := range namespace.ObjectMeta.Finalizers {
+	//	if f == finalizer {
+	//		finalizerAlreadyPresent = true
+	//		break
+	//	}
+	//}
+	//if !finalizerAlreadyPresent {
+	//	namespace.ObjectMeta.Finalizers = append(namespace.ObjectMeta.Finalizers, finalizer)
+	//	_, err = kubeClient.CoreV1().Namespaces().Update(context.TODO(), namespace, metav1.UpdateOptions{})
+	//	if err != nil {
+	//		return err
+	//	}
+	//}
 
 	// Step3: Delete namespaces, CRDs, clusterRoles and clusterRoleBindings
 	deleteNamespacesSilent(kubeClient, namespacesToDelete...)

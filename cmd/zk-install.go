@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 	"zkctl/cmd/internal"
+	"zkctl/cmd/pkg/shell"
 
 	"zkctl/cmd/internal/install"
-	"zkctl/cmd/pkg/shell"
 	"zkctl/cmd/pkg/ui"
 	"zkctl/cmd/pkg/utils"
 
@@ -56,7 +56,7 @@ func init() {
 	RootCmd.AddCommand(installCmd)
 
 	// add flags
-	internal.AddBoolFlag(RootCmd, install.DevKeyFlag, install.DevKeyEnvFlag, "z", false, "for internal use only", true)
+	internal.AddBoolFlag(RootCmd, install.DevKeyFlag, install.DevKeyEnvFlag, "d", false, "for internal use only", true)
 	internal.AddBoolFlag(RootCmd, install.VizierSetupKeyFlag, install.VizierSetupKeyEnvFlag, "", false, "for internal use only", true)
 	internal.AddStringFlag(RootCmd, install.ApiKeyFlag, install.ApiKeyEnvFlag, "", "", "api key. This can also be set through environment variable "+install.ApiKeyEnvFlag+" instead of passing the parameter", false)
 	internal.AddStringFlag(RootCmd, install.VersionKeyFlag, install.VersionKeyEnvFlag, "", "", "version of the installation", false)
@@ -99,7 +99,7 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 
 	// 2. Install zk-client data stores
 	err = internal.ExecuteShellFile(shell.GetPWD()+zkInstallStores, " APP_NAME=zk-stores ",
-		"failed to install zk_stores", "zk_stores installed successfully")
+		"zk_stores installed successfully", "failed to install zk_stores")
 	if err != nil {
 		return err
 	}

@@ -9,6 +9,13 @@ else
     echo "helm binary found."
 fi
 
+while [[ "$#" > "0" ]]
+do
+  case $1 in
+    (*=*) eval $1;;
+  esac
+shift
+done
+
 helm dependency update $THIS_DIR
-#helm --install $APP_NAME $THIS_DIR/ --create-namespace --namespace zk-client
 helm upgrade $APP_NAME --install $THIS_DIR/ --create-namespace --namespace zk-client --wait

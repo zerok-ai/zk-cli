@@ -45,9 +45,17 @@ const (
 
 	ZkCloudAddressFlag = "ZK_CLOUD_ADDRESS"
 
-	preInstSpinnerText = "preparing to install zerok daemon and associated CRDs"
-	preInstSuccessText = "preparation successfully"
-	preInstFailureText = "failed in preinstallation steps"
+	preInstCreateNS     = "preparing to install zerok daemon and associated CRDs. 1/3"
+	preInstSuccessText1 = "success 1/3"
+	preInstFailureText1 = "success: 1/3"
+
+	preInstGettingSecrets = "preparing to install zerok daemon and associated CRDs. 2/3"
+	preInstSuccessText2   = "success 2/3"
+	preInstFailureText2   = "failed in preinstallation steps 2/3"
+
+	preInstSuccessText3         = "preparation successfully 3/3"
+	preInstCreatingCopyOfSecret = "preparing to install zerok daemon and associated CRDs. 3/3"
+	preInstFailureText3         = "failed in preinstallation steps 3/3"
 
 	diSpinnerText = "installing zerok daemon and associated CRDs"
 	diSuccessText = "zerok daemon installed successfully"
@@ -161,12 +169,31 @@ func LoginToPX(authAddress, apiKey, clusterName string) (string, error) {
 
 func copySecrets() error {
 	var out string
-	cmd := "kubectl -n zk-client get secret redis -o yaml | yq 'del(.metadata.creationTimestamp, .metadata.uid, .metadata.resourceVersion, .metadata.namespace)' | kubectl apply --namespace pl  -f -"
-	out, err := shell.ShelloutWithSpinner(cmd, preInstSpinnerText, preInstSuccessText, preInstFailureText)
+	cmd := "kubectl create namespace pl"
+	_, err := shell.ShelloutWithSpinner(cmd, preInstCreateNS, preInstSuccessText1, preInstFailureText1)
 
+	// check if the secret exists
+	cmd = "kubectl get secret redis -n pl -o jsonpath='{.data.redis-password}' | base64 -d"
+	secret, err := shell.ShelloutWithSpinner(cmd, preInstGettingSecrets, preInstSuccessText2, preInstFailureText2)
+	if err == nil {
+		return nil
+	}
+
+	cmd = "kubectl get secret redis -n zk-client -o jsonpath='{.data.redis-password}' | base64 -d"
+	secret, err = shell.ShelloutWithSpinner(cmd, preInstGettingSecrets, preInstSuccessText2, preInstFailureText2)
 	if err != nil {
 		filePath, _ := utils.DumpError(out)
 		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("installation failed, Check %s for details\n", filePath))
+		return err
+	}
+
+	cmd = fmt.Sprintf("kubectl create secret generic redis -n pl --from-literal=redis-password=%s", secret)
+	fmt.Println(cmd)
+	_, err = shell.ShelloutWithSpinner(cmd, preInstCreatingCopyOfSecret, preInstSuccessText3, preInstFailureText3)
+	if err != nil {
+		filePath, _ := utils.DumpError(out)
+		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("installation failed, Check %s for details\n", filePath))
+		return err
 	}
 
 	return nil
