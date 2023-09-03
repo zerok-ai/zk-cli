@@ -72,7 +72,7 @@ const (
 	VersionKeyFlag    = "zkVersion"
 	VersionKeyEnvFlag = "ZK_VERSION"
 
-	zkInstallClient    string = "/base-charts/install.sh"
+	zkInstallClient    string = "/base-chart/install.sh"
 	zkInstallDevClient string = "/scripts/install-dev.sh"
 
 	pxVizierDevModeSetup string = "/zpx/scripts/setup-vizier-export.sh"

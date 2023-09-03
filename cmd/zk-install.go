@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"os"
 	"zkctl/cmd/internal"
-	"zkctl/cmd/pkg/shell"
-
 	"zkctl/cmd/internal/install"
+	"zkctl/cmd/pkg/shell"
 	"zkctl/cmd/pkg/ui"
 	"zkctl/cmd/pkg/utils"
 
@@ -88,7 +87,6 @@ func RunInstallPreCmd(cmd *cobra.Command, args []string) error {
 
 func RunInstallCmd(cmd *cobra.Command, args []string) error {
 
-	ctx := cmd.Context()
 	var err error
 
 	// 1. login to px
@@ -105,6 +103,7 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// 3. Install default pixie - pl
+	ctx := cmd.Context()
 	err = install.InstallPXOperator(ctx, apiKey)
 	if err != nil {
 		return err
