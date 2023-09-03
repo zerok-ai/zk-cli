@@ -175,7 +175,7 @@ func copySecrets() error {
 	// check if the secret exists
 	cmd = "kubectl get secret redis -n pl -o jsonpath='{.data.redis-password}' | base64 -d"
 	secret, err := shell.ShelloutWithSpinner(cmd, preInstGettingSecrets, preInstSuccessText2, preInstFailureText2)
-	if err == nil {
+	if err != nil {
 		return nil
 	}
 
