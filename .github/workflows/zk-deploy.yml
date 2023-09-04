@@ -44,7 +44,7 @@ jobs:
     with:
       GKE_CLUSTER: ${{ github.event.inputs.GKE_CLUSTER }}
       GIT_TAG: ${{ github.ref }}
-      DOCKER_TAG: ${{ github.event.inputs.DOCKER_TAG }}
+      DOCKER_TAG: 0.1.0
 
   deploy:
     needs: init
