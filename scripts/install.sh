@@ -28,6 +28,11 @@ else
     echo "helm binary found."
 fi
 
-helm dependency build $THIS_DIR
-helm dependency update $THIS_DIR
-helm --install --set=global.zkcloud.host=$ZK_CLOUD_ADDR --set=global.zkcloud.keys.cluster_key=$PX_CLUSTER_KEY --set=global.zkcloud.keys.PX_API_KEY=$PX_API_KEY upgrade $APP_NAME ../helm-charts/ --create-namespace --namespace zk-client
+#helm dependency build $THIS_DIR
+#helm dependency update $THIS_DIR
+#helm --install --set=global.zkcloud.host=$ZK_CLOUD_ADDR --set=global.zkcloud.keys.cluster_key=$PX_CLUSTER_KEY --set=global.zkcloud.keys.PX_API_KEY=$PX_API_KEY upgrade $APP_NAME ../helm-charts/ --create-namespace --namespace zk-client
+
+
+helm repo add zk-client https://helm.zerok.ai/zk-client/zk-cli
+helm repo update
+helm upgrade zk-client zk-client/zk-client --install --create-namespace --namespace zk-client --version 0.1.0-alpha --set=global.zkcloud.host=$ZK_CLOUD_ADDR --set=global.zkcloud.keys.cluster_key=$PX_CLUSTER_KEY --set=global.zkcloud.keys.PX_API_KEY=$PX_API_KEY
