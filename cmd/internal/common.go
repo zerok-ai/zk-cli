@@ -2,17 +2,23 @@ package internal
 
 import (
 	"errors"
-	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"strings"
 	"zkctl/cmd/pkg/shell"
 	"zkctl/cmd/pkg/ui"
+	"zkctl/cmd/pkg/utils"
 )
 
 const (
 	YesFlag = "yes"
 	NoFlag  = "no"
+
+	DevKeyFlag    = "dev"
+	DevKeyEnvFlag = "ZK_DEV"
+
+	VerboseKeyFlag    = "verbose"
+	VerboseKeyEnvFlag = "VERBOSE"
 )
 
 var ErrExecutionAborted = errors.New("execution aborted")
@@ -85,19 +91,21 @@ func GetKVPairsFromCSV(csv string) map[string]string {
 	return keyValueMap
 }
 
-func ExecuteShellFile(shellFile, inputParameters, successMessage, errorMessage string) error {
+func ExecuteShellFile(shellFile, inputParameters, spinnerText, successMessage, errorMessage string) error {
+
+	printError := viper.Get(VerboseKeyFlag) == true
 
 	// make the file executable
-	_, chmodErr := shell.ExecWithDurationAndSuccessM("chmod +x "+shellFile, "")
-	if chmodErr != nil {
-		ui.LogAndPrintError(fmt.Errorf(errorMessage+": %v", chmodErr))
-		return chmodErr
+	out, err := shell.ShelloutWithSpinner("chmod +x "+shellFile, "checking for appropriate permissions", "permissions added", "failed to get permissions")
+	if err != nil {
+		utils.DumpErrorAndPrintLocation(out, printError)
+		return err
 	}
 
-	// execute the file
-	_, err := shell.ExecWithDurationAndSuccessM(shellFile+inputParameters, successMessage)
+	out, err = shell.ShelloutWithSpinner(shellFile+inputParameters, spinnerText, successMessage, errorMessage)
 	if err != nil {
-		ui.LogAndPrintError(fmt.Errorf(errorMessage+": %v", err))
+		utils.DumpErrorAndPrintLocation(out, printError)
+		return err
 	}
-	return err
+	return nil
 }

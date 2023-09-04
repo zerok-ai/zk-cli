@@ -3,12 +3,10 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"os"
-	"path/filepath"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
+	"os"
+	"path/filepath"
 	"zkctl/cmd/internal"
 	"zkctl/cmd/pkg/ui"
 	"zkctl/cmd/pkg/utils"
@@ -80,6 +78,11 @@ func init() {
 	RootCmd.PersistentFlags().String(KUBECONFIG_FLAG, filepath.Join(home, ".kube", "config"), "path to the kubeconfig file")
 	viper.BindPFlag(KUBECONFIG_FLAG, RootCmd.PersistentFlags().Lookup(KUBECONFIG_FLAG))
 	viper.BindEnv(KUBECONFIG_FLAG)
+
+	//internal flags
+	internal.AddBoolFlag(RootCmd, internal.VerboseKeyFlag, internal.VerboseKeyEnvFlag, "v", false, "for internal use only", true)
+	internal.AddBoolFlag(RootCmd, internal.DevKeyFlag, internal.DevKeyEnvFlag, "d", false, "for internal use only", true)
+
 }
 
 func initConfigFromFile() {

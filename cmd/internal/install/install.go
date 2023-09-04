@@ -2,6 +2,7 @@ package install
 
 import (
 	"context"
+	_ "embed"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -63,18 +64,14 @@ const (
 
 	waitTimeForService = 160
 
-	DevKeyFlag    = "dev"
-	DevKeyEnvFlag = "ZK_DEV"
-
 	VersionKeyFlag    = "zkVersion"
 	VersionKeyEnvFlag = "ZK_VERSION"
 
-	zkInstallClient    string = "/base-chart/install.sh"
-	zkInstallDevClient string = "/scripts/install-dev.sh"
+	zkInstallClient    string = "/scripts/install.sh"
+	zkInstallDevClient string = "/base-chart/install-dev.sh"
+	cliVizierYaml      string = "/vizier/vizier.yaml"
 
-	pxVizierDevModeSetup string = "/zpx/scripts/setup-vizier-export.sh"
-	pxVizierYaml         string = "/zpx/scripts/modified/vizier/exported-vizier-pem.yaml"
-	cliVizierYaml        string = "/vizier/vizier.yaml"
+	zkInstallStores string = "/db-helm-charts/install-db.sh"
 )
 
 func GetAPIKey() string {
@@ -196,7 +193,19 @@ func copySecrets() error {
 	return nil
 }
 
-func InstallPXOperator(ctx context.Context, apiKey string) (err error) {
+func InstallDataStores() error {
+	cmd := "kubectl create namespace pl"
+	_, err := shell.ShelloutWithSpinner(cmd, preInstCreateNS, preInstSuccessText1, preInstFailureText1)
+	if err != nil {
+		//	not sure what to do here
+	}
+
+	// 2. Install zk-client data stores
+	return internal.ExecuteShellFile(shell.GetPWD()+zkInstallStores, " APP_NAME=zk-stores ", "installing zk_stores",
+		"zk_stores installed successfully", "failed to install zk_stores")
+}
+
+func InstallPXOperator() (err error) {
 
 	// start deployment in background
 	go func() {
@@ -232,7 +241,7 @@ func InstallPXOperator(ctx context.Context, apiKey string) (err error) {
 
 func InstallVizier() error {
 
-	out, err := shell.Shellout("kubectl apply -f ./"+cliVizierYaml, true)
+	out, err := shell.Shellout("kubectl apply -f "+cliVizierYaml, true)
 	if err != nil {
 		filePath, _ := utils.DumpError(out)
 		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("vizier install failed, Check %s for details\n", filePath))
@@ -243,7 +252,7 @@ func InstallVizier() error {
 func InstallZKServices(apiKey, clusterKey string) error {
 	var inputToShellFile, shellFile string
 	zkCloudAddr := viper.Get(ZkCloudAddressFlag).(string)
-	if viper.Get(DevKeyFlag) == true {
+	if viper.Get(internal.DevKeyFlag) == true {
 		ui.GlobalWriter.Println("zerok dev mode is enabled")
 
 		//get the versions
@@ -268,5 +277,5 @@ func InstallZKServices(apiKey, clusterKey string) error {
 			" PX_CLUSTER_KEY=" + clusterKey +
 			" APP_NAME=zk-client"
 	}
-	return internal.ExecuteShellFile(shell.GetPWD()+shellFile, inputToShellFile, "failed to install zk_operator", "zk_operator installed successfully")
+	return internal.ExecuteShellFile(shell.GetPWD()+shellFile, inputToShellFile, "installing zk operator", "failed to install zk_operator", "zk_operator installed successfully")
 }

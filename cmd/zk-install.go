@@ -6,15 +6,10 @@ import (
 	"os"
 	"zkctl/cmd/internal"
 	"zkctl/cmd/internal/install"
-	"zkctl/cmd/pkg/shell"
 	"zkctl/cmd/pkg/ui"
 	"zkctl/cmd/pkg/utils"
 
 	"github.com/spf13/cobra"
-)
-
-const (
-	zkInstallStores string = "/db-helm-charts/install-db.sh"
 )
 
 var (
@@ -47,7 +42,6 @@ func init() {
 	RootCmd.AddCommand(installCmd)
 
 	// add flags
-	internal.AddBoolFlag(RootCmd, install.DevKeyFlag, install.DevKeyEnvFlag, "d", false, "for internal use only", true)
 	internal.AddStringFlag(RootCmd, install.ApiKeyFlag, install.ApiKeyEnvFlag, "", "", "api key. This can also be set through environment variable "+install.ApiKeyEnvFlag+" instead of passing the parameter", false)
 	internal.AddStringFlag(RootCmd, install.VersionKeyFlag, install.VersionKeyEnvFlag, "", "", "version of the installation", false)
 }
@@ -87,15 +81,13 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// 2. Install zk-client data stores
-	err = internal.ExecuteShellFile(shell.GetPWD()+zkInstallStores, " APP_NAME=zk-stores ",
-		"zk_stores installed successfully", "failed to install zk_stores")
+	err = install.InstallDataStores()
 	if err != nil {
 		return err
 	}
 
 	// 3. Install default pixie - pl
-	ctx := cmd.Context()
-	err = install.InstallPXOperator(ctx, apiKey)
+	err = install.InstallPXOperator()
 	if err != nil {
 		return err
 	}
