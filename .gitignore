@@ -5,4 +5,4 @@ builds
 db-helm-charts/charts/*.tgz
 db-helm-charts/*.lock
 base-chart/charts/*.tgz
-Chart.lock
+base-chart/*.lock

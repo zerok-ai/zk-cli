@@ -76,7 +76,7 @@ const (
 	zkInstallDevClient string = "/scripts/install-dev.sh"
 
 	pxVizierDevModeSetup string = "/zpx/scripts/setup-vizier-export.sh"
-	pxVizierYaml         string = "/zpx/scripts/modified/vizier/exported-vizier.yaml"
+	pxVizierYaml         string = "/zpx/scripts/modified/vizier/exported-vizier-pem.yaml"
 	cliVizierYaml        string = "/vizier/vizier.yaml"
 )
 
