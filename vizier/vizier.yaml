@@ -1,3 +1,36 @@
+apiVersion: v1
+data:
+  zk-client-db-configmap.yaml: |-
+    redis:
+      host: redis.zk-client.svc.cluster.local
+      port: 6379
+      readTimeout: 20
+
+    postgres:
+      host: postgreshost
+      port: 1234
+      user: postgres
+      password: abc
+      dbname: 1
+kind: ConfigMap
+metadata:
+  labels:
+    app: pl-monitoring
+    component: vizier
+  name: zk-client-db-configmap
+  namespace: pl
+---
+apiVersion: v1
+data:
+  zpixie-configmap.yaml: "allowNonTraced: false\nhttp: \n  enabled: true\n  traceEnabled: true\n  allowNonTraced: false\nmysql: \n  enabled: true\n  traceEnabled: true\n  allowNonTraced: false\npgsql: \n  enabled: true\n  traceEnabled: true\n  allowNonTraced: false"
+kind: ConfigMap
+metadata:
+  labels:
+    app: pl-monitoring
+    component: vizier
+  name: zpixie-configmap
+  namespace: pl
+---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
