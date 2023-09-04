@@ -57,4 +57,4 @@ jobs:
       - name: s3 sync repo
         run: |-
           echo "APP_NAME=$APP_NAME"
-          aws s3 sync --debug ${{ inputs.HELM_BUCKET_NAME }}/zk-client/$APP_NAME .
+          aws s3 sync --debug ${{ needs.init.outputs.HELM_BUCKET_NAME }}/zk-client/$APP_NAME .
