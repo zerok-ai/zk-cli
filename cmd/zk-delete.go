@@ -149,10 +149,9 @@ func logicZkDelete(ctx context.Context) error {
 	promptMessage := fmt.Sprintf(
 		"Remove Zerok from cluster (cluster: %s)", clusterName,
 	)
+
 	yesFlag := viper.GetBool(internal.YesFlag)
-	if yesFlag {
-		ui.GlobalWriter.Println(promptMessage + " (yes flag is set)")
-	} else if !ui.GlobalWriter.YesNoPrompt(promptMessage, true) {
+	if !ui.GlobalWriter.YesNoPrompt(promptMessage, yesFlag) {
 		return internal.ErrExecutionAborted
 	}
 

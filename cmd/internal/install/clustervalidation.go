@@ -193,10 +193,5 @@ func promptInstallSummary(clusterName string, namespace string, deployableNodesC
 	)
 
 	yesFlag := viper.GetBool(YES_FLAG)
-	if yesFlag {
-		ui.GlobalWriter.Println(promptMessage + " (yes flag is set)")
-		return true
-	}
-
-	return ui.GlobalWriter.YesNoPrompt(promptMessage, true)
+	return ui.GlobalWriter.YesNoPrompt(promptMessage, yesFlag)
 }
