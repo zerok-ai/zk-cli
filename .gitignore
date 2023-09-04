@@ -4,5 +4,5 @@ dist/
 builds
 db-helm-charts/charts/*.tgz
 db-helm-charts/*.lock
-base-chart/charts/*.tgz
-base-chart/*.lock
+helm-charts/charts/*.tgz
+helm-charts/*.lock

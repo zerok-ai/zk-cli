@@ -10,7 +10,7 @@ import (
 	"zkctl/cmd/pkg/utils"
 )
 
-//go:embed base-chart/*
+//go:embed helm-charts/*
 //go:embed db-helm-charts/*
 //go:embed scripts/*
 //go:embed "vizier/*.yaml"

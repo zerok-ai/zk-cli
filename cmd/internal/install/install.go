@@ -68,7 +68,7 @@ const (
 	VersionKeyEnvFlag = "ZK_VERSION"
 
 	zkInstallClient    string = "/scripts/install.sh"
-	zkInstallDevClient string = "/base-chart/install-dev.sh"
+	zkInstallDevClient string = "/helm-charts/install-dev.sh"
 	cliVizierYaml      string = "/vizier/vizier.yaml"
 
 	zkInstallStores string = "/db-helm-charts/install-db.sh"
