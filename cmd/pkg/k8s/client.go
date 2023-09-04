@@ -11,15 +11,6 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
-const (
-	NAMESPACE_FLAG       = "namespace"
-	KUBECONFIG_FLAG      = "kubeconfig"
-	KUBECONTEXT_FLAG     = "kube-context"
-	HELM_RELEASE_FLAG    = "release-name"
-	CLUSTER_NAME_FLAG    = "cluster-name"
-	SKIP_CLI_UPDATE_FLAG = "skip-cli-update"
-)
-
 type Client struct {
 	kubernetes.Interface
 	clientcmd.ClientConfig
