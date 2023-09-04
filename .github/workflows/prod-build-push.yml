@@ -25,36 +25,36 @@ jobs:
       DOCKER_TAG: ${{ github.event.inputs.DOCKER_TAG }}
 
   # build helm charts and publish to helm repository
-#  helm-push:
-#    uses: zerok-ai/zk-git-actions/.github/workflows/zk-helm-publish.yml@main
-#    with:
-#      HELM_VERSION: ${{ needs.init.outputs.VERSION }}
-#      ENVIRONMENT: ${{ needs.init.outputs.ENVIRONMENT }}
-#      DOCKER_IDENTIFIER: ${{ needs.init.outputs.ENVIRONMENT }}
-#      HELM_BUCKET_NAME: ${{ needs.init.outputs.HELM_BUCKET_NAME }}
-#      HELM_BUCKET_URL: ${{ needs.init.outputs.HELM_BUCKET_URL }}
-#      PROJECT_ID: ${{ needs.init.outputs.PROJECT_ID }}
-#    secrets:
-#      AWS_ACCESS_ID: ${{ secrets.AWS_ACCESS_ID }}
-#      AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-#    needs: init
-
-  helm-publish:
+  helm-push:
+    uses: zerok-ai/zk-git-actions/.github/workflows/zk-helm-publish.yml@main
+    with:
+      HELM_VERSION: ${{ needs.init.outputs.VERSION }}
+      ENVIRONMENT: ${{ needs.init.outputs.ENVIRONMENT }}
+      DOCKER_IDENTIFIER: ${{ needs.init.outputs.ENVIRONMENT }}
+      HELM_BUCKET_NAME: ${{ needs.init.outputs.HELM_BUCKET_NAME }}
+      HELM_BUCKET_URL: ${{ needs.init.outputs.HELM_BUCKET_URL }}
+      PROJECT_ID: ${{ needs.init.outputs.PROJECT_ID }}
+    secrets:
+      AWS_ACCESS_ID: ${{ secrets.AWS_ACCESS_ID }}
+      AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
     needs: init
-    runs-on: zk-self-hosted
-    environment:
-      name: ${{ needs.init.outputs.ENVIRONMENT }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: ${{ vars.AWS_REGION }}
 
-      - name: s3 sync repo
-        run: |-
-          echo "APP_NAME=$APP_NAME"
-          aws s3 sync --debug ${{ needs.init.outputs.HELM_BUCKET_NAME }}/zk-client/$APP_NAME .
+#  helm-publish:
+#    needs: init
+#    runs-on: zk-self-hosted
+#    environment:
+#      name: ${{ needs.init.outputs.ENVIRONMENT }}
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#      - name: Configure AWS credentials
+#        uses: aws-actions/configure-aws-credentials@v1
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_ACCESS_ID }}
+#          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+#          aws-region: ${{ vars.AWS_REGION }}
+#
+#      - name: s3 sync repo
+#        run: |-
+#          echo "APP_NAME=$APP_NAME"
+#          aws s3 sync --debug ${{ needs.init.outputs.HELM_BUCKET_NAME }}/zk-client/$APP_NAME .
