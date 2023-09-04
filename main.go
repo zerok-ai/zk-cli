@@ -2,14 +2,23 @@ package main
 
 import (
 	"context"
+	"embed"
 	"os"
 	"os/signal"
 	"zkctl/cmd"
 	"zkctl/cmd/pkg/ui"
+	"zkctl/cmd/pkg/utils"
 )
+
+//go:embed base-chart/*
+//go:embed db-helm-charts/*
+//go:embed scripts/*
+//go:embed "vizier/*.yaml"
+var content embed.FS
 
 func main() {
 	ui.GlobalWriter.Println("❄ lowering the temperature \n")
+	utils.ResetErrorDumpfile()
 	ctx, cleanup := contextWithSignalInterrupt()
 	defer cleanup()
 

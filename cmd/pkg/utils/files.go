@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"time"
 
 	"zkctl/cmd/pkg/shell"
 	"zkctl/cmd/pkg/ui"
@@ -14,20 +15,27 @@ import (
 )
 
 const (
-	ZEROK_DIR_PATH_FLAG 		= "zkdir"
-	BACKEND_CLI_NAME        	= "daemon"
-	BACKEND_CLI_AUTH_FILENAME   = "auth.json"
-	ERROR_DUMP_FILENAME        	= "dump"
+	ZEROK_DIR_PATH_FLAG       = "zkdir"
+	BACKEND_CLI_NAME          = "daemon"
+	BACKEND_CLI_AUTH_FILENAME = "auth.json"
+	ERROR_DUMP_FILENAME       = "dump"
 
 	px_dir_sym_name = ".pixie"
-	px_dir_name = "px"
-	pxrepo_dir  = "pxrepo"
+	px_dir_name     = "px"
+	pxrepo_dir      = "pxrepo"
 )
 
-func WriteTextToFile (text, filePath string) error {
-	d1 := []byte(text)
-    err := os.WriteFile(filePath, d1, 0644)
-    return err
+func WriteTextToFile(text, filePath string) error {
+	// Open the file for appending (or create if it doesn't exist)
+	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// Write the content to the file
+	_, err = file.WriteString(text)
+	return err
 }
 
 // DownloadFile will download a url to a local file. It's efficient because it will
@@ -128,7 +136,7 @@ func CloneGitRepo(url string, filePath string) error {
 
 func Exists(path string) bool {
 	_, err := os.Stat(path)
-	return err == nil 
+	return err == nil
 }
 
 func CreateDirAndSymLinkIfNotExists(oldname, newname string) error {
@@ -167,9 +175,28 @@ func InitializeFolders() error {
 	return nil
 }
 
-func DumpError (errorText string) (string, error) {
+func ResetErrorDumpfile() {
+	prettyTime := time.Now().Format("Monday, January 2, 2006 03:04:05 PM MST")
+	initLogString := "\n---------------------------------------------------------------\n"
+	initLogString = fmt.Sprintf("%sCli dump file appended at %s\n", initLogString, prettyTime)
+	dumpPath := GetErrorDumpPath()
+	err := WriteTextToFile(initLogString, dumpPath)
+	if err != nil {
+		return
+	}
+}
+
+func DumpError(errorText string) (string, error) {
 	dumpPath := GetErrorDumpPath()
 	return dumpPath, WriteTextToFile(errorText, dumpPath)
+}
+
+func DumpErrorAndPrintLocation(errorMessage string, printOnConsole bool) {
+	filePath, _ := DumpError(errorMessage)
+	if printOnConsole {
+		ui.LogAndPrintError(fmt.Errorf(errorMessage+": %v", errorMessage))
+		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("Error:Check %s for details\n", filePath))
+	}
 }
 
 func GetPxRepoDir(zkdir string) string {
@@ -191,7 +218,6 @@ func getPxDirSymbolicPath() string {
 
 	return fmt.Sprintf("%s%c%s", baseDir, os.PathSeparator, px_dir_sym_name)
 }
-
 
 func getBackendCLIDir() string {
 	return viper.GetString(ZEROK_DIR_PATH_FLAG)
@@ -217,4 +243,3 @@ func BackendCLIExists() error {
 func DownloadBackendCLI(url string) error {
 	return DownloadExecutableFile(url, getBackendCLIDir(), BACKEND_CLI_NAME, true)
 }
-

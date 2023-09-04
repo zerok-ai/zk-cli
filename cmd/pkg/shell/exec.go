@@ -14,7 +14,7 @@ import (
 
 const ShellToUse = "bash"
 
-func ShelloutWithSpinner(command string, spinnerText, successText, failureText string) (string, error) {
+func ShelloutWithSpinner(command, spinnerText, successText, failureText string) (string, error) {
 
 	// fmt.Println("command: " + command)
 	// send the output to console as well as to a buffer
@@ -58,52 +58,6 @@ func Shellout(command string, printLogsOnConsole bool) (string, error) {
 	}
 	cmd.Stdout = mw
 	cmd.Stderr = mw
-
-	err := cmd.Run()
-	return stdBuffer.String(), err
-}
-
-func Shellout1(command string, printLogsOnConsole bool) (string, error) {
-
-	// fmt.Println("command: "+command)
-	// send the output to console as well as to a buffer
-	var stdBuffer bytes.Buffer
-	cmd := exec.Command(ShellToUse, "-c", command)
-
-	/*/
-	cmd.Stdout = &stdBuffer
-	cmd.Stderr = &stdBuffer
-
-	input := []byte(`tschüß; до свидания`)
-
-	b := make([]byte, len(input))
-
-	t := transform.RemoveFunc(unicode.IsSpace)
-	n, _, _ := t.Transform(b, input, true)
-	fmt.Println(string(b[:n]))
-
-	t = transform.RemoveFunc(func(r rune) bool {
-		return !unicode.Is(unicode.Latin, r)
-	})
-	n, _, _ = t.Transform(b, input, true)
-	fmt.Println(string(b[:n]))
-
-	n, _, _ = t.Transform(b, norm.NFD.Bytes(input), true)
-	fmt.Println(string(b[:n]))
-
-
-
-
-	/*/
-	var mw io.Writer
-	if printLogsOnConsole {
-		mw = io.MultiWriter(os.Stdout, &stdBuffer)
-	} else {
-		mw = io.MultiWriter(&stdBuffer)
-	}
-	cmd.Stdout = mw
-	cmd.Stderr = mw
-	/**/
 
 	err := cmd.Run()
 	return stdBuffer.String(), err
