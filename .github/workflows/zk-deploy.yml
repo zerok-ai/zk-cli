@@ -2,21 +2,13 @@ name: deploy
 on:
   push:
     tags: #r/<ENVIRONMENT>/<DOCKER-TAG-OR-VERSION>
-      - 'r/**'
+      - 'dev/**'
   workflow_dispatch:
     inputs:
-      DOCKER_TAG:
-        description: 'Docker Image Tag'
-        required: true
-        default: '0.0.1-dev'
       GKE_CLUSTER:
         description: 'Cluster Name'
         required: true
         default: 'devclient03'
-      VIZIER_TAG:
-        description: 'Vizier Tag'
-        required: true
-        default: 'newcols0.0.1'
       ZK_CLOUD_ADDRESS:
         description: 'Url of ZK_CLOUD cluster'
         required: true
@@ -33,63 +25,18 @@ on:
           - install
           - uninstall
           - dev-install
-#      ZK_SCENARIO_MANAGER_VERSION:
-#        description: 'Scenario manager version'
-#        default: '0.0.1-dev'
-#      ZK_AXON_VERSION:
-#        description: 'Axon version'
-#        default: '0.0.1-dev'
-#      ZK_DAEMONSET_VERSION:
-#        description: 'Daemonset version'
-#        default: '0.0.1-dev'
-#      ZK_GPT_VERSION:
-#        description: 'GPT version'
-#        default: '0.0.1-dev'
-#      ZK_WSP_CLIENT_VERSION:
-#        description: 'Wsp client version'
-#        default: '0.0.1-dev'
-#      ZK_OPERATOR_VERSION:
-#        description: 'Operator version'
-#        default: '0.0.1-dev'
-  workflow_call:
-    inputs:
-      VERSION:
-        type: string
-        default: 'latest'
-      ENVIRONMENT:
-        type: string
-        default: 'poc'
-    secrets:
-      GKE_SA_KEY:
+      VERSIONS:
+        description: 'All versions'
         required: true
+        default: 'zk-scenario-manager=0.1.0-alpha,zk-axon=0.1.0-alpha,zk-daemonset=0.1.0-alpha,zk-gpt=0.1.0-alpha,zk-wsp-client=0.1.0-alpha,zk-operator=0.1.0-alpha,zk-app-init-containers=0.1.0-alpha'
 env:
-  DOCKER_TAG: ${{ github.event.inputs.DOCKER_TAG }}
   GKE_CLUSTER: ${{ github.event.inputs.GKE_CLUSTER }}
   ZK_CLOUD_ADDRESS: ${{ github.event.inputs.ZK_CLOUD_ADDRESS }}
-  VIZIER_TAG: ${{ github.event.inputs.VIZIER_TAG }}
   ZK_API_KEY: ${{ github.event.inputs.ZK_API_KEY }}
   ACTION: ${{ github.event.inputs.ACTION }}
-  GOOS: ${{ vars.GOOS }}
-  GOARCH: ${{ vars.GOARCH }}
-  CGO_ENABLED: ${{ vars.CGO_ENABLED }}
+  VERSIONS: ${{ github.event.inputs.VERSIONS }}
   GKE_SA_KEY: ${{ secrets.GKE_SA_KEY }}
-  DOCKER_REG: ${{ vars.DOCKER_REG }}
-  PROJECT_ID: ${{ vars.PROJECT_ID }}
-  NS: ${{ vars.NS }}
-  DOCKER_REPO: ${{ vars.DOCKER_REPO }}
-  APP_NAME: ${{ vars.APP_NAME }}
   GKE_ZONE: ${{ vars.GKE_ZONE }}
-  GOPRIVATE: ${{ vars.GOPRIVATE }}
-  TOKEN: ${{ secrets.GITPAT }}
-  POSTGRES_DB: ${{ vars.POSTGRES_DB }}
-  POSTGRES_HOST: ${{ vars.POSTGRES_HOST }}
-  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-  ZK_SCENARIO_MANAGER_VERSION: ${{ vars.ZK_SCENARIO_MANAGER_VERSION }}
-  ZK_AXON_VERSION: ${{ vars.ZK_AXON_VERSION }}
-  ZK_DAEMONSET_VERSION: ${{ vars.ZK_DAEMONSET_VERSION }}
-  ZK_GPT_VERSION: ${{ vars.ZK_GPT_VERSION }}
-  ZK_WSP_CLIENT_VERSION: ${{ vars.ZK_WSP_CLIENT_VERSION }}
-  ZK_OPERATOR_VERSION: ${{ vars.ZK_OPERATOR_VERSION }}
 
 jobs:
   init:
@@ -124,7 +71,6 @@ jobs:
           echo "GIT_TAG=$GIT_TAG"
           echo "DOCKER_TAG=$VERSION"
           echo "GITHUB_SHA=$GITHUB_SHA"
-          echo "DOCKER_REPO=$DOCKER_REPO"
           echo "ENVIRONMENT=$ENVIRONMENT"
           echo "GKE_ZONE=$GKE_ZONE"
 
@@ -145,7 +91,6 @@ jobs:
         run: |-
           export CLUSTER_NAME=$CLUSTERNAME
           export ZK_CLOUD_ADDRESS=$ZK_CLOUD_ADDRESS
-          export VIZIER_TAG=$VIZIER_TAG
           export ZPIXIE_REPO=https://$TOKEN:x-oauth-basic@github.com/zerok-ai/zpixie.git
           go run main.go install -y --apikey $ZK_API_KEY
 
@@ -154,15 +99,7 @@ jobs:
         run: |-
           export CLUSTER_NAME=$CLUSTERNAME
           export ZK_CLOUD_ADDRESS=$ZK_CLOUD_ADDRESS
-          export ZK_SCENARIO_MANAGER_VERSION=$ZK_SCENARIO_MANAGER_VERSION
-          export ZK_AXON_VERSION=$ZK_AXON_VERSION
-          export ZK_DAEMONSET_VERSION=$ZK_DAEMONSET_VERSION
-          export ZK_GPT_VERSION=$ZK_GPT_VERSION
-          export ZK_WSP_CLIENT_VERSION=$ZK_WSP_CLIENT_VERSION
-          export ZK_OPERATOR_VERSION=$ZK_OPERATOR_VERSION
-          export VIZIER_TAG=$VIZIER_TAG
-          export ZPIXIE_REPO=https://$TOKEN:x-oauth-basic@github.com/zerok-ai/zpixie.git
-          go run main.go install -y --apikey $ZK_API_KEY -d --zkVersion=zk-scenario-manager=$ZK_SCENARIO_MANAGER_VERSION,zk-axon=$ZK_AXON_VERSION,zk-daemonset=$ZK_DAEMONSET_VERSION,zk-gpt=$ZK_GPT_VERSION,zk-wsp-client=$ZK_WSP_CLIENT_VERSION,zk-operator=$ZK_OPERATOR_VERSION
+          go run main.go install -y --apikey $ZK_API_KEY -d --zkVersion=$VERSIONS
 
       - name: Uninstall
         if: ${{ env.ACTION == 'uninstall' }}
