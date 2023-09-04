@@ -11,25 +11,17 @@ import (
 	"zkctl/cmd/pkg/utils"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 const (
-	VizierTagFlag = "VIZIER_TAG"
-
-	CONTEXT                      = "ctx"
-	SHOULD_PRINT_SUCCESS_MESSAGE = "should_print_success_msg"
-
-	zkInstallStores   string = "/db-helm-charts/install-db.sh"
-	zkUnInstallClient string = "/helm-charts/uninstall.sh"
+	zkInstallStores string = "/db-helm-charts/install-db.sh"
 )
 
 var (
-	authAddress     string
-	apiKey          string
-	clusterName     string
-	clusterKey      string
-	vizierDockerTag string
+	authAddress string
+	apiKey      string
+	clusterName string
+	clusterKey  string
 )
 
 type ContextKey struct {
@@ -56,7 +48,6 @@ func init() {
 
 	// add flags
 	internal.AddBoolFlag(RootCmd, install.DevKeyFlag, install.DevKeyEnvFlag, "d", false, "for internal use only", true)
-	internal.AddBoolFlag(RootCmd, install.VizierSetupKeyFlag, install.VizierSetupKeyEnvFlag, "", false, "for internal use only", true)
 	internal.AddStringFlag(RootCmd, install.ApiKeyFlag, install.ApiKeyEnvFlag, "", "", "api key. This can also be set through environment variable "+install.ApiKeyEnvFlag+" instead of passing the parameter", false)
 	internal.AddStringFlag(RootCmd, install.VersionKeyFlag, install.VersionKeyEnvFlag, "", "", "version of the installation", false)
 }
@@ -116,7 +107,7 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// 5. install the kustomization for vizier over the default code -- doing it later as it needs the redis instance to come up
-	err = install.InstallVizier(vizierDockerTag)
+	err = install.InstallVizier()
 	if err != nil {
 		return err
 	}
@@ -138,14 +129,6 @@ func LoadAndValidateFlags() error {
 
 	// set cloud address as an env variable for shell scripts
 	zkCloudAddr := install.GetCloudAddress()
-
-	// set vizier tag
-	vizierTagInterface := viper.Get(VizierTagFlag)
-	if vizierTagInterface != nil {
-		vizierDockerTag = vizierTagInterface.(string)
-	} else {
-		vizierDockerTag = "0.1.0-redisp"
-	}
 
 	// set auth address
 	plCloudAddr := "px." + zkCloudAddr
