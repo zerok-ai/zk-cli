@@ -3,29 +3,16 @@ on:
   push:
     tags: #r/<ENVIRONMENT>/<DOCKER-TAG-OR-VERSION>
       - 'prod/**'
-  workflow_dispatch:
-    inputs:
-      DOCKER_TAG:
-        description: 'Docker Image Tag'
-        required: true
-        default: 'latest'
-      ENV:
-        description: 'ENV'
-        required: true
-        default: 'prod'
-env:
-  ENV: ${{ github.event.inputs.ENV }}
-  DOCKER_TAG: ${{ github.event.inputs.DOCKER_TAG }}
-  GOOS: ${{ vars.GOOS }}
-  GOARCH: ${{ vars.GOARCH }}
-  CGO_ENABLED: ${{ vars.CGO_ENABLED }}
-  GKE_SA_KEY: ${{ secrets.GKE_SA_KEY }}
-  DOCKER_REG: ${{ vars.DOCKER_REG }}
-  PROJECT_ID: ${{ vars.PROJECT_ID }}
-  DOCKER_REPO: ${{ vars.DOCKER_REPO }}
-  APP_NAME: ${{ vars.APP_NAME }}
-  GOPRIVATE: ${{ vars.GOPRIVATE }}
-  TOKEN: ${{ secrets.GITPAT }}
+#  workflow_dispatch:
+#    inputs:
+#      DOCKER_TAG:
+#        description: 'Docker Image Tag'
+#        required: true
+#        default: 'latest'
+#      ENV:
+#        description: 'ENV'
+#        required: true
+#        default: 'prod'
 
 jobs:
   init:
@@ -36,10 +23,14 @@ jobs:
       DOCKER_TAG: ${{ github.event.inputs.DOCKER_TAG }}
 
   helm-push:
-    uses: zerok-ai/zk-cli/.github/workflows/zk-helm-publish.yml@helm-push
+    uses: zerok-ai/zk-git-actions/.github/workflows/zk-helm-publish.yml@main
     with:
       HELM_VERSION: ${{ needs.init.outputs.VERSION }}
       ENVIRONMENT: ${{ needs.init.outputs.ENVIRONMENT }}
+      DOCKER_IDENTIFIER: ${{ needs.init.outputs.ENVIRONMENT }}
+      HELM_BUCKET_NAME: ${{ needs.init.outputs.HELM_BUCKET_NAME }}
+      HELM_BUCKET_URL: ${{ needs.init.outputs.HELM_BUCKET_URL }}
+      PROJECT_ID: ${{ needs.init.outputs.PROJECT_ID }}
     secrets:
       AWS_ACCESS_ID: ${{ secrets.AWS_ACCESS_ID }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
