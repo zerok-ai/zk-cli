@@ -11,6 +11,7 @@ zk-wsp:
 
 redis:
   enabled: true
+  architecture: standalone
   nameOverride: redis
   fullnameOverride: redis
   auth:
@@ -32,7 +33,7 @@ redis:
         cpu: 1
         memory: 1Gi
   sentinel:
-    enabled: true
+    enabled: false
   commonConfiguration: |-
     # Enable AOF https://redis.io/topics/persistence#append-only-file
     appendonly yes
