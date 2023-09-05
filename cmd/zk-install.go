@@ -76,7 +76,6 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 
 	// 1. login to px
 	if clusterKey, err = install.LoginToPX(authAddress, apiKey, clusterName); err != nil {
-		// send to sentry and print
 		return err
 	}
 

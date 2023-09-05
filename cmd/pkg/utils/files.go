@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"os"
 	"time"
-	"zkctl/cmd/internal"
-
 	"zkctl/cmd/pkg/shell"
 	"zkctl/cmd/pkg/ui"
 
@@ -187,9 +185,7 @@ func ResetErrorDumpfile() {
 	}
 }
 
-func DumpErrorAndPrintLocation(errorMessage string) {
-	printOnConsole := viper.Get(internal.VerboseKeyFlag) == true
-
+func DumpErrorAndPrintLocation(errorMessage string, printOnConsole bool) {
 	dumpPath := GetErrorDumpPath()
 	err := WriteTextToFile(errorMessage, dumpPath)
 	if err == nil && printOnConsole {

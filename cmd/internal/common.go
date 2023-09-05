@@ -30,6 +30,11 @@ func AddBoolFlag(cmd *cobra.Command, name, envFlag, shorthand string, defaultVal
 	}
 }
 
+func DumpErrorAndPrintLocation(errorMessage string) {
+	printOnConsole := viper.Get(VerboseKeyFlag) == true
+	utils.DumpErrorAndPrintLocation(errorMessage, printOnConsole)
+}
+
 func addBoolFlagE(cmd *cobra.Command, name, envFlag, shorthand string, defaultValue bool, usage string, isHidden bool) error {
 	cmd.PersistentFlags().BoolP(name, shorthand, defaultValue, usage)
 	err := viper.BindPFlag(name, cmd.PersistentFlags().Lookup(name))
@@ -91,18 +96,35 @@ func GetKVPairsFromCSV(csv string) map[string]string {
 	return keyValueMap
 }
 
-func ExecuteShellFile(shellFile, inputParameters, spinnerText, successMessage, errorMessage string) error {
+func ExecuteShellFile(shellFile, inputParameters string) error {
 
 	// make the file executable
-	out, err := shell.ShelloutWithSpinner("chmod +x "+shellFile, "checking for appropriate permissions", "permissions added", "failed to get permissions")
+	out, err := shell.Shellout("chmod +x "+shellFile, false)
 	if err != nil {
-		utils.DumpErrorAndPrintLocation(out)
+		DumpErrorAndPrintLocation(out)
+		return err
+	}
+
+	out, err = shell.Shellout(shellFile+inputParameters, false)
+	if err != nil {
+		DumpErrorAndPrintLocation(out)
+		return err
+	}
+	return nil
+}
+
+func ExecuteShellFileWithSpinner(shellFile, inputParameters, spinnerText, successMessage, errorMessage string) error {
+
+	// make the file executable
+	out, err := shell.ShelloutWithSpinner("chmod +x "+shellFile, "checking for appropriate permissions", "", "failed to get permission to run "+shellFile)
+	if err != nil {
+		DumpErrorAndPrintLocation(out)
 		return err
 	}
 
 	out, err = shell.ShelloutWithSpinner(shellFile+inputParameters, spinnerText, successMessage, errorMessage)
 	if err != nil {
-		utils.DumpErrorAndPrintLocation(out)
+		DumpErrorAndPrintLocation(out)
 		return err
 	}
 	return nil

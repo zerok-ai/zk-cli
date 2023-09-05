@@ -13,7 +13,7 @@ import (
 //go:embed helm-charts/*
 //go:embed db-helm-charts/*
 //go:embed scripts/*
-//go:embed "vizier/*.yaml"
+//go:embed "vizier/vizier.yaml"
 var content embed.FS
 
 func main() {

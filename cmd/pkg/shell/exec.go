@@ -48,6 +48,38 @@ func ShelloutWithSpinner(command, spinnerText, successText, failureText string) 
 	return stdBuffer.String(), err
 }
 
+type ExecWithSpinner func() error
+
+func RunWithSpinner(task ExecWithSpinner, spinnerText, successText, failureText string) (string, error) {
+
+	// fmt.Println("command: " + command)
+	// send the output to console as well as to a buffer
+	var stdBuffer bytes.Buffer
+
+	spinner := ui.GlobalWriter.NewSpinner(spinnerText)
+	if successText != "" {
+		spinner.SetStopMessage(successText)
+	}
+
+	if failureText != "" {
+		spinner.SetStopFailMessage(failureText)
+	}
+
+	spinner.Start()
+	defer spinner.WriteStop()
+
+	err := task()
+
+	if err == nil {
+		return stdBuffer.String(), err
+	}
+
+	ui.GlobalWriter.PrintflnWithPrefixlnAndArrow("Got error %v", err)
+
+	spinner.WriteStopFail()
+	return stdBuffer.String(), err
+}
+
 func Shellout(command string, printLogsOnConsole bool) (string, error) {
 
 	// fmt.Println("command: " + command)

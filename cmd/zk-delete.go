@@ -24,7 +24,7 @@ const (
 
 var (
 	namespacesToDelete  = []string{"pl", "zk-client", "px-operator"}
-	crdsToDelete        = []string{"zerokops.operator.zerok.ai"}
+	crdsToDelete        = []string{"zerokops.operator.zerok.ai", "zerokinstrumentations.operator.zerok.ai"}
 	clusterRoles        = []string{"zk-daemonset", "zk-operator-metrics-reader", "zk-operator-proxy-role", "zk-operator-role"}
 	clusterRoleBindings = []string{"zk-daemonset", "zk-operator-proxy-rolebinding", "zk-operator-rolebinding"}
 
@@ -159,7 +159,7 @@ func logicZkDelete(ctx context.Context) error {
 	cmd := utils.GetBackendCLIPath() + " delete"
 	out, cmdErr := shell.ShelloutWithSpinner(cmd, delSpinnerText, delSuccessText, delFailureText)
 	if cmdErr != nil {
-		utils.DumpErrorAndPrintLocation(out)
+		internal.DumpErrorAndPrintLocation(out)
 		return cmdErr
 	}
 
