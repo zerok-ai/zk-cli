@@ -47,20 +47,20 @@ const (
 	ZkCloudAddressFlag = "ZK_CLOUD_ADDRESS"
 
 	preInstCreateNS     = "preparing to install zerok daemon and associated CRDs. 1/3"
-	preInstSuccessText1 = "success 1/3"
-	preInstFailureText1 = "success: 1/3"
+	preInstSuccessText1 = ""
+	preInstFailureText1 = ""
 
 	preInstGettingSecrets = "preparing to install zerok daemon and associated CRDs. 2/3"
-	preInstSuccessText2   = "success 2/3"
-	preInstFailureText2   = "failed in preinstallation steps 2/3"
+	preInstSuccessText2   = ""
+	preInstFailureText2   = ""
 
-	preInstSuccessText3         = "preparation successfully 3/3"
 	preInstCreatingCopyOfSecret = "preparing to install zerok daemon and associated CRDs. 3/3"
-	preInstFailureText3         = "failed in preinstallation steps 3/3"
+	preInstSuccessText3         = ""
+	preInstFailureText3         = ""
 
-	diSpinnerText = "installing zerok daemon and associated CRDs"
-	diSuccessText = "zerok daemon installed successfully"
-	diFailureText = "failed to install zerok daemon"
+	diSpinnerText = "installing zerok daemonset and associated CRDs"
+	diSuccessText = "zerok daemonset installed successfully"
+	diFailureText = "failed to install zerok daemonset"
 
 	waitTimeForService = 160
 
@@ -176,17 +176,14 @@ func copySecrets() error {
 	cmd = "kubectl get secret redis -n zk-client -o jsonpath='{.data.redis-password}' | base64 -d"
 	secret, err = shell.ShelloutWithSpinner(cmd, preInstGettingSecrets, preInstSuccessText2, preInstFailureText2)
 	if err != nil {
-		filePath, _ := utils.DumpError(out)
-		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("installation failed, Check %s for details\n", filePath))
+		utils.DumpErrorAndPrintLocation(out)
 		return err
 	}
 
 	cmd = fmt.Sprintf("kubectl create secret generic redis -n pl --from-literal=redis-password=%s", secret)
-	fmt.Println(cmd)
 	_, err = shell.ShelloutWithSpinner(cmd, preInstCreatingCopyOfSecret, preInstSuccessText3, preInstFailureText3)
 	if err != nil {
-		filePath, _ := utils.DumpError(out)
-		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("installation failed, Check %s for details\n", filePath))
+		utils.DumpErrorAndPrintLocation(out)
 		return err
 	}
 
@@ -222,8 +219,7 @@ func InstallPXOperator() (err error) {
 		out, err = shell.ShelloutWithSpinner(cmd, diSpinnerText, diSuccessText, diFailureText)
 
 		if err != nil {
-			filePath, _ := utils.DumpError(out)
-			ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("installation failed, Check %s for details\n", filePath))
+			utils.DumpErrorAndPrintLocation(out, printError)
 		}
 	}()
 
@@ -243,8 +239,7 @@ func InstallVizier() error {
 
 	out, err := shell.Shellout("kubectl apply -f "+cliVizierYaml, true)
 	if err != nil {
-		filePath, _ := utils.DumpError(out)
-		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("vizier install failed, Check %s for details\n", filePath))
+		utils.DumpErrorAndPrintLocation(fmt.Sprintf("vizier install failed, %s", out))
 	}
 	return err
 }
@@ -277,5 +272,5 @@ func InstallZKServices(apiKey, clusterKey string) error {
 			" PX_CLUSTER_KEY=" + clusterKey +
 			" APP_NAME=zk-client"
 	}
-	return internal.ExecuteShellFile(shell.GetPWD()+shellFile, inputToShellFile, "installing zk operator", "failed to install zk_operator", "zk_operator installed successfully")
+	return internal.ExecuteShellFile(shell.GetPWD()+shellFile, inputToShellFile, "installing zk operator", "zk_operator installed successfully", "failed to install zk_operator")
 }

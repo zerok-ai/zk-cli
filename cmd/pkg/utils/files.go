@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"zkctl/cmd/internal"
 
 	"zkctl/cmd/pkg/shell"
 	"zkctl/cmd/pkg/ui"
@@ -186,16 +187,16 @@ func ResetErrorDumpfile() {
 	}
 }
 
-func DumpError(errorText string) (string, error) {
-	dumpPath := GetErrorDumpPath()
-	return dumpPath, WriteTextToFile(errorText, dumpPath)
-}
+func DumpErrorAndPrintLocation(errorMessage string) {
+	printOnConsole := viper.Get(internal.VerboseKeyFlag) == true
 
-func DumpErrorAndPrintLocation(errorMessage string, printOnConsole bool) {
-	filePath, _ := DumpError(errorMessage)
+	dumpPath := GetErrorDumpPath()
+	err := WriteTextToFile(errorMessage, dumpPath)
+	if err == nil && printOnConsole {
+		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("Error:Check %s for details\n", dumpPath))
+	}
 	if printOnConsole {
-		ui.LogAndPrintError(fmt.Errorf(errorMessage+": %v", errorMessage))
-		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("Error:Check %s for details\n", filePath))
+		ui.LogAndPrintError(fmt.Errorf(errorMessage+": %v\n", errorMessage))
 	}
 }
 

@@ -159,8 +159,7 @@ func logicZkDelete(ctx context.Context) error {
 	cmd := utils.GetBackendCLIPath() + " delete"
 	out, cmdErr := shell.ShelloutWithSpinner(cmd, delSpinnerText, delSuccessText, delFailureText)
 	if cmdErr != nil {
-		filePath, _ := utils.DumpError(out)
-		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("installation failed, Check %s for details\n", filePath))
+		utils.DumpErrorAndPrintLocation(out)
 		return cmdErr
 	}
 

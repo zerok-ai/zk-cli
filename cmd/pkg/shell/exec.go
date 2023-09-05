@@ -25,8 +25,13 @@ func ShelloutWithSpinner(command, spinnerText, successText, failureText string) 
 	cmd.Stderr = &stdBuffer
 
 	spinner := ui.GlobalWriter.NewSpinner(spinnerText)
-	spinner.SetStopMessage(successText)
-	spinner.SetStopFailMessage(failureText)
+	if successText != "" {
+		spinner.SetStopMessage(successText)
+	}
+
+	if failureText != "" {
+		spinner.SetStopFailMessage(failureText)
+	}
 
 	spinner.Start()
 	defer spinner.WriteStop()

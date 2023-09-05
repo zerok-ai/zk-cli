@@ -93,18 +93,16 @@ func GetKVPairsFromCSV(csv string) map[string]string {
 
 func ExecuteShellFile(shellFile, inputParameters, spinnerText, successMessage, errorMessage string) error {
 
-	printError := viper.Get(VerboseKeyFlag) == true
-
 	// make the file executable
 	out, err := shell.ShelloutWithSpinner("chmod +x "+shellFile, "checking for appropriate permissions", "permissions added", "failed to get permissions")
 	if err != nil {
-		utils.DumpErrorAndPrintLocation(out, printError)
+		utils.DumpErrorAndPrintLocation(out)
 		return err
 	}
 
 	out, err = shell.ShelloutWithSpinner(shellFile+inputParameters, spinnerText, successMessage, errorMessage)
 	if err != nil {
-		utils.DumpErrorAndPrintLocation(out, printError)
+		utils.DumpErrorAndPrintLocation(out)
 		return err
 	}
 	return nil
