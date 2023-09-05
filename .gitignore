@@ -7,3 +7,4 @@ db-helm-charts/*.lock
 helm-charts/charts/*.tgz
 helm-charts/*.lock
 zkcli
+Chart.lock

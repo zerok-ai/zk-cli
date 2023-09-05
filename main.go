@@ -16,8 +16,10 @@ import (
 //go:embed "vizier/vizier.yaml"
 var content embed.FS
 
+var Version string
+
 func main() {
-	ui.GlobalWriter.Println("❄ lowering the temperature \n")
+	ui.GlobalWriter.Println("❄ lowering the temperature Version = " + Version + "\n")
 	utils.ResetErrorDumpfile()
 	ctx, cleanup := contextWithSignalInterrupt()
 	defer cleanup()

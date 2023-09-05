@@ -85,16 +85,6 @@ func GetAPIKey() string {
 	return apiKey
 }
 
-func GetCloudAddress() string {
-	zkCloudAddr := viper.Get(ZkCloudAddressFlag)
-	if zkCloudAddr == nil {
-		//TODO replace this with the production address
-		zkCloudAddr = "zkcloud02.getanton.com"
-		viper.Set(ZkCloudAddressFlag, zkCloudAddr)
-	}
-	return zkCloudAddr.(string)
-}
-
 func DownloadAndInstallPXCLI(ctx context.Context) error {
 
 	useVersion := "latest"

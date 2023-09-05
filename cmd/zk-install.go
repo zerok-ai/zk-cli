@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"github.com/spf13/viper"
 	"os"
 	"zkctl/cmd/internal"
 	"zkctl/cmd/internal/install"
@@ -110,6 +111,20 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 	return err
 }
 
+var (
+	// prodCloudAddress should be set through ldflags option in `go build` command
+	prodCloudAddress string
+)
+
+func getCloudAddress() string {
+	zkCloudAddr := viper.Get(install.ZkCloudAddressFlag)
+	if zkCloudAddr == nil {
+		zkCloudAddr = prodCloudAddress
+		viper.Set(install.ZkCloudAddressFlag, zkCloudAddr)
+	}
+	return zkCloudAddr.(string)
+}
+
 func LoadAndValidateFlags() error {
 
 	//Get API Key
@@ -119,7 +134,7 @@ func LoadAndValidateFlags() error {
 	}
 
 	// set cloud address as an env variable for shell scripts
-	zkCloudAddr := install.GetCloudAddress()
+	zkCloudAddr := getCloudAddress()
 
 	// set auth address
 	plCloudAddr := "px." + zkCloudAddr
