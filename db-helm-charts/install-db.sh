@@ -17,5 +17,14 @@ do
 shift
 done
 
-helm dependency update $THIS_DIR
-helm upgrade $APP_NAME --install $THIS_DIR/ --create-namespace --namespace zk-client --wait
+#helm dependency update $THIS_DIR
+#helm upgrade $APP_NAME --install $THIS_DIR/ --create-namespace --namespace zk-client --wait
+
+helm repo add zk-redis https://helm.zerok.ai/zk-client/zk-redis
+helm repo update
+helm upgrade zk-redis zk-redis/zk-redis --install --create-namespace --namespace zk-client --version 0.1.0-alpha
+
+helm repo add zk-postgres https://helm.zerok.ai/zk-client/zk-postgres
+helm repo update
+helm upgrade zk-postgres zk-postgres/zk-postgres --install --create-namespace --namespace zk-client --version 0.1.0-alpha
+

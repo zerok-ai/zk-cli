@@ -55,7 +55,7 @@ func RunDevCmd(cmd *cobra.Command, args []string) error {
 	if vizierTagInterface != nil {
 		vizierDockerTag = vizierTagInterface.(string)
 	} else {
-		vizierDockerTag = "0.1.0-redisp"
+		vizierDockerTag = "0.1.0-redishost"
 	}
 
 	if viper.Get(VizierSetupKeyFlag) == true {

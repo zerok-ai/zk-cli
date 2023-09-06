@@ -179,9 +179,41 @@ func copySecrets() error {
 	return nil
 }
 
+func copyConfigmaps() error {
+	var out string
+	cmd := "kubectl create namespace pl"
+
+	out, err := shell.Shellout(cmd, true)
+	if err != nil {
+		//	 do nothing
+		internal.DumpErrorAndPrintLocation(out)
+	}
+
+	internal.DumpErrorAndPrintLocation("before reading configmap")
+
+	// check if the secret exists
+	cmd = "kubectl get configmap zk-redis-config -n zk-client -o jsonpath='{.data.redisHost}'"
+	config, err := shell.Shellout(cmd, false)
+	if err != nil {
+		internal.DumpErrorAndPrintLocation(config)
+		return err
+	}
+
+	internal.DumpErrorAndPrintLocation("-----------" + config)
+
+	cmd = fmt.Sprintf("kubectl create configmap zk-redis-config -n pl --from-literal=redisHost=%s", config)
+	out, err = shell.Shellout(cmd, false)
+	if err != nil {
+		internal.DumpErrorAndPrintLocation(out)
+		return err
+	}
+
+	return nil
+}
+
 func InstallDataStores() error {
 	// Install zk-client data stores
-	return internal.ExecuteShellFileWithSpinner(shell.GetPWD()+zkInstallStores, " APP_NAME=zk-stores ", installDataStore, installDataStoreSuccessText, installDataStoreFailureText)
+	return internal.ExecuteShellFileWithSpinner(shell.GetPWD()+zkInstallStores, " ", installDataStore, installDataStoreSuccessText, installDataStoreFailureText)
 }
 
 func InstallPXOperator() (err error) {
@@ -192,6 +224,11 @@ func InstallPXOperator() (err error) {
 		ui.GlobalWriter.PrintflnWithPrefixArrow("installing operator for managing data store")
 
 		_, err = shell.RunWithSpinner(copySecrets, preInstCreatingCopyOfSecret, preInstSuccessText, preInstFailureText)
+		if err != nil {
+			return
+		}
+
+		_, err = shell.RunWithSpinner(copyConfigmaps, preInstCreatingCopyOfSecret, preInstSuccessText, preInstFailureText)
 		if err != nil {
 			return
 		}
