@@ -1,5 +1,6 @@
 NAME=zkcli
 VERSION=0.0.1
+
 CLOUD_ADDRESS=devcloud01.getanton.com
 #CLOUD_ADDRESS=sandbox.zerok.dev
 
@@ -30,11 +31,10 @@ run: build
 	./$(NAME)
 
 artifact: build
-	GOARCH=amd64 GOOS=darwin  go build -o ./$(ARTIFACT_FOLDER)/$(VERSION)/$(NAME)-darwin  -ldflags="-X 'zkctl/cmd.BinaryVersion=$(VERSION)' -X 'zkctl/cmd.prodCloudAddress=$(CLOUD_ADDRESS)'" main.go
-
-artifact-all: artifact
-	GOARCH=amd64 GOOS=linux   go build -o ./$(ARTIFACT_FOLDER)/$(VERSION)/$(NAME)-linux   -ldflags="-X 'zkctl/cmd.BinaryVersion=$(VERSION)' -X 'zkctl/cmd.prodCloudAddress=$(CLOUD_ADDRESS)'" main.go
-	GOARCH=amd64 GOOS=windows go build -o ./$(ARTIFACT_FOLDER)/$(VERSION)/$(NAME)-windows -ldflags="-X 'zkctl/cmd.BinaryVersion=$(VERSION)' -X 'zkctl/cmd.prodCloudAddress=$(CLOUD_ADDRESS)'" main.go
+	echo $(VERSION)
+#	GOARCH=amd64 GOOS=darwin  go build -o ./$(ARTIFACT_FOLDER)/$(VERSION)/$(NAME)-$(VERSION)-darwin  -ldflags="-X 'zkctl/cmd.BinaryVersion=$(VERSION)' -X 'zkctl/cmd.prodCloudAddress=$(CLOUD_ADDRESS)'" main.go
+#	GOARCH=amd64 GOOS=linux   go build -o ./$(ARTIFACT_FOLDER)/$(VERSION)/$(NAME)-$(VERSION)-linux   -ldflags="-X 'zkctl/cmd.BinaryVersion=$(VERSION)' -X 'zkctl/cmd.prodCloudAddress=$(CLOUD_ADDRESS)'" main.go
+#	GOARCH=amd64 GOOS=windows go build -o ./$(ARTIFACT_FOLDER)/$(VERSION)/$(NAME)-$(VERSION)-windows -ldflags="-X 'zkctl/cmd.BinaryVersion=$(VERSION)' -X 'zkctl/cmd.prodCloudAddress=$(CLOUD_ADDRESS)'" main.go
 
 delete:
 	go run main.go delete -y
@@ -62,3 +62,5 @@ run-dev-artifact: artifact
 	echo "-"
 	./$(ARTIFACT_FOLDER)/$(VERSION)/$(NAME)-darwin install -y --dev --apikey $(ZK_API_KEY) --zkVersion=zk-scenario-manager=$(ZK_CLIENT_VERSION),zk-axon=$(ZK_CLIENT_VERSION),zk-daemonset=$(ZK_CLIENT_VERSION),zk-gpt=$(ZK_CLIENT_VERSION),zk-wsp-client=$(ZK_CLIENT_VERSION),zk-operator=$(ZK_CLIENT_VERSION),zk-app-init-containers=$(ZK_CLIENT_VERSION)
 
+
+ci-cd-artifact: artifact
