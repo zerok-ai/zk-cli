@@ -28,8 +28,8 @@ jobs:
     uses: zerok-ai/zk-git-actions/.github/workflows/zk-file-build-publish.yml@main
     with:
       ENVIRONMENT: ${{ needs.init.outputs.ENVIRONMENT }}
-      S3_FOLDER_NAME: 'cli'
-      CLI_VERSION: ${{ needs.init.outputs.VERSION }}
+      BUILD_OUTPUT_DIR: 'build'
+      VERSION: ${{ needs.init.outputs.VERSION }}
     secrets:
       AWS_ACCESS_ID: ${{ secrets.AWS_ACCESS_ID }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
