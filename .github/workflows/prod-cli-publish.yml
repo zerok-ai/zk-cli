@@ -23,12 +23,13 @@ jobs:
       GIT_TAG: ${{ github.ref }}
       DOCKER_TAG: ${{ github.event.inputs.DOCKER_TAG }}
 
-  # build helm charts and publish to helm repository
+  # publish executables to S3
   publish:
-    uses: zerok-ai/zk-git-actions/.github/workflows/zk-file-build-publish.yml@main
+    uses: zerok-ai/zk-git-actions/.github/workflows/zk-file-build-publish.yml@feature/uploading-artifact
     with:
       ENVIRONMENT: ${{ needs.init.outputs.ENVIRONMENT }}
-      BUILD_OUTPUT_DIR: 'build'
+      ARTIFACT_FOLDER_NAME: ${{ format('builds/{0}', needs.init.outputs.VERSION) }}
+      TARGET_FOLDER_NAME: ${{ needs.init.outputs.VERSION }}
       VERSION: ${{ needs.init.outputs.VERSION }}
     secrets:
       AWS_ACCESS_ID: ${{ secrets.AWS_ACCESS_ID }}
