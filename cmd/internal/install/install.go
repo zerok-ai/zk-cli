@@ -167,8 +167,15 @@ func copySecrets() error {
 		return err
 	}
 
-	internal.DumpErrorAndPrintLocation("-----------" + secret)
+	//Check if secret already exists
+	cmd = "kubectl get secret redis -n pl -o jsonpath='{.data.redis-password}' | base64 -d"
+	_, secretExistsErr := shell.Shellout(cmd, false)
+	if secretExistsErr == nil {
+		//secret already exists, so returning without doing anything
+		return nil
+	}
 
+	internal.DumpErrorAndPrintLocation("-----------" + secret)
 	cmd = fmt.Sprintf("kubectl create secret generic redis -n pl --from-literal=redis-password=%s", secret)
 	out, err = shell.Shellout(cmd, false)
 	if err != nil {
@@ -197,6 +204,14 @@ func copyConfigmaps() error {
 	if err != nil {
 		internal.DumpErrorAndPrintLocation(config)
 		return err
+	}
+
+	//Check if configmap already exists
+	cmd = "kubectl get configmap zk-redis-config -n pl -o jsonpath='{.data.redisHost}'"
+	_, configExistsErr := shell.Shellout(cmd, false)
+	if configExistsErr == nil {
+		//config already exists, so returning without doing anything
+		return nil
 	}
 
 	internal.DumpErrorAndPrintLocation("-----------" + config)
