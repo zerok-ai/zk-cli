@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Define a function that runs a command silently
+run_command_silently() {
+  # Run the command and discard both stdout and stderr
+  "$@" >/dev/null 2>&1
+}
+
 # Check if an argument was provided
 if [ $# -eq 0 ]; then
   echo "Please provide a Git tag as an argument."
@@ -8,6 +14,10 @@ fi
 
 # Get the input Git tag
 input_tag="$1"
+
+# Fetch all tags and delete all local tags
+run_command_silently git tag -l | xargs -I {} git tag -d {}
+run_command_silently  git fetch --tags --force
 
 # Find the commit associated with the input tag
 commit_hash=$(git rev-list -n 1 "$input_tag" 2>/dev/null)

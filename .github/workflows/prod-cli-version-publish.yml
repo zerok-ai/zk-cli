@@ -14,8 +14,6 @@ jobs:
       - name: get_tag
         id: get_tag
         run: |-
-          git tag -l | xargs -I {} git tag -d {}
-          git fetch --tags --force
           file_name="./.github/scripts/find_cli_tags.sh"
           chmod +x "$file_name"
           result=$("$file_name" "latest")
