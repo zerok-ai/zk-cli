@@ -80,15 +80,16 @@ jobs:
         with:
           credentials_json: '${{ env.GKE_SA_KEY }}'
 
-      - id: 'get-credentials'
-        uses: 'google-github-actions/get-gke-credentials@v1'
-        with:
-          cluster_name: '${{ needs.init.outputs.CLUSTERNAME }}'
-          location: '${{ env.GKE_ZONE }}'
+#      - id: 'get-credentials'
+#        uses: 'google-github-actions/get-gke-credentials@v1'
+#        with:
+#          cluster_name: '${{ needs.init.outputs.CLUSTERNAME }}'
+#          location: '${{ env.GKE_ZONE }}'
 
       - name: Install
         if: ${{ env.ACTION == 'install' }}
         run: |-
+          gcloud container clusters --zone us-west1-b get-credentials ${{ needs.init.outputs.CLUSTERNAME }}
           export CLUSTER_NAME=$CLUSTERNAME
           export ZK_CLOUD_ADDRESS=$ZK_CLOUD_ADDRESS
           export ZPIXIE_REPO=https://$TOKEN:x-oauth-basic@github.com/zerok-ai/zpixie.git
@@ -97,6 +98,7 @@ jobs:
       - name: Dev Install
         if: ${{ env.ACTION == 'dev-install' }}
         run: |-
+          gcloud container clusters --zone us-west1-b get-credentials ${{ needs.init.outputs.CLUSTERNAME }}
           export CLUSTER_NAME=$CLUSTERNAME
           export ZK_CLOUD_ADDRESS=$ZK_CLOUD_ADDRESS
           go run main.go install -y --apikey $ZK_API_KEY -d --zkVersion=$VERSIONS --verbose
@@ -104,4 +106,5 @@ jobs:
       - name: Uninstall
         if: ${{ env.ACTION == 'uninstall' }}
         run: |-
+          gcloud container clusters --zone us-west1-b get-credentials ${{ needs.init.outputs.CLUSTERNAME }}
           go run main.go delete -y --verbose
