@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"zkctl/cmd/internal"
-	"zkctl/cmd/pkg/shell"
+	"zkctl/cmd/internal/shell"
 )
 
 const (
@@ -36,13 +36,13 @@ func init() {
 }
 
 func createVizierYaml(vizierTag string) error {
-	out, err := shell.Shellout("VIZIER_TAG="+vizierTag+" ./"+pxVizierDevModeSetup, false)
+	out, err := shell.Shellout("VIZIER_TAG=" + vizierTag + " ./" + pxVizierDevModeSetup)
 	if err != nil {
 		internal.DumpErrorAndPrintLocation(fmt.Sprintf("vizier export failed, %s", out))
 		return err
 	}
 
-	out, err = shell.Shellout("cp ./"+pxVizierYaml+" ./"+cliVizierYaml, false)
+	out, err = shell.Shellout("cp ./" + pxVizierYaml + " ./" + cliVizierYaml)
 	if err != nil {
 		internal.DumpErrorAndPrintLocation(fmt.Sprintf("vizier copy failed %s", out))
 	}

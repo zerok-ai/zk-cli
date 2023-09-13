@@ -1,13 +1,14 @@
 package shell
 
 import (
+	"bytes"
 	"fmt"
+	"github.com/spf13/viper"
 	"io"
 	"os"
-
-	"bytes"
 	"os/exec"
 	"time"
+	"zkctl/cmd/internal"
 
 	"zkctl/cmd/pkg/ui"
 )
@@ -80,10 +81,8 @@ func RunWithSpinner(task ExecWithSpinner, spinnerText, successText, failureText 
 	return stdBuffer.String(), err
 }
 
-func Shellout(command string, printLogsOnConsole bool) (string, error) {
-
-	// fmt.Println("command: " + command)
-	// send the output to console as well as to a buffer
+func Shellout(command string) (string, error) {
+	printLogsOnConsole := viper.Get(internal.VerboseKeyFlag) == true
 	var stdBuffer bytes.Buffer
 	cmd := exec.Command(ShellToUse, "-c", command)
 
@@ -103,7 +102,7 @@ func Shellout(command string, printLogsOnConsole bool) (string, error) {
 // execute and print error only
 func ExecWithDurationAndSuccessM(command string, successMsg string) (string, error) {
 	startTime := time.Now()
-	out, err := Shellout(command, false)
+	out, err := Shellout(command)
 	diff := time.Since(startTime)
 	if err == nil {
 		ui.GlobalWriter.PrintSuccessMessageln(fmt.Sprintf("%s [time taken: %v]", successMsg, diff))
@@ -114,7 +113,7 @@ func ExecWithDurationAndSuccessM(command string, successMsg string) (string, err
 // execute and print error only
 func ExecWithLogsDurationAndSuccessM(command string, successMsg string) (string, error) {
 	startTime := time.Now()
-	out, err := Shellout(command, true)
+	out, err := Shellout(command)
 	diff := time.Since(startTime)
 	if err == nil {
 		ui.GlobalWriter.PrintSuccessMessageln(fmt.Sprintf("%s [time taken: %v]\n", successMsg, diff))
@@ -131,4 +130,38 @@ func GetPWD() string {
 		return ""
 	}
 	return mydir
+}
+
+func ExecuteShellFile(shellFile, inputParameters string) error {
+
+	// make the file executable
+	out, err := Shellout("chmod +x " + shellFile)
+	if err != nil {
+		internal.DumpErrorAndPrintLocation(out)
+		return err
+	}
+
+	out, err = Shellout(shellFile + inputParameters)
+	if err != nil {
+		internal.DumpErrorAndPrintLocation(out)
+		return err
+	}
+	return nil
+}
+
+func ExecuteShellFileWithSpinner(shellFile, inputParameters, spinnerText, successMessage, errorMessage string) error {
+
+	// make the file executable
+	out, err := ShelloutWithSpinner("chmod +x "+shellFile, "checking for appropriate permissions", "", "failed to get permission to run "+shellFile)
+	if err != nil {
+		internal.DumpErrorAndPrintLocation(out)
+		return err
+	}
+
+	out, err = ShelloutWithSpinner(shellFile+inputParameters, spinnerText, successMessage, errorMessage)
+	if err != nil {
+		internal.DumpErrorAndPrintLocation(out)
+		return err
+	}
+	return nil
 }

@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"time"
-	"zkctl/cmd/pkg/shell"
 	"zkctl/cmd/pkg/ui"
 
 	"github.com/spf13/viper"
@@ -117,20 +116,6 @@ func DownloadExecutableFile(url string, filedDir string, filename string, showSp
 	}
 
 	return nil
-}
-
-func CloneGitRepo(url string, filePath string) error {
-	var err error
-	// check if dir already exists
-	if !Exists(filePath) {
-		_, err = shell.Shellout(fmt.Sprintf("git clone %s %s", url, filePath), false)
-		// _, err = shell.ExecWithLogsDurationAndSuccessM(commandStr, fmt.Sprintf("successfully cloned the repo %s", url))
-		if err != nil {
-			err = fmt.Errorf("unable to download the required files")
-			// send output to sentry
-		}
-	}
-	return err
 }
 
 func Exists(path string) bool {

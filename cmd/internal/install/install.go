@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 	"zkctl/cmd/internal"
-	"zkctl/cmd/pkg/shell"
+	"zkctl/cmd/internal/shell"
 	"zkctl/cmd/pkg/ui"
 	"zkctl/cmd/pkg/utils"
 )
@@ -151,7 +151,7 @@ func copySecrets() error {
 	var out string
 	cmd := "kubectl create namespace pl"
 
-	out, err := shell.Shellout(cmd, true)
+	out, err := shell.Shellout(cmd)
 	if err != nil {
 		//	 do nothing
 		internal.DumpErrorAndPrintLocation(out)
@@ -161,25 +161,29 @@ func copySecrets() error {
 
 	// check if the secret exists
 	cmd = "kubectl get secret redis -n zk-client -o jsonpath='{.data.redis-password}' | base64 -d"
-	secret, err := shell.Shellout(cmd, false)
+	secret, err := shell.Shellout(cmd)
 	if err != nil {
-		internal.DumpErrorAndPrintLocation(secret)
+		errMessage := fmt.Sprintf("Error in fetching secret %v", err)
+		internal.DumpErrorAndPrintLocation(errMessage)
 		return err
 	}
 
 	//Check if secret already exists
-	cmd = "kubectl get secret redis -n pl -o jsonpath='{.data.redis-password}' | base64 -d"
-	_, secretExistsErr := shell.Shellout(cmd, false)
+	cmd = "kubectl get secret redis -n pl -o jsonpath='{.data.redis-password}'"
+	out, secretExistsErr := shell.Shellout(cmd)
 	if secretExistsErr == nil {
-		//secret already exists, so returning without doing anything
+		//TODO: Remove
+		internal.DumpErrorAndPrintLocation("Secret already exists " + out)
 		return nil
+	} else {
+		internal.DumpErrorAndPrintLocation("Error in checking secret: " + out)
 	}
 
 	internal.DumpErrorAndPrintLocation("-----------" + secret)
 	cmd = fmt.Sprintf("kubectl create secret generic redis -n pl --from-literal=redis-password=%s", secret)
-	out, err = shell.Shellout(cmd, false)
+	out, err = shell.Shellout(cmd)
 	if err != nil {
-		internal.DumpErrorAndPrintLocation(out)
+		internal.DumpErrorAndPrintLocation("Error in creating secret: " + out)
 		return err
 	}
 
@@ -190,7 +194,7 @@ func copyConfigmaps() error {
 	var out string
 	cmd := "kubectl create namespace pl"
 
-	out, err := shell.Shellout(cmd, true)
+	out, err := shell.Shellout(cmd)
 	if err != nil {
 		//	 do nothing
 		internal.DumpErrorAndPrintLocation(out)
@@ -200,7 +204,7 @@ func copyConfigmaps() error {
 
 	// check if the secret exists
 	cmd = "kubectl get configmap zk-redis-config -n zk-client -o jsonpath='{.data.redisHost}'"
-	config, err := shell.Shellout(cmd, false)
+	config, err := shell.Shellout(cmd)
 	if err != nil {
 		internal.DumpErrorAndPrintLocation(config)
 		return err
@@ -208,7 +212,7 @@ func copyConfigmaps() error {
 
 	//Check if configmap already exists
 	cmd = "kubectl get configmap zk-redis-config -n pl -o jsonpath='{.data.redisHost}'"
-	_, configExistsErr := shell.Shellout(cmd, false)
+	_, configExistsErr := shell.Shellout(cmd)
 	if configExistsErr == nil {
 		//config already exists, so returning without doing anything
 		return nil
@@ -217,7 +221,7 @@ func copyConfigmaps() error {
 	internal.DumpErrorAndPrintLocation("-----------" + config)
 
 	cmd = fmt.Sprintf("kubectl create configmap zk-redis-config -n pl --from-literal=redisHost=%s", config)
-	out, err = shell.Shellout(cmd, false)
+	out, err = shell.Shellout(cmd)
 	if err != nil {
 		internal.DumpErrorAndPrintLocation(out)
 		return err
@@ -228,7 +232,7 @@ func copyConfigmaps() error {
 
 func InstallDataStores() error {
 	// Install zk-client data stores
-	return internal.ExecuteShellFileWithSpinner(shell.GetPWD()+zkInstallStores, " ", installDataStore, installDataStoreSuccessText, installDataStoreFailureText)
+	return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+zkInstallStores, " ", installDataStore, installDataStoreSuccessText, installDataStoreFailureText)
 }
 
 func InstallPXOperator() (err error) {
@@ -272,7 +276,7 @@ func InstallPXOperator() (err error) {
 func InstallVizier() error {
 
 	patch := func() error {
-		out, err := shell.Shellout("kubectl apply -f "+shell.GetPWD()+cliVizierYaml, false)
+		out, err := shell.Shellout("kubectl apply -f " + shell.GetPWD() + cliVizierYaml)
 		if err != nil {
 			internal.DumpErrorAndPrintLocation(fmt.Sprintf("vizier install failed, %s", out))
 		}
@@ -314,5 +318,5 @@ func InstallZKServices(apiKey, clusterKey string) error {
 			" PX_CLUSTER_KEY=" + clusterKey +
 			" APP_NAME=zk-client"
 	}
-	return internal.ExecuteShellFileWithSpinner(shell.GetPWD()+shellFile, inputToShellFile, "installing zk operator", "zk_operator installed successfully", "failed to install zk_operator")
+	return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+shellFile, inputToShellFile, "installing zk operator", "zk_operator installed successfully", "failed to install zk_operator")
 }

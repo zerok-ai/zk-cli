@@ -8,8 +8,8 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"zkctl/cmd/internal"
+	"zkctl/cmd/internal/shell"
 	"zkctl/cmd/pkg/k8s"
-	"zkctl/cmd/pkg/shell"
 	"zkctl/cmd/pkg/ui"
 	"zkctl/cmd/pkg/utils"
 )
@@ -101,7 +101,7 @@ func deleteCRDSilent(name []string) {
 func deleteCRD(names []string) error {
 	for _, name := range names {
 		cmd := "kubectl delete crd " + name
-		_, cmdErr := shell.Shellout(cmd, false)
+		_, cmdErr := shell.Shellout(cmd)
 		if !errors.IsNotFound(cmdErr) {
 			return fmt.Errorf("failed to delete CRD %q: %v", name, cmdErr)
 		}
