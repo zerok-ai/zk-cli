@@ -92,16 +92,16 @@ jobs:
           export CLUSTER_NAME=$CLUSTERNAME
           export ZK_CLOUD_ADDRESS=$ZK_CLOUD_ADDRESS
           export ZPIXIE_REPO=https://$TOKEN:x-oauth-basic@github.com/zerok-ai/zpixie.git
-          go run main.go install -y --apikey $ZK_API_KEY
+          go run main.go install -y --apikey $ZK_API_KEY --verbose
 
       - name: Dev Install
         if: ${{ env.ACTION == 'dev-install' }}
         run: |-
           export CLUSTER_NAME=$CLUSTERNAME
           export ZK_CLOUD_ADDRESS=$ZK_CLOUD_ADDRESS
-          go run main.go install -y --apikey $ZK_API_KEY -d --zkVersion=$VERSIONS
+          go run main.go install -y --apikey $ZK_API_KEY -d --zkVersion=$VERSIONS --verbose
 
       - name: Uninstall
         if: ${{ env.ACTION == 'uninstall' }}
         run: |-
-          go run main.go delete -y
+          go run main.go delete -y --verbose
