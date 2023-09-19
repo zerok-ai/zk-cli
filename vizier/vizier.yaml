@@ -126,7 +126,7 @@ spec:
                   optional: true
             - name: PL_CLOCK_CONVERTER
               value: default
-          image: us-west1-docker.pkg.dev/black-scope-358204/zk-client/gcr.io/pixie-oss/pixie-dev/vizier/pem_image:0.1.0-redishost
+          image: us-west1-docker.pkg.dev/black-scope-358204/zk-client/gcr.io/pixie-oss/pixie-dev/vizier/pem_image:0.1.3-redisconn
           imagePullPolicy: Always
           name: pem
           resources: {}
