@@ -115,8 +115,6 @@ latestReleaseMetaData() {
 
   S3_PATH=$(curl -s https://dl.zerok.ai/cli/version.txt)
   LATEST_TAG=$(echo "$S3_PATH" | grep -oE 'cli/[0-9]+\.[0-9]+\.[0-9]+-?[a-zA-Z0-9]*' | awk -F'/' '{print $2}')
-  echo "S3_PATH = $S3_PATH"
-  echo "LATEST_TAG = $LATEST_TAG"
 }
 
 # initLatestTag discovers latest version on GitHub releases.
@@ -176,9 +174,7 @@ verifySupported() {
 checkInstalledVersion() {
   if [ -f "${INSTALL_DIR}/${BINARY_NAME}" ]; then
     local version
-    version=$("${INSTALL_DIR}/${BINARY_NAME}" 
-    # --skip-cli-update version
-    )
+    version=$("${INSTALL_DIR}/${BINARY_NAME}" --skip-cli-update version)
     if [ "${version}" = "${LATEST_TAG#v}" ]; then
       completed "zerok ${version} is already latest"
       return 0

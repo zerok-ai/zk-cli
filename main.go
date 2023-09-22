@@ -19,7 +19,17 @@ var content embed.FS
 var Version string
 
 func main() {
-	ui.GlobalWriter.Println("❄ lowering the temperature Version = " + Version + "\n")
+	printPrePostText := true
+	//TODO: Better way to control this?
+	for _, arg := range os.Args {
+		if arg == "--skip-cli-update" {
+			printPrePostText = false
+		}
+	}
+
+	if printPrePostText {
+		ui.GlobalWriter.Println("❄ lowering the temperature " + "\n")
+	}
 	utils.ResetErrorDumpfile()
 	ctx, cleanup := contextWithSignalInterrupt()
 	defer cleanup()
@@ -29,8 +39,9 @@ func main() {
 	defer cleanErrorReporter()
 
 	cmd.ExecuteContext(ctx)
-
-	ui.GlobalWriter.Println("\n♨ thawing complete. back to room temperature")
+	if printPrePostText {
+		ui.GlobalWriter.Println("\n♨ thawing complete. back to room temperature")
+	}
 }
 
 func contextWithSignalInterrupt() (context.Context, func()) {

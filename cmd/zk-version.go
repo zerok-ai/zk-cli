@@ -18,7 +18,7 @@ var VersionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Get zerok cli version",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		ui.GlobalWriter.Println("version = " + BinaryVersion)
+		ui.GlobalWriter.Println(BinaryVersion)
 		return nil
 	},
 }
