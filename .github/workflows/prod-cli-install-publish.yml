@@ -4,29 +4,6 @@ on:
     tags: #r/<ENVIRONMENT>/<DOCKER-TAG-OR-VERSION>
       - 'install'
 jobs:
-  get-prod-tag:
-    runs-on: zk-self-hosted
-    outputs:
-      TAG: ${{ steps.get_tag.outputs.tag }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: get_tag
-        id: get_tag
-        run: |-
-          file_name="./.github/scripts/find_cli_tags.sh"
-          chmod +x "$file_name"
-          result=$("$file_name" "latest")
-          echo "latest tag=$result"
-          echo "tag=$result" >> $GITHUB_OUTPUT
-  init:
-    uses: zerok-ai/zk-git-actions/.github/workflows/zk-prod-init.yml@main
-    with:
-      ENVIRONMENT: ${{ github.event.inputs.ENV }}
-      GIT_TAG: ${{ needs.get-prod-tag.outputs.TAG }}
-      DOCKER_TAG: ${{ needs.get-prod-tag.outputs.TAG }}
-    needs: get-prod-tag
-
   publish:
     uses: zerok-ai/zk-git-actions/.github/workflows/zk-file-build-publish.yml@main
     with:
@@ -37,4 +14,3 @@ jobs:
     secrets:
       AWS_ACCESS_ID: ${{ secrets.AWS_ACCESS_ID }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-    needs: init
