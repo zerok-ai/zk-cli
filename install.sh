@@ -264,12 +264,9 @@ parseArguments "$@"
 initArch
 initOS
 
-echo "LATEST VERSION = $LATEST_TAG"
-
 if ! checkInstalledVersion; then
   # downloadFile
   initAssetUrl
-  echo "DOWNLOAD_URL=$DOWNLOAD_URL"
   downloadFile
   installFile
 fi
