@@ -16,7 +16,7 @@
 
 : "${GITHUB_REPO:="zk-cli"}"
 : "${GITHUB_OWNER:="zerok-ai"}"
-: "${BINARY_NAME:="zkctl"}"
+: "${BINARY_NAME:="zkcli"}"
 : "${INSTALL_DIR:="${HOME}/.zerok/bin"}"
 
 
@@ -101,10 +101,10 @@ initArch() {
 initOS() {
   OS=$(uname |tr '[:upper:]' '[:lower:]')
 
-  case "$OS" in
-    # Minimalist GNU for Windows
-    mingw*|cygwin*) OS='windows';;
-  esac
+#  case "$OS" in
+#    # Minimalist GNU for Windows
+#    mingw*|cygwin*) OS='windows';;
+#  esac
 }
 
 latestReleaseMetaData() {
@@ -113,30 +113,22 @@ latestReleaseMetaData() {
     git_token="${GITHUB_TOKEN}@"
   fi
 
-  LATEST_TAG=$(curl -Ls \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              "https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/releases/latest")
-  
-  echo "${LATEST_TAG}"
+  S3_PATH=$(curl -s https://dl.zerok.ai/cli/version.txt)
+  LATEST_TAG=$(echo "$S3_PATH" | grep -oE 'cli/[0-9]+\.[0-9]+\.[0-9]+-?[a-zA-Z0-9]*' | awk -F'/' '{print $2}')
+  echo "S3_PATH = $S3_PATH"
+  echo "LATEST_TAG = $LATEST_TAG"
 }
 
 # initLatestTag discovers latest version on GitHub releases.
 initLatestTag() {
-
-  latestReleaseData="${1}"
-  if [[ -z "${latestReleaseData}" ]]; then 
-    latestReleaseData=$(latestReleaseMetaData)
-  fi
-
-  LATEST_TAG=$( echo "${latestReleaseData}" | awk -F\" '/tag_name/{print $(NF-1)}')
+  S3_PATH=$(curl -s https://dl.zerok.ai/cli/version.txt)
+  LATEST_TAG=$(echo "$S3_PATH" | grep -oE 'cli/[0-9]+\.[0-9]+\.[0-9]+-?[a-zA-Z0-9]*' | awk -F'/' '{print $2}')
 
   if [ -z "${LATEST_TAG}" ]; then
     error "Failed to fetch latest version from ${latest_release_url}"
     exit 1
   fi
-  echo "LATEST_TAG = $LATEST_TAG"
+
 }
 
 # appendShellPath append our install bin directory to PATH on bash, zsh and fish shells
@@ -201,45 +193,36 @@ checkInstalledVersion() {
 
 # downloadFile downloads the latest binary package.
 initAssetUrl() {
-
-  latestReleaseData="${1}"
-  if [[ -z "${latestReleaseData}" ]]; then 
-    latestReleaseData=$(latestReleaseMetaData)
-  fi
-
-  ARCHIVE_NAME="${BINARY_NAME}_${LATEST_TAG#v}_${OS}_${ARCH}.tar.gz"
-  eval $(echo "$latestReleaseData" | grep -C3 "name.:.\+$ARCHIVE_NAME" | grep -w id | tr : = | tr -cd '[[:alnum:]]=')
-
-  DOWNLOAD_URL="https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/releases/assets/${id}"
+#  ARCHIVE_NAME="${BINARY_NAME}-${LATEST_TAG#v}_${OS}_${ARCH}.tar.gz"
+  ARCHIVE_NAME="${BINARY_NAME}-${LATEST_TAG#v}-${OS}"
+  DOWNLOAD_URL="https://dl.zerok.ai/${S3_PATH}/${ARCHIVE_NAME}"
 }
 
 downloadFile() {
-  TMP_ROOT="$(mktemp -dt groundcover-installer-XXXXXX)"
+  TMP_ROOT="$(mktemp -dt zerok-installer-XXXXXX)"
   ARCHIVE_TMP_PATH="${TMP_ROOT}/${ARCHIVE_NAME}"
+  curl -SsL "${DOWNLOAD_URL}" -o "${ARCHIVE_TMP_PATH}"
+}
 
-  if [[ "${2}"=="private" ]]; then
-    curl -SsL \
-      -H "Accept: Accept:application/octet-stream" \
-      -H "Authorization: Bearer $GITHUB_TOKEN" \
-      -H "X-GitHub-Api-Version: 2022-11-28" \
-      "${DOWNLOAD_URL}" \
-      -o "${ARCHIVE_TMP_PATH}"
-  else
-    curl -SsL "${DOWNLOAD_URL}" -o "${ARCHIVE_TMP_PATH}"
-  fi
-  
+createSymbolicLink() {
+  SOURCEPATH=$1
+  DESTPATH=$2
+  rm -f $DESTPATH
+  ln -s $SOURCEPATH $DESTPATH
 }
 
 # installFile installs the cli binary.
 installFile() {
-  tar xf "${ARCHIVE_TMP_PATH}" -C "${TMP_ROOT}"
-  BIN_PATH="${INSTALL_DIR}/${BINARY_NAME}"
-  BIN_TMP_PATH="${TMP_ROOT}/${BINARY_NAME}"
+#  tar xf "${ARCHIVE_TMP_PATH}" -C "${TMP_ROOT}"
+  BIN_PATH="${INSTALL_DIR}/${ARCHIVE_NAME}"
+  SYMBOLIC_LINK_PATH="${INSTALL_DIR}/${BINARY_NAME}"
+  BIN_TMP_PATH="${ARCHIVE_TMP_PATH}"
   info "Preparing to install ${BINARY_NAME} into ${INSTALL_DIR}"
   mkdir -p "${INSTALL_DIR}"
   cp "${BIN_TMP_PATH}" "${BIN_PATH}"
   chmod +x "${BIN_PATH}"
-  completed "${BINARY_NAME} installed into ${BIN_PATH}"
+  createSymbolicLink $BIN_PATH $SYMBOLIC_LINK_PATH
+  completed "${BINARY_NAME} installed into ${SYMBOLIC_LINK_PATH}"
 }
 
 # cleanup temporary files
@@ -252,10 +235,9 @@ cleanup() {
 printWhatNow() {
   printf "\n%s\
 what now?\n\
-* run ${GREEN}zerok auth login${NO_COLOR}\n\
-* then ${GREEN}zerok deploy${NO_COLOR}\n\
+* run ${GREEN}zkcli install${NO_COLOR}\n\
 * ${REV_BG}let the magic begin.${NO_COLOR}\n\n\
-run ${BLUE}zerok help${NO_COLOR}, or dive deeper with ${BLUE}${UNDERLINE}https://docs.zerok.ai/docs${NO_COLOR}.\n"
+run ${GREEN}zkcli help${NO_COLOR}, or dive deeper with ${GREEN}${UNDERLINE}https://docs.zerok.ai/docs${NO_COLOR}.\n"
 }
 
 deployWithToken() {
@@ -279,29 +261,31 @@ fail_trap() {
 trap "fail_trap" EXIT
 set -e
 
-latestRelease=$(latestReleaseMetaData)
+initLatestTag
 
 printBanner
 parseArguments "$@"
 initArch
 initOS
 
-initLatestTag "${latestRelease}"
+echo "LATEST VERSION = $LATEST_TAG"
 
 if ! checkInstalledVersion; then
   # downloadFile
-  initAssetUrl "${latestRelease}"
-  downloadFile "private"
+  initAssetUrl
+  echo "DOWNLOAD_URL=$DOWNLOAD_URL"
+  downloadFile
   installFile
 fi
 appendShellPath
 completed "zerok cli was successfully installed!"
-if [ -z "${token}" ]
-then
-  printWhatNow
-  cleanup
-  exec "${SHELL}" # Reload shell
-else
-  newline
-  deployWithToken
-fi
+printWhatNow
+#if [ -z "${token}" ]
+#then
+#  printWhatNow
+#  cleanup
+#  exec "${SHELL}" # Reload shell
+#else
+#  newline
+#  deployWithToken
+#fi
