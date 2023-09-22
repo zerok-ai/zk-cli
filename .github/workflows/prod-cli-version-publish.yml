@@ -28,13 +28,12 @@ jobs:
     needs: get-prod-tag
 
   publish:
-    uses: zerok-ai/zk-git-actions/.github/workflows/zk-file-build-publish.yml@feature/uploading-artifact
+    uses: zerok-ai/zk-git-actions/.github/workflows/zk-file-build-publish.yml@main
     with:
       ENVIRONMENT: "prod"
       ARTIFACT_FOLDER_NAME: 'version'
       VERSION: "${{ needs.init.outputs.VERSION }}"
       MAKE_TARGET: 'ci-cd-artifact-version'
-      TARGET_FOLDER_NAME: ""
     secrets:
       AWS_ACCESS_ID: ${{ secrets.AWS_ACCESS_ID }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
