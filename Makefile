@@ -67,3 +67,7 @@ ci-cd-artifact: artifact
 ci-cd-artifact-version: delete-artifact-folder
 	mkdir -p $(ARTIFACT_FOLDER_NAME)
 	printf "${VERSION}" > $(ARTIFACT_FOLDER_NAME)/version.txt
+
+ci-cd-artifact-install: delete-artifact-folder
+	mkdir -p $(ARTIFACT_FOLDER_NAME)
+	cp ./install.sh $(ARTIFACT_FOLDER_NAME)/install.sh
