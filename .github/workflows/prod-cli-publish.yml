@@ -28,7 +28,7 @@ jobs:
     uses: zerok-ai/zk-git-actions/.github/workflows/zk-file-build-publish.yml@main
     with:
       ENVIRONMENT: ${{ needs.init.outputs.ENVIRONMENT }}
-      BUILD_OUTPUT_DIR: ${{ format('builds/{0}', needs.init.outputs.VERSION) }}
+      ARTIFACT_FOLDER_NAME: ${{ format('builds/{0}', needs.init.outputs.VERSION) }}
       VERSION: ${{ needs.init.outputs.VERSION }}
     secrets:
       AWS_ACCESS_ID: ${{ secrets.AWS_ACCESS_ID }}
