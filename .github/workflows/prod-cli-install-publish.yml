@@ -2,7 +2,7 @@ name: version-publish
 on:
   push:
     tags: #r/<ENVIRONMENT>/<DOCKER-TAG-OR-VERSION>
-      - 'install'
+      - 'installsh'
 jobs:
   publish:
     uses: zerok-ai/zk-git-actions/.github/workflows/zk-file-build-publish.yml@main

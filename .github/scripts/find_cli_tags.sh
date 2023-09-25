@@ -14,6 +14,7 @@ fi
 
 # Get the input Git tag
 input_tag="$1"
+PREFIX=$2
 
 # Fetch all tags and delete all local tags
 run_command_silently git tag -l | xargs -I {} git tag -d {}
@@ -32,14 +33,14 @@ else
 
   # Filter tags that follow the format "cli/*"
   cli_tags=()
-  for tag in "${matching_tags[@]}"; do
-    if [[ "$tag" == "cli/"* ]]; then
+  for tag in ${matching_tags}; do
+    if [[ "$tag" == "$PREFIX/"* ]]; then
       cli_tags+=("$tag")
     fi
   done
 
   # Sort the filtered tags in descending numerical order
-  sorted_tags=($(printf "%s\n" "${cli_tags[@]}" | sed -n 's/cli\/\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)-\(.*\)/\4 \1 \2 \3/p' | sort -t' ' -k2,2nr -k3,3nr -k4,4nr | awk '{print "cli/"$2"."$3"."$4"-"$1}'))
+  sorted_tags=($(printf "%s\n" "${cli_tags[@]}" | sed -n "s/$PREFIX\/\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)\(-\(.*\)\)\{0,1\}/\1 \2 \3 \5/p" | sort -t' ' -k2,2nr -k3,3nr -k4,4nr -k1,1nr | awk -v prefix="$PREFIX" '{print prefix"/"$1"."$2"."$3($4 == "" ? "" : "-"$4) }'))
 
   # Display the top (first) sorted tag
   if [ ${#sorted_tags[@]} -eq 0 ]; then
