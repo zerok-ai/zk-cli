@@ -293,6 +293,13 @@ func InstallVizier() error {
 }
 
 func extractZkHelmVersion() (*string, error) {
+	passedVersionInterface := viper.Get(VersionKeyFlag)
+	if passedVersionInterface != "" {
+		passedVersion := passedVersionInterface.(string)
+		if passedVersion != "" {
+			return &passedVersion, nil
+		}
+	}
 	url := "https://dl.zerok.ai/cli/helmversion.txt"
 
 	// Make an HTTP GET request to the URL
