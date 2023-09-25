@@ -7,6 +7,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/spf13/viper"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"runtime"
 	"strings"
@@ -290,6 +292,43 @@ func InstallVizier() error {
 	return err
 }
 
+func extractZkHelmVersion() (*string, error) {
+	url := "https://dl.zerok.ai/cli/helmversion.txt"
+
+	// Make an HTTP GET request to the URL
+	response, err := http.Get(url)
+	if err != nil {
+		fmt.Println("Error making HTTP request:", err)
+		return nil, err
+	}
+	defer response.Body.Close()
+	// Read the response body
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		fmt.Println("Error reading response body:", err)
+		return nil, err
+	}
+
+	// Convert the response body to a string
+	bodyStr := string(body)
+
+	// Find the index of "prod" in the string
+	index := strings.Index(bodyStr, "prod/")
+	if index == -1 {
+		fmt.Println("String 'prod' not found in response")
+		return nil, err
+	}
+
+	// Extract the version substring after "prod"
+	version := bodyStr[index+len("prod/"):]
+
+	// Trim any leading/trailing whitespaces
+	version = strings.TrimSpace(version)
+
+	return &version, nil
+
+}
+
 func InstallZKServices(apiKey, clusterKey string) error {
 	var inputToShellFile, shellFile string
 	zkCloudAddr := viper.Get(ZkCloudAddressFlag).(string)
@@ -313,9 +352,14 @@ func InstallZKServices(apiKey, clusterKey string) error {
 			" PX_CLUSTER_KEY=" + clusterKey
 	} else {
 		shellFile = zkInstallClient
+		version, err := extractZkHelmVersion()
+		if err != nil {
+			return err
+		}
 		inputToShellFile = " ZK_CLOUD_ADDR=" + zkCloudAddr +
 			" PX_API_KEY=" + apiKey +
 			" PX_CLUSTER_KEY=" + clusterKey +
+			" ZK_HELM_VERSION=" + *version +
 			" APP_NAME=zk-client"
 	}
 	return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+shellFile, inputToShellFile, "installing zk operator", "zk_operator installed successfully", "failed to install zk_operator")
