@@ -19,10 +19,10 @@ import (
 const (
 	zerok_dir_name = ".zerok"
 
-	KUBECONFIG_FLAG      = "kubeconfig"
-	KUBECONTEXT_FLAG     = "kube-context"
-	CLUSTER_NAME_FLAG    = "cluster-name"
-	SKIP_CLI_UPDATE_FLAG = "skip-cli-update"
+	KUBECONFIG_FLAG   = "kubeconfig"
+	KUBECONTEXT_FLAG  = "kube-context"
+	CLUSTER_NAME_FLAG = "cluster-name"
+	PRECISE_FLAG      = "precise"
 )
 
 var (
@@ -69,8 +69,7 @@ func init() {
 	RootCmd.PersistentFlags().String(CLUSTER_NAME_FLAG, "", "cluster name")
 	viper.BindPFlag(CLUSTER_NAME_FLAG, RootCmd.PersistentFlags().Lookup(CLUSTER_NAME_FLAG))
 
-	RootCmd.PersistentFlags().BoolP(SKIP_CLI_UPDATE_FLAG, "", false, "skip cli update in terminal")
-	viper.BindPFlag(SKIP_CLI_UPDATE_FLAG, RootCmd.PersistentFlags().Lookup(SKIP_CLI_UPDATE_FLAG))
+	internal.AddBoolFlag(RootCmd, PRECISE_FLAG, "", "", false, "for internal use only", true)
 
 	RootCmd.PersistentFlags().BoolP(internal.YesFlag, "y", false, "Automatic yes to prompts")
 	viper.BindPFlag(internal.YesFlag, RootCmd.PersistentFlags().Lookup(internal.YesFlag))

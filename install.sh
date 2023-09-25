@@ -174,7 +174,7 @@ verifySupported() {
 checkInstalledVersion() {
   if [ -f "${INSTALL_DIR}/${BINARY_NAME}" ]; then
     local version
-    version=$("${INSTALL_DIR}/${BINARY_NAME}" --skip-cli-update version)
+    version=$("${INSTALL_DIR}/${BINARY_NAME}" --precise version)
     if [ "${version}" = "${LATEST_TAG#v}" ]; then
       completed "zerok ${version} is already latest"
       return 0

@@ -22,7 +22,7 @@ func main() {
 	printPrePostText := true
 	//TODO: Better way to control this?
 	for _, arg := range os.Args {
-		if arg == "--skip-cli-update" {
+		if arg == "--precise" {
 			printPrePostText = false
 		}
 	}
@@ -34,9 +34,9 @@ func main() {
 	ctx, cleanup := contextWithSignalInterrupt()
 	defer cleanup()
 
-	var cleanErrorReporter func()
-	cleanErrorReporter = ui.InitializeErrorReportor(ctx)
-	defer cleanErrorReporter()
+	//var cleanErrorReporter func()
+	//cleanErrorReporter = ui.InitializeErrorReportor(ctx)
+	//defer cleanErrorReporter()
 
 	cmd.ExecuteContext(ctx)
 	if printPrePostText {
