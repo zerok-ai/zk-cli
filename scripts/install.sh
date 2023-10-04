@@ -29,7 +29,7 @@ fi
 
 helm repo add zk-client https://helm.zerok.ai/zk-client/zk-cli
 helm repo update
-helm upgrade zk-client zk-client/zk-client --install --create-namespace --namespace zk-client --version $ZK_HELM_VERSION --set=global.zkcloud.host=$ZK_CLOUD_ADDR --set=global.zkcloud.keys.cluster_key=$PX_CLUSTER_KEY --set=global.zkcloud.keys.PX_API_KEY=$PX_API_KEY --set=global.gpt.enabled=$GPT_ENABLED --dry-run
+helm upgrade zk-client zk-client/zk-client --install --create-namespace --namespace zk-client --version $ZK_HELM_VERSION --set=global.zkcloud.host=$ZK_CLOUD_ADDR --set=global.zkcloud.keys.cluster_key=$PX_CLUSTER_KEY --set=global.zkcloud.keys.PX_API_KEY=$PX_API_KEY --set=global.gpt.enabled=$GPT_ENABLED
 
 #PROJECT_DIR="$(dirname "$THIS_DIR")"
 #helm dependency build $PROJECT_DIR/helm-charts/
