@@ -41,6 +41,10 @@ dependencies:
     version: "0.1.0-alpha"
     repository: https://helm.zerok.ai/zk-client/zk-daemonset
 
+  - name: zk-otlp-receiver
+    version: "0.1.0-alpha"
+    repository: https://helm.zerok.ai/zk-client/zk-otlp-receiver
+
   - name: zk-scenario-manager
     version: "0.1.0-alpha"
     repository: https://helm.zerok.ai/zk-client/zk-scenario-manager
@@ -51,7 +55,7 @@ dependencies:
 
   - name: zk-gpt
     condition: global.gpt.enabled
-    version: "0.0.1-alpha"
+    version: "0.1.0-alpha"
     repository: https://helm.zerok.ai/zk-client/zk-gpt
 
 
