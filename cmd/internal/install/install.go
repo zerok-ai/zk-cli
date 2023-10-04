@@ -368,6 +368,11 @@ func InstallZKServices(apiKey, clusterKey string) error {
 			" PX_CLUSTER_KEY=" + clusterKey +
 			" ZK_HELM_VERSION=" + *version +
 			" APP_NAME=zk-client"
+		if viper.Get(internal.GptKeyFlag) == true {
+			inputToShellFile += " GPT_ENABLED=true"
+		} else {
+			inputToShellFile += " GPT_ENABLED=false"
+		}
 	}
 	return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+shellFile, inputToShellFile, "installing zk operator", "zk_operator installed successfully", "failed to install zk_operator")
 }

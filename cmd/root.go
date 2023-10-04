@@ -85,6 +85,7 @@ func init() {
 	//internal flags
 	internal.AddBoolFlag(RootCmd, internal.VerboseKeyFlag, internal.VerboseKeyEnvFlag, "v", false, "for internal use only", true)
 	internal.AddBoolFlag(RootCmd, internal.DevKeyFlag, internal.DevKeyEnvFlag, "d", false, "for internal use only", true)
+	internal.AddBoolFlag(RootCmd, internal.GptKeyFlag, internal.GptKeyEnvFlag, "", false, "for internal use only", true)
 
 }
 

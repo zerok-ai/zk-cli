@@ -16,6 +16,9 @@ const (
 	DevKeyFlag    = "dev"
 	DevKeyEnvFlag = "ZK_DEV"
 
+	GptKeyFlag    = "gpt"
+	GptKeyEnvFlag = "ZK_GPT"
+
 	VerboseKeyFlag    = "verbose"
 	VerboseKeyEnvFlag = "VERBOSE"
 )
