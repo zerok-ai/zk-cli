@@ -49,9 +49,9 @@ dependencies:
     version: "0.1.0-alpha"
     repository: https://helm.zerok.ai/zk-client/zk-axon
 
-#  - name: zk-gpt
-#    condition: global.gpt.enabled
-#    version: "0.1.0-alpha"
-#    repository: https://helm.zerok.ai/zk-client/zk-gpt
+  - name: zk-gpt
+    condition: global.gpt.enabled
+    version: "0.0.1-alpha"
+    repository: https://helm.zerok.ai/zk-client/zk-gpt
 
 
