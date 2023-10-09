@@ -69,7 +69,7 @@ const (
 	zkInstallDevClient string = "/helm-charts/install-dev.sh"
 	cliVizierYaml      string = "/vizier/vizier.yaml"
 
-	zkInstallStores string = "/db-helm-charts/install-db.sh"
+	zkInstallStores string = "/scripts/install-db.sh"
 )
 
 func GetAPIKey() string {
