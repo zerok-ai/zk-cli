@@ -25,9 +25,9 @@ appVersion: "1.16.0"
 
 dependencies:
 
-  - name: zk-app-init-container
-    version: "0.1.1-alpha"
-    repository: https://helm.zerok.ai/zk-client/zk-app-init-container
+#  - name: zk-app-init-container
+#    version: "0.1.1-alpha"
+#    repository: https://helm.zerok.ai/zk-client/zk-app-init-container
 
   - name: zk-wsp-client
     version: "0.1.1-alpha"

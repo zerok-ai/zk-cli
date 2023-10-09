@@ -34,14 +34,14 @@ helm repo add zk-axon https://privatehelm.zerok.ai/zk-client/zk-axon
 helm repo add zk-daemonset https://privatehelm.zerok.ai/zk-client/zk-daemonset
 helm repo add zk-wsp-client https://privatehelm.zerok.ai/zk-client/zk-wsp-client
 helm repo add zk-operator https://privatehelm.zerok.ai/zk-client/zk-operator
-helm repo add zk-app-init-container https://privatehelm.zerok.ai/zk-client/zk-app-init-container
 helm repo add zk-gpt https://privatehelm.zerok.ai/zk-client/zk-gpt
+#helm repo add zk-app-init-container https://privatehelm.zerok.ai/zk-client/zk-app-init-container
 
 # update
 helm repo update
 
 # install
-helm upgrade zk-app-init-container zk-app-init-container/zk-app-init-container --install --create-namespace --namespace zk-client --version $ZK_APP_INIT_CONTAINERS_VERSION
+#helm upgrade zk-app-init-container zk-app-init-container/zk-app-init-container --install --create-namespace --namespace zk-client --version $ZK_APP_INIT_CONTAINERS_VERSION
 helm upgrade zk-wsp-client zk-wsp-client/zk-wsp-client --install --create-namespace --namespace zk-client --version $ZK_WSP_CLIENT_VERSION --set=global.zkcloud.host=$ZK_CLOUD_ADDR
 helm upgrade zk-operator zk-operator/zk-operator --install --create-namespace --namespace zk-client --version $ZK_OPERATOR_VERSION --set=global.zkcloud.host=$ZK_CLOUD_ADDR --set=global.zkcloud.keys.cluster_key=$PX_CLUSTER_KEY --set=global.zkcloud.keys.PX_API_KEY=$PX_API_KEY
 helm upgrade zk-scenario-manager zk-scenario-manager/zk-scenario-manager --install --create-namespace --namespace zk-client --version $ZK_SCENARIO_MANAGER_VERSION
