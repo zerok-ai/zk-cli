@@ -37,7 +37,7 @@ func main() {
 	//cleanErrorReporter = ui.InitializeErrorReportor(ctx)
 	//defer cleanErrorReporter()
 
-	cmd.ExecuteContext(ctx)
+	cmd.ExecuteContext(ctx, content)
 	if printPrePostText {
 		ui.GlobalWriter.Println("\n♨ thawing complete. back to room temperature")
 	}

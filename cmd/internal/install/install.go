@@ -234,7 +234,14 @@ func copyConfigmaps() error {
 
 func InstallDataStores() error {
 	// Install zk-client data stores
-	return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+zkInstallStores, " ", installDataStore, installDataStoreSuccessText, installDataStoreFailureText)
+
+	//Scenario where the project is being run locally.
+	if viper.Get(internal.EmbedKeyFlag) == false {
+		return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+zkInstallStores, " ", installDataStore, installDataStoreSuccessText, installDataStoreFailureText)
+	} else {
+		//Production scenario.
+		return shell.ExecuteEmbeddedFileWithSpinner(internal.EmbeddedContent, internal.InstallDbScriptFileName, " ", installDataStore, installDataStoreSuccessText, installDataStoreFailureText)
+	}
 }
 
 func InstallPXOperator() (err error) {

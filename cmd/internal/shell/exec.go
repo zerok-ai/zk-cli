@@ -2,6 +2,7 @@ package shell
 
 import (
 	"bytes"
+	"embed"
 	"fmt"
 	"github.com/spf13/viper"
 	"io"
@@ -9,6 +10,7 @@ import (
 	"os/exec"
 	"time"
 	"zkctl/cmd/internal"
+	"zkctl/cmd/pkg/utils"
 
 	"zkctl/cmd/pkg/ui"
 )
@@ -164,4 +166,23 @@ func ExecuteShellFileWithSpinner(shellFile, inputParameters, spinnerText, succes
 		return err
 	}
 	return nil
+}
+
+func ExecuteEmbeddedFileWithSpinner(content embed.FS, filePath, inputParameters, spinnerText, successMessage, errorMessage string) error {
+	installDbCode := utils.GetEmbeddedFileContents(filePath, content)
+
+	tmpScriptName := GetPWD() + "tmp_install_file.sh"
+
+	defer func(filePath string) {
+		err := utils.DeleteFile(filePath)
+		if err != nil {
+			//TODO: How to log the error here?
+		}
+	}(tmpScriptName)
+
+	err := utils.WriteTextToFile(installDbCode, tmpScriptName)
+	if err != nil {
+		return err
+	}
+	return ExecuteShellFileWithSpinner(tmpScriptName, inputParameters, spinnerText, successMessage, errorMessage)
 }

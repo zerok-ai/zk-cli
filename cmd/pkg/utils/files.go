@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"embed"
 	"errors"
 	"fmt"
 	"io"
@@ -34,6 +35,14 @@ func WriteTextToFile(text, filePath string) error {
 	// Write the content to the file
 	_, err = file.WriteString(text)
 	return err
+}
+
+func DeleteFile(filePath string) error {
+	err := os.Remove(filePath)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // DownloadFile will download a url to a local file. It's efficient because it will
@@ -224,4 +233,14 @@ func BackendCLIExists() error {
 
 func DownloadBackendCLI(url string) error {
 	return DownloadExecutableFile(url, getBackendCLIDir(), BACKEND_CLI_NAME, true)
+}
+
+func GetEmbeddedFileContents(filename string, content embed.FS) string {
+	data, err := content.ReadFile(filename)
+	if err != nil {
+		fmt.Println("Error reading embedded file:", err)
+		return ""
+	}
+	contentString := string(data)
+	return contentString
 }

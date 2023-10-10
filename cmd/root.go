@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"embed"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -47,7 +48,8 @@ var (
 	}
 )
 
-func ExecuteContext(ctx context.Context) error {
+func ExecuteContext(ctx context.Context, content embed.FS) error {
+	internal.EmbeddedContent = content
 	err := RootCmd.ExecuteContext(ctx)
 
 	if err == nil {
@@ -86,6 +88,7 @@ func init() {
 	internal.AddBoolFlag(RootCmd, internal.VerboseKeyFlag, internal.VerboseKeyEnvFlag, "v", false, "for internal use only", true)
 	internal.AddBoolFlag(RootCmd, internal.DevKeyFlag, internal.DevKeyEnvFlag, "d", false, "for internal use only", true)
 	internal.AddBoolFlag(RootCmd, internal.GptKeyFlag, internal.GptKeyEnvFlag, "", false, "for internal use only", true)
+	internal.AddBoolFlag(RootCmd, internal.EmbedKeyFlag, internal.EmbedKeyEnvFlag, "", true, "for internal use only", true)
 
 }
 

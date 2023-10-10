@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"embed"
 	"errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -21,7 +22,14 @@ const (
 
 	VerboseKeyFlag    = "verbose"
 	VerboseKeyEnvFlag = "VERBOSE"
+
+	EmbedKeyFlag    = "embed"
+	EmbedKeyEnvFlag = "EMBED"
+
+	InstallDbScriptFileName = "scripts/install-db.sh"
 )
+
+var EmbeddedContent embed.FS
 
 var ErrExecutionAborted = errors.New("execution aborted")
 
