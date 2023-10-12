@@ -173,16 +173,18 @@ func ExecuteEmbeddedFileWithSpinner(content embed.FS, filePath, inputParameters,
 
 	tmpScriptName := GetPWD() + "tmp_install_file.sh"
 
-	defer func(filePath string) {
-		err := utils.DeleteFile(filePath)
-		if err != nil {
-			//TODO: How to log the error here?
-		}
-	}(tmpScriptName)
+	defer DeleteFile(tmpScriptName)
 
 	err := utils.WriteTextToFile(installDbCode, tmpScriptName)
 	if err != nil {
 		return err
 	}
 	return ExecuteShellFileWithSpinner(tmpScriptName, inputParameters, spinnerText, successMessage, errorMessage)
+}
+
+func DeleteFile(filePath string) {
+	err := utils.DeleteFile(filePath)
+	if err != nil {
+		//TODO: How to log the error here?
+	}
 }

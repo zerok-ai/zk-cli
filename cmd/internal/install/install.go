@@ -283,9 +283,20 @@ func InstallPXOperator() (err error) {
 }
 
 func InstallVizier() error {
+	vizierYamlPath := cliVizierYaml
+	if viper.Get(internal.EmbedKeyFlag) == true {
+		yamlString := utils.GetEmbeddedFileContents(cliVizierYaml, internal.EmbeddedContent)
+		vizierYamlPath := shell.GetPWD() + "tmp_yaml_file.sh"
 
+		defer shell.DeleteFile(vizierYamlPath)
+
+		err := utils.WriteTextToFile(yamlString, vizierYamlPath)
+		if err != nil {
+			return err
+		}
+	}
 	patch := func() error {
-		out, err := shell.Shellout("kubectl apply -f " + shell.GetPWD() + cliVizierYaml)
+		out, err := shell.Shellout("kubectl apply -f " + shell.GetPWD() + vizierYamlPath)
 		if err != nil {
 			internal.DumpErrorAndPrintLocation(fmt.Sprintf("vizier install failed, %s", out))
 		}
