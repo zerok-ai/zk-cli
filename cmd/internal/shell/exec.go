@@ -171,7 +171,7 @@ func ExecuteShellFileWithSpinner(shellFile, inputParameters, spinnerText, succes
 func ExecuteEmbeddedFileWithSpinner(content embed.FS, filePath, inputParameters, spinnerText, successMessage, errorMessage string) error {
 	installDbCode := utils.GetEmbeddedFileContents(filePath, content)
 
-	tmpScriptName := GetPWD() + "tmp_install_file.sh"
+	tmpScriptName := GetPWD() + "/tmp_install_file.sh"
 
 	defer DeleteFile(tmpScriptName)
 

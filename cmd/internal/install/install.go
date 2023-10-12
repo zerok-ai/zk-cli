@@ -286,7 +286,7 @@ func InstallVizier() error {
 	vizierYamlPath := cliVizierYaml
 	if viper.Get(internal.EmbedKeyFlag) == true {
 		yamlString := utils.GetEmbeddedFileContents(cliVizierYaml, internal.EmbeddedContent)
-		vizierYamlPath = shell.GetPWD() + "tmp_yaml_file.sh"
+		vizierYamlPath = shell.GetPWD() + "/tmp_yaml_file.yaml"
 
 		defer shell.DeleteFile(vizierYamlPath)
 
