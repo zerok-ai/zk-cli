@@ -283,7 +283,7 @@ func InstallPXOperator() (err error) {
 }
 
 func InstallVizier() error {
-	vizierYamlPath := cliVizierYaml
+	vizierYamlPath := shell.GetPWD() + cliVizierYaml
 	if viper.Get(internal.EmbedKeyFlag) == true {
 		yamlString := utils.GetEmbeddedFileContents(cliVizierYaml, internal.EmbeddedContent)
 		vizierYamlPath = shell.GetPWD() + "/tmp_yaml_file.yaml"
@@ -296,7 +296,7 @@ func InstallVizier() error {
 		}
 	}
 	patch := func() error {
-		out, err := shell.Shellout("kubectl apply -f " + shell.GetPWD() + vizierYamlPath)
+		out, err := shell.Shellout("kubectl apply -f " + vizierYamlPath)
 		if err != nil {
 			internal.DumpErrorAndPrintLocation(fmt.Sprintf("vizier install failed, %s", out))
 		}
