@@ -65,11 +65,11 @@ const (
 	VersionKeyFlag    = "zkVersion"
 	VersionKeyEnvFlag = "ZK_VERSION"
 
-	zkInstallClient    string = "/scripts/install.sh"
-	zkInstallDevClient string = "/helm-charts/install-dev.sh"
-	cliVizierYaml      string = "/vizier/vizier.yaml"
+	zkInstallClient    string = "scripts/install.sh"
+	zkInstallDevClient string = "helm-charts/install-dev.sh"
+	cliVizierYaml      string = "vizier/vizier.yaml"
 
-	zkInstallStores string = "/scripts/install-db.sh"
+	zkInstallStores string = "scripts/install-db.sh"
 )
 
 func GetAPIKey() string {
@@ -237,10 +237,10 @@ func InstallDataStores() error {
 
 	//Scenario where the project is being run locally.
 	if viper.Get(internal.EmbedKeyFlag) == false {
-		return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+zkInstallStores, " ", installDataStore, installDataStoreSuccessText, installDataStoreFailureText)
+		return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+"/"+zkInstallStores, " ", installDataStore, installDataStoreSuccessText, installDataStoreFailureText)
 	} else {
 		//Production scenario.
-		return shell.ExecuteEmbeddedFileWithSpinner(internal.EmbeddedContent, internal.InstallDbScriptFileName, " ", installDataStore, installDataStoreSuccessText, installDataStoreFailureText)
+		return shell.ExecuteEmbeddedFileWithSpinner(internal.EmbeddedContent, zkInstallStores, " ", installDataStore, installDataStoreSuccessText, installDataStoreFailureText)
 	}
 }
 
@@ -283,7 +283,7 @@ func InstallPXOperator() (err error) {
 }
 
 func InstallVizier() error {
-	vizierYamlPath := shell.GetPWD() + cliVizierYaml
+	vizierYamlPath := shell.GetPWD() + "/" + cliVizierYaml
 	if viper.Get(internal.EmbedKeyFlag) == true {
 		yamlString := utils.GetEmbeddedFileContents(cliVizierYaml, internal.EmbeddedContent)
 		vizierYamlPath = shell.GetPWD() + "/tmp_yaml_file.yaml"
@@ -393,7 +393,7 @@ func InstallZKServices(apiKey, clusterKey string) error {
 		}
 	}
 	if viper.Get(internal.EmbedKeyFlag) == false {
-		return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+shellFile, inputToShellFile, "installing zk operator", "zk_operator installed successfully", "failed to install zk_operator")
+		return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+"/"+shellFile, inputToShellFile, "installing zk operator", "zk_operator installed successfully", "failed to install zk_operator")
 	} else {
 		return shell.ExecuteEmbeddedFileWithSpinner(internal.EmbeddedContent, shellFile, inputToShellFile, "installing zk operator", "zk_operator installed successfully", "failed to install zk_operator")
 	}

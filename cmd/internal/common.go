@@ -25,8 +25,6 @@ const (
 
 	EmbedKeyFlag    = "embed"
 	EmbedKeyEnvFlag = "EMBED"
-
-	InstallDbScriptFileName = "scripts/install-db.sh"
 )
 
 var EmbeddedContent embed.FS
