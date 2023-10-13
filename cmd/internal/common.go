@@ -24,7 +24,10 @@ const (
 	VerboseKeyEnvFlag = "VERBOSE"
 
 	EmbedKeyFlag    = "embed"
-	EmbedKeyEnvFlag = "EMBED"
+	EmbedKeyEnvFlag = "ZK_EMBED"
+
+	EbpfKeyFlag    = "ebpf"
+	EbpfKeyEnvFlag = "ZK_EBPF"
 )
 
 var EmbeddedContent embed.FS

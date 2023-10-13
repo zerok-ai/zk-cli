@@ -98,12 +98,14 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// 5. install the kustomization for vizier over the default code -- doing it later as it needs the redis instance to come up
-	err = install.InstallVizier()
-	if err != nil {
-		return err
+	if viper.Get(internal.EbpfKeyFlag) == true {
+		// 5. install the kustomization for vizier over the default code -- doing it later as it needs the redis instance to come up
+		err = install.InstallVizier()
+		if err != nil {
+			return err
+		}
 	}
-
+	
 	// 6. print success message
 	if err == nil {
 		ui.GlobalWriter.PrintlnSuccessMessageln("installation done")
