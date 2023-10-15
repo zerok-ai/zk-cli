@@ -14,7 +14,7 @@ do
 shift
 done
 
-if [ -z "$ZK_SCENARIO_MANAGER_VERSION" ] || [ -z "$ZK_AXON_VERSION" ] || [ -z "$ZK_DAEMONSET_VERSION" ] || [ -z "$ZK_GPT_VERSION" ] || [ -z "$ZK_WSP_CLIENT_VERSION" ]  || [ -z "$ZK_OPERATOR_VERSION" ] || [ -z "$ZK_APP_INIT_CONTAINERS_VERSION" ] || [ -z "$ZK_CLOUD_ADDR" ] || [ -z "$PX_CLUSTER_KEY" ] || [ -z "$PX_API_KEY" ]
+if [ -z "$ZK_SCENARIO_MANAGER_VERSION" ] || [ -z "$ZK_AXON_VERSION" ] || [ -z "$ZK_PROMTAIL_VERSION" ] || [ -z "$ZK_DAEMONSET_VERSION" ] || [ -z "$ZK_GPT_VERSION" ] || [ -z "$ZK_WSP_CLIENT_VERSION" ]  || [ -z "$ZK_OPERATOR_VERSION" ] || [ -z "$ZK_APP_INIT_CONTAINERS_VERSION" ] || [ -z "$ZK_CLOUD_ADDR" ] || [ -z "$PX_CLUSTER_KEY" ] || [ -z "$PX_API_KEY" ]
 then
   echo "Invalid cli arguments. ERR #2"
   exit 1
@@ -35,6 +35,7 @@ helm repo add zk-daemonset https://privatehelm.zerok.ai/zk-client/zk-daemonset
 helm repo add zk-wsp-client https://privatehelm.zerok.ai/zk-client/zk-wsp-client
 helm repo add zk-operator https://privatehelm.zerok.ai/zk-client/zk-operator
 helm repo add zk-gpt https://privatehelm.zerok.ai/zk-client/zk-gpt
+helm repo add zk-promtail https://privatehelm.zerok.ai/zk-client/zk-promtail
 #helm repo add zk-app-init-container https://privatehelm.zerok.ai/zk-client/zk-app-init-container
 
 # update
@@ -48,5 +49,6 @@ helm upgrade zk-scenario-manager zk-scenario-manager/zk-scenario-manager --insta
 helm upgrade zk-axon zk-axon/zk-axon --install --create-namespace --namespace zk-client --version $ZK_AXON_VERSION
 helm upgrade zk-daemonset zk-daemonset/zk-daemonset --install --create-namespace --namespace zk-client --version $ZK_DAEMONSET_VERSION
 helm upgrade zk-gpt zk-gpt/zk-gpt --install --create-namespace --namespace zk-client --version $ZK_GPT_VERSION
+helm upgrade zk-promtail zk-promtail/zk-promtail --install --create-namespace --namespace zk-client --version $ZK_PROMTAIL_VERSION
 
 
