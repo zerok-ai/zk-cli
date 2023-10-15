@@ -29,7 +29,7 @@ GREEN="$(tput setaf 2 2>/dev/null || printf '')"
 BLUE="$(tput setaf 4 2>/dev/null || printf '')"
 YELLOW="$(tput setaf 3 2>/dev/null || printf '')"
 NO_COLOR="$(tput sgr0 2>/dev/null || printf '')"
-
+SHELLRC=""
 newline() {
   printf "\n"
 }
@@ -137,7 +137,8 @@ appendShellPath() {
     if ! grep -q "${export_path_expression}" "${bashrc_file}"; then
       printf "\n%s\n" "${export_path_expression}" >> "${bashrc_file}"
       completed "Added ${INSTALL_DIR} to \$PATH in ${bashrc_file}"
-    fi    
+      SHELLRC=$bashrc_file
+    fi
   fi
 
   local zshrc_file="${HOME}/.zshrc"
@@ -146,6 +147,7 @@ appendShellPath() {
     if ! grep -q "${export_path_expression}" "${zshrc_file}"; then
       printf "\n%s\n" "${export_path_expression}" >> "${zshrc_file}"
       completed "Added ${INSTALL_DIR} to \$PATH in ${zshrc_file}"
+      SHELLRC=$zshrc_file
     fi
   fi
 
@@ -230,8 +232,14 @@ cleanup() {
 
 printWhatNow() {
   printf "\n%s\
-what now?\n\
-* run ${GREEN}zkcli install${NO_COLOR}\n\
+what now?\n"
+
+if [[ "$SHELLRC" != "" ]]
+then
+  printf "* run ${GREEN}source ${SHELLRC} ${NO_COLOR}\n"
+fi
+
+printf "* run ${GREEN}zkcli install${NO_COLOR}\n\
 * ${REV_BG}let the magic begin.${NO_COLOR}\n\n\
 run ${GREEN}zkcli help${NO_COLOR}, or dive deeper with ${GREEN}${UNDERLINE}https://docs.zerok.ai/docs${NO_COLOR}.\n"
 }
