@@ -6,6 +6,7 @@ global:
   zkcloud:
     host: ""
     port: 443
+    clusterId: ""
     keys:
       PX_API_KEY: ""
       cluster_key: ""
