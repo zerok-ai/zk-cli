@@ -28,6 +28,9 @@ const (
 
 	EbpfKeyFlag    = "ebpf"
 	EbpfKeyEnvFlag = "ZK_EBPF"
+
+	OlmKeyFlag    = "olm"
+	OlmKeyEnvFlag = "ZK_OLM"
 )
 
 var EmbeddedContent embed.FS

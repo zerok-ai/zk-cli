@@ -86,27 +86,35 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// 3. Install default pixie - pl
+	// 3 Install olm
+	if viper.Get(internal.OlmKeyFlag) == true {
+		err = install.InstallOlm()
+		if err != nil {
+			return err
+		}
+	}
+
+	// 4. Install default pixie - pl
 	err = install.InstallPXOperator()
 	if err != nil {
 		return err
 	}
 
-	// 4. Install zeroK services
+	// 5. Install zeroK services
 	err = install.InstallZKServices(apiKey, clusterKey)
 	if err != nil {
 		return err
 	}
 
+	// 6. install the kustomization for vizier over the default code -- doing it later as it needs the redis instance to come up
 	if viper.Get(internal.EbpfKeyFlag) == true {
-		// 5. install the kustomization for vizier over the default code -- doing it later as it needs the redis instance to come up
 		err = install.InstallVizier()
 		if err != nil {
 			return err
 		}
 	}
-	
-	// 6. print success message
+
+	// 7. print success message
 	if err == nil {
 		ui.GlobalWriter.PrintlnSuccessMessageln("installation done")
 	}

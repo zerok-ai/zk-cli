@@ -52,6 +52,10 @@ const (
 	installDataStoreSuccessText = "installation of data stores completed successfully"
 	installDataStoreFailureText = "installation of data stores failed"
 
+	installOlm            = "installing olm"
+	installOlmSuccessText = "installation of olm completed successfully"
+	installOlmFailureText = "installation of olm failed"
+
 	preInstCreatingCopyOfSecret = "preparing to install zerok daemon and associated CRDs."
 	preInstSuccessText          = "pre-installation step completed successfully"
 	preInstFailureText          = "pre-installation step failed"
@@ -65,6 +69,7 @@ const (
 	VersionKeyFlag    = "zkVersion"
 	VersionKeyEnvFlag = "ZK_VERSION"
 
+	olmInstall         string = "scripts/install-olm.sh"
 	zkInstallClient    string = "scripts/install.sh"
 	zkInstallDevClient string = "helm-charts/install-dev.sh"
 	cliVizierYaml      string = "vizier/vizier.yaml"
@@ -244,6 +249,15 @@ func InstallDataStores() error {
 	}
 }
 
+func InstallOlm() (err error) {
+	if viper.Get(internal.EmbedKeyFlag) == false {
+		return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+"/"+olmInstall, " ", installOlm, installOlmSuccessText, installOlmFailureText)
+	} else {
+		//Production scenario.
+		return shell.ExecuteEmbeddedFileWithSpinner(internal.EmbeddedContent, olmInstall, " ", installOlm, installOlmSuccessText, installOlmFailureText)
+	}
+}
+
 func InstallPXOperator() (err error) {
 
 	// start deployment in background
@@ -262,7 +276,7 @@ func InstallPXOperator() (err error) {
 		}
 
 		var out string
-		cmd := utils.GetBackendCLIPath() + " deploy"
+		cmd := utils.GetBackendCLIPath() + " deploy --deploy_olm=false"
 		out, err = shell.ShelloutWithSpinner(cmd, diSpinnerText, diSuccessText, diFailureText)
 
 		if err != nil {
