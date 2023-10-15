@@ -81,9 +81,11 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// 2. Install zk-client data stores
-	err = install.InstallDataStores()
-	if err != nil {
-		return err
+	if viper.Get(internal.ZkStoresKeyFlag) == true {
+		err = install.InstallDataStores()
+		if err != nil {
+			return err
+		}
 	}
 
 	// 3 Install olm
@@ -95,15 +97,19 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// 4. Install default pixie - pl
-	err = install.InstallPXOperator()
-	if err != nil {
-		return err
+	if viper.Get(internal.PxKeyFlag) == true {
+		err = install.InstallPXOperator()
+		if err != nil {
+			return err
+		}
 	}
 
 	// 5. Install zeroK services
-	err = install.InstallZKServices(apiKey, clusterKey)
-	if err != nil {
-		return err
+	if viper.Get(internal.ZksKeyFlag) == true {
+		err = install.InstallZKServices(apiKey, clusterKey)
+		if err != nil {
+			return err
+		}
 	}
 
 	// 6. install the kustomization for vizier over the default code -- doing it later as it needs the redis instance to come up

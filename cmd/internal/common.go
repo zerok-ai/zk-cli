@@ -31,6 +31,15 @@ const (
 
 	OlmKeyFlag    = "olm"
 	OlmKeyEnvFlag = "ZK_OLM"
+
+	PxKeyFlag    = "px"
+	PxKeyEnvFlag = "ZK_PX"
+
+	ZksKeyFlag    = "zks"
+	ZksKeyEnvFlag = "ZK_ZKS"
+
+	ZkStoresKeyFlag    = "stores"
+	ZkStoresKeyEnvFlag = "ZK_STORES"
 )
 
 var EmbeddedContent embed.FS
