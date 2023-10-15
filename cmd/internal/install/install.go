@@ -251,10 +251,10 @@ func InstallDataStores() error {
 
 func InstallOlm() (err error) {
 	if viper.Get(internal.EmbedKeyFlag) == false {
-		return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+"/"+olmInstall, " ", installOlm, installOlmSuccessText, installOlmFailureText)
+		return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+"/"+olmInstall, " v0.25.0", installOlm, installOlmSuccessText, installOlmFailureText)
 	} else {
 		//Production scenario.
-		return shell.ExecuteEmbeddedFileWithSpinner(internal.EmbeddedContent, olmInstall, " ", installOlm, installOlmSuccessText, installOlmFailureText)
+		return shell.ExecuteEmbeddedFileWithSpinner(internal.EmbeddedContent, olmInstall, " v0.25.0", installOlm, installOlmSuccessText, installOlmFailureText)
 	}
 }
 
