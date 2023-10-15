@@ -1,12 +1,11 @@
 NAME=zkcli
 VERSION?=0.0.1
 
-CLOUD_ADDRESS=devcloud01.getanton.com
-#CLOUD_ADDRESS=sandbox.zerok.dev
+#CLOUD_ADDRESS=devcloud01.getanton.com
+CLOUD_ADDRESS=sandbox.zerok.dev
 
 # Define the folder to delete
 ARTIFACT_FOLDER_NAME ?= builds
-
 
 delete-artifact-folder:
 	@if [ -d "$(FOLDER_TO_DELETE)" ]; then \
