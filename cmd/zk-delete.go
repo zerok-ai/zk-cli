@@ -52,7 +52,8 @@ func deleteClusterRolesSilent(client *k8s.Client, names ...string) {
 }
 func deleteClusterRoles(client *k8s.Client, names ...string) error {
 	policyClient := client.RbacV1().ClusterRoles()
-
+	var foundError error = nil
+	var foundName string = ""
 	for _, name := range names {
 		deletePropagation := metav1.DeletePropagationForeground
 		deleteOptions := &metav1.DeleteOptions{
@@ -62,9 +63,14 @@ func deleteClusterRoles(client *k8s.Client, names ...string) error {
 		err := policyClient.Delete(context.TODO(), name, *deleteOptions)
 		if err != nil {
 			if !errors.IsNotFound(err) {
-				return fmt.Errorf("failed to delete ClusterRole %q: %v", name, err)
+				foundError = err
+				foundName = name
 			}
 		}
+	}
+
+	if foundError != nil {
+		return fmt.Errorf("failed to delete ClusterRole %q: %v", foundName, foundError)
 	}
 
 	return nil
@@ -79,14 +85,21 @@ func deleteNamespacesSilent(client *k8s.Client, names ...string) {
 
 func deleteNamespaces(client *k8s.Client, names ...string) error {
 	namespacesSet := client.CoreV1().Namespaces()
-
+	var foundError error = nil
+	var foundName string = ""
 	for _, namespaceName := range names {
 		err := namespacesSet.Delete(context.TODO(), namespaceName, metav1.DeleteOptions{})
 		if err != nil {
 			if !errors.IsNotFound(err) {
+				foundError = err
+				foundName = namespaceName
 				return err
 			}
 		}
+	}
+
+	if foundError != nil {
+		return fmt.Errorf("failed to delete Namespace %q: %v", foundName, foundError)
 	}
 
 	return nil
@@ -99,12 +112,19 @@ func deleteCRDSilent(name []string) {
 	}
 }
 func deleteCRD(names []string) error {
+	var foundError error = nil
+	var foundName string = ""
 	for _, name := range names {
 		cmd := "kubectl delete crd " + name
 		_, cmdErr := shell.Shellout(cmd)
 		if !errors.IsNotFound(cmdErr) {
-			return fmt.Errorf("failed to delete CRD %q: %v", name, cmdErr)
+			foundError = cmdErr
+			foundName = name
+			//return fmt.Errorf("failed to delete CRD %q: %v", name, cmdErr)
 		}
+	}
+	if foundError != nil {
+		return fmt.Errorf("failed to delete CRD %q: %v", foundName, foundError)
 	}
 	return nil
 }
@@ -117,7 +137,8 @@ func deleteClusterRoleBindingsSilent(client *k8s.Client, names ...string) {
 }
 func deleteClusterRoleBindings(client *k8s.Client, names ...string) error {
 	authClient := client.RbacV1().ClusterRoleBindings()
-
+	var foundError error = nil
+	var foundName string = ""
 	for _, name := range names {
 		deletePropagation := metav1.DeletePropagationForeground
 		deleteOptions := &metav1.DeleteOptions{
@@ -127,9 +148,14 @@ func deleteClusterRoleBindings(client *k8s.Client, names ...string) error {
 		err := authClient.Delete(context.TODO(), name, *deleteOptions)
 		if err != nil {
 			if !errors.IsNotFound(err) {
-				return fmt.Errorf("failed to delete ClusterRoleBinding %q: %v", name, err)
+				foundError = err
+				foundName = name
 			}
 		}
+	}
+
+	if foundError != nil {
+		return fmt.Errorf("failed to delete ClusterRoleBinding %q: %v", foundName, foundError)
 	}
 
 	return nil
