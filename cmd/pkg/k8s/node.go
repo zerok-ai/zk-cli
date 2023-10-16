@@ -30,7 +30,7 @@ var (
 
 	DefaultNodeRequirements = &NodeMinimumRequirements{
 		AllowedOperatingSystems: []string{"linux"},
-		AllowedArchitectures:    []string{"amd64"},
+		AllowedArchitectures:    []string{"amd64", "arm64"},
 		BlockedProviders:        []string{"fargate"},
 		KernelVersion:           MinimumKernelVersionSupport,
 	}
