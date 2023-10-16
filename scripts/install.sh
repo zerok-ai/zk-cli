@@ -34,5 +34,5 @@ helm upgrade zk-client zk-client/zk-client --install --create-namespace --namesp
 #PROJECT_DIR="$(dirname "$THIS_DIR")"
 #helm dependency build $PROJECT_DIR/helm-charts/
 #helm dependency update $PROJECT_DIR/helm-charts/
-#helm upgrade zk-client $PROJECT_DIR/helm-charts/ --install --create-namespace --namespace zk-client --version $ZK_HELM_VERSION --set=global.zkcloud.host=$ZK_CLOUD_ADDR --set=global.zkcloud.keys.cluster_key=$PX_CLUSTER_KEY --set=global.zkcloud.keys.PX_API_KEY=$PX_API_KEY --set=global.gpt.enabled=$GPT_ENABLED --dry-run
+#helm upgrade zk-client $PROJECT_DIR/helm-charts/ --install --create-namespace --namespace zk-client --version $ZK_HELM_VERSION --set=global.zkcloud.host=$ZK_CLOUD_ADDR --set=global.zkcloud.keys.cluster_key=$PX_CLUSTER_KEY --set=global.zkcloud.clusterId=$PX_CLUSTER_ID --set=global.zkcloud.keys.PX_API_KEY=$PX_API_KEY --set=global.gpt.enabled=$GPT_ENABLED --dry-run
 

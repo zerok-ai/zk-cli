@@ -12,3 +12,51 @@ global:
       cluster_key: ""
   gpt:
     enabled: false
+
+zk-daemonset:
+  serviceConfigs:
+    logs:
+      color: true
+      level: ERROR
+
+zk-scenario-manager:
+  serviceConfigs:
+    logs:
+      color: true
+      level: ERROR
+
+zk-wsp-client:
+  serviceConfigs:
+    logs:
+      color: true
+      level: ERROR
+
+zk-operator:
+  serviceConfigs:
+    logs:
+      color: true
+      level: ERROR
+
+zk-otlp-receiver:
+  serviceConfigs:
+    logs:
+      color: true
+      level: ERROR
+
+zk-axon:
+  serviceConfigs:
+    logs:
+      color: true
+      level: ERROR
+
+zk-promtail:
+  serviceConfigs:
+    logs:
+      color: true
+      level: ERROR
+
+zk-gpt:
+  serviceConfigs:
+    logs:
+      color: true
+      level: ERROR
