@@ -1,6 +1,6 @@
 # zerok CLI
 
-## Install zkcli
+## Install zkctl
 
 ### From Script
 
@@ -20,7 +20,7 @@ CLI now has an installer script that will automatically grab the latest version 
 Run the following command to install zerok in the current cluster context
 
 ```sh
-zkcli install --apikey [api-key]
+zkctl install --apikey [api-key]
 ```
 
 The `api-key` is available through our [dashboard](http://dashboard.zerok.ai/api-key).

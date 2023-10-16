@@ -242,7 +242,7 @@ func InitializeErrorReportor(ctx context.Context) func() {
 
 	var err error
 	ErrorReporter, err = errorreporting.NewClient(ctx, projectID, errorreporting.Config{
-		ServiceName:    "zkcli",
+		ServiceName:    "zkctl",
 		ServiceVersion: "v1.0",
 		OnError: func(err error) {
 			log.Printf("Could not log error: %v", err)

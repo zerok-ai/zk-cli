@@ -16,7 +16,7 @@
 
 : "${GITHUB_REPO:="zk-cli"}"
 : "${GITHUB_OWNER:="zerok-ai"}"
-: "${BINARY_NAME:="zkcli"}"
+: "${BINARY_NAME:="zkctl"}"
 : "${INSTALL_DIR:="${HOME}/.zerok/bin"}"
 
 
@@ -239,9 +239,9 @@ then
   printf "* run ${GREEN}source ${SHELLRC} ${NO_COLOR}\n"
 fi
 
-printf "* run ${GREEN}zkcli install${NO_COLOR}\n\
+printf "* run ${GREEN}zkctl install${NO_COLOR}\n\
 * ${REV_BG}let the magic begin.${NO_COLOR}\n\n\
-run ${GREEN}zkcli help${NO_COLOR}, or dive deeper with ${GREEN}${UNDERLINE}https://docs.zerok.ai/docs${NO_COLOR}.\n"
+run ${GREEN}zkctl help${NO_COLOR}, or dive deeper with ${GREEN}${UNDERLINE}https://docs.zerok.ai/docs${NO_COLOR}.\n"
 }
 
 deployWithToken() {

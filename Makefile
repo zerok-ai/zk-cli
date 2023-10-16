@@ -1,4 +1,4 @@
-NAME=zkcli
+NAME=zkctl
 VERSION?=0.0.1
 
 #CLOUD_ADDRESS=devcloud01.getanton.com
