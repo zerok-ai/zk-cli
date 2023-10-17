@@ -77,6 +77,8 @@ ci-cd-artifact-install: delete-artifact-folder
 
 ci-cd-helm-sanitize:
 	./helm-charts/updateChart.sh zkGptVersion=${zkGptVersion} zkPromtailVersion=${zkPromtailVersion} zkAxonVersion=${zkAxonVersion} zkScenarioManagerVersion=${zkScenarioManagerVersion} zkOtlpReceiverVersion=${zkOtlpReceiverVersion} zkDaemonsetVersion=${zkDaemonsetVersion} zkOperatorVersion=${zkOperatorVersion} zkWspClientVersion=${zkWspClientVersion}
+	git config user.name "GitHub Actions Bot"
+	git config user.email "<>"
 	git add . && git commit -m "Update Helm Chart" && git push
 	git tag -d $GIT_TAG && git push origin :refs/tags/$GIT_TAG
 	git tag $GIT_TAG && git push origin $GIT_TAG
