@@ -76,7 +76,7 @@ ci-cd-artifact-install: delete-artifact-folder
 	cp ./install.sh $(ARTIFACT_FOLDER_NAME)/install.sh
 
 ci-cd-helm-sanitize:
-	./updateChart.sh zkGptVersion=${zkGptVersion} zkPromtailVersion=${zkPromtailVersion} zkAxonVersion=${zkAxonVersion} zkScenarioManagerVersion=${zkScenarioManagerVersion} zkOtlpReceiverVersion=${zkOtlpReceiverVersion} zkDaemonsetVersion=${zkDaemonsetVersion} zkOperatorVersion=${zkOperatorVersion} zkWspClientVersion=${zkWspClientVersion}
+	./helm-charts/updateChart.sh zkGptVersion=${zkGptVersion} zkPromtailVersion=${zkPromtailVersion} zkAxonVersion=${zkAxonVersion} zkScenarioManagerVersion=${zkScenarioManagerVersion} zkOtlpReceiverVersion=${zkOtlpReceiverVersion} zkDaemonsetVersion=${zkDaemonsetVersion} zkOperatorVersion=${zkOperatorVersion} zkWspClientVersion=${zkWspClientVersion}
 	git add . && git commit -m "Update Helm Chart" && git push
 	git tag -d $GIT_TAG && git push origin :refs/tags/$GIT_TAG
 	git tag $GIT_TAG && git push origin $GIT_TAG
