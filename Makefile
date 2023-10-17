@@ -80,8 +80,7 @@ ci-cd-helm-sanitize:
 	git config user.name "GitHub Actions Bot"
 	git config user.email "<>"
 	git add . && git commit -m "Update Helm Chart" && git push
-	git tag -d ${GIT_TAG} 2>/dev/null && git push origin :refs/tags/${GIT_TAG} 2>/dev/null
-	git tag ${GIT_TAG} && git push origin ${GIT_TAG}
-
-test:
-
+	-git tag -d ${GIT_TAG} 2>/dev/null
+	-git push origin :refs/tags/${GIT_TAG} 2>/dev/null
+	-git tag ${GIT_TAG}
+	-git push origin ${GIT_TAG}
