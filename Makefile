@@ -82,3 +82,6 @@ ci-cd-helm-sanitize:
 	git add . && git commit -m "Update Helm Chart" && git push
 	git tag -d ${GIT_TAG} 2>/dev/null && git push origin :refs/tags/${GIT_TAG} 2>/dev/null
 	git tag ${GIT_TAG} && git push origin ${GIT_TAG}
+
+test:
+
