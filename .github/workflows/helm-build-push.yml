@@ -5,37 +5,38 @@ on:
       HELM_VERSION:
         description: 'Helm Version'
         required: true
+        default: '0.0.0'
       GPT_VERSION:
         description: 'Gpt Version'
-        default: ''
+        default: '0.1.5-alpha'
       PROMTAIL_VERSION:
         description: 'Promtail Version'
         required: true
-        default: ''
+        default: '0.1.5-alpha'
       AXON_VERSION:
         description: 'Axon Version'
         required: true
-        default: ''
+        default: '0.1.5-alpha'
       SCENARIO_MANAGER_VERSION:
         description: 'Scenario Manager Version'
         required: true
-        default: ''
+        default: '0.1.5-alpha'
       OTLP_RECIEVER_VERSION:
         description: 'Otlp Reciever Version'
         required: true
-        default: ''
+        default: '0.1.5-alpha'
       DAEMONSET_VERSION:
         description: 'Daemonset Version'
         required: true
-        default: ''
+        default: '0.1.5-alpha'
       OPERATOR_VERSION:
         description: 'Operator Version'
         required: true
-        default: ''
+        default: '0.1.5-alpha'
       WSP_CLIENT_VERSION:
         description: 'Wsp Client Version'
         required: true
-        default: ''
+        default: '0.1.5-alpha'
 env:
   APP_NAME: ${{ vars.APP_NAME }}
   HELM_VERSION: ${{ github.event.inputs.HELM_VERSION }}
