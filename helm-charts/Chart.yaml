@@ -24,10 +24,10 @@ dependencies:
   #    version: "0.1.1-alpha"
   #    repository: https://helm.zerok.ai/zk-client/zk-app-init-container
   - name: zk-wsp-client
-    version: "0.1.6-alpha"
+    version: "0.1.5-alpha"
     repository: https://helm.zerok.ai/zk-client/zk-wsp-client
   - name: zk-operator
-    version: "0.1.6-alpha"
+    version: "0.1.5-alpha"
     repository: https://helm.zerok.ai/zk-client/zk-operator
   - name: zk-daemonset
     version: "0.1.5-alpha"
