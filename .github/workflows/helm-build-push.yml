@@ -37,6 +37,9 @@ on:
         description: 'Wsp Client Version'
         required: true
         default: '0.1.5-alpha'
+      INPUT_TAG:
+        description: 'Input tag'
+        default: ''
 env:
   APP_NAME: ${{ vars.APP_NAME }}
   HELM_VERSION: ${{ github.event.inputs.HELM_VERSION }}
@@ -50,26 +53,43 @@ env:
   WSP_CLIENT_VERSION: ${{ github.event.inputs.WSP_CLIENT_VERSION }}
 
 jobs:
-  update-chart:
+#  update-chart:
+#    runs-on: zk-self-hosted
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#
+#      - name: Update chart
+#        id: updateChart
+#        env:
+#          MAKE_TARGET_ARGS: ${{format('zkGptVersion={0} zkPromtailVersion={1} zkAxonVersion={2} zkScenarioManagerVersion={3} zkOtlpReceiverVersion={4} zkDaemonsetVersion={5} zkOperatorVersion={6} zkWspClientVersion={7} GIT_TAG=prod/{8}', inputs.GPT_VERSION, inputs.PROMTAIL_VERSION, inputs.AXON_VERSION, inputs.SCENARIO_MANAGER_VERSION, inputs.OTLP_RECIEVER_VERSION, inputs.DAEMONSET_VERSION, inputs.OPERATOR_VERSION, inputs.WSP_CLIENT_VERSION, inputs.HELM_VERSION)}}
+#        run: |
+#          zkGptVersion=${{ inputs.GPT_VERSION }} zkPromtailVersion=${{ inputs.PROMTAIL_VERSION }} zkAxonVersion=${{ inputs.AXON_VERSION }} zkScenarioManagerVersion=${{ inputs.SCENARIO_MANAGER_VERSION }} zkOtlpReceiverVersion=${{ inputs.OTLP_RECIEVER_VERSION }} zkDaemonsetVersion=${{ inputs.DAEMONSET_VERSION }} zkOperatorVersion=${{ inputs.OPERATOR_VERSION }} zkWspClientVersion=${{ inputs.WSP_CLIENT_VERSION }} GIT_TAG=prod/${{ inputs.HELM_VERSION }} make ci-cd-helm-sanitize
+
+
+  test:
     runs-on: zk-self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Update chart
-        id: updateChart
-        env:
-          MAKE_TARGET_ARGS: ${{format('zkGptVersion={0} zkPromtailVersion={1} zkAxonVersion={2} zkScenarioManagerVersion={3} zkOtlpReceiverVersion={4} zkDaemonsetVersion={5} zkOperatorVersion={6} zkWspClientVersion={7} GIT_TAG=prod/{8}', inputs.GPT_VERSION, inputs.PROMTAIL_VERSION, inputs.AXON_VERSION, inputs.SCENARIO_MANAGER_VERSION, inputs.OTLP_RECIEVER_VERSION, inputs.DAEMONSET_VERSION, inputs.OPERATOR_VERSION, inputs.WSP_CLIENT_VERSION, inputs.HELM_VERSION)}}
+      - name: Conditional Tag Checkout
+        id: checkout-tag
         run: |
-          zkGptVersion=${{ inputs.GPT_VERSION }} zkPromtailVersion=${{ inputs.PROMTAIL_VERSION }} zkAxonVersion=${{ inputs.AXON_VERSION }} zkScenarioManagerVersion=${{ inputs.SCENARIO_MANAGER_VERSION }} zkOtlpReceiverVersion=${{ inputs.OTLP_RECIEVER_VERSION }} zkDaemonsetVersion=${{ inputs.DAEMONSET_VERSION }} zkOperatorVersion=${{ inputs.OPERATOR_VERSION }} zkWspClientVersion=${{ inputs.WSP_CLIENT_VERSION }} GIT_TAG=prod/${{ inputs.HELM_VERSION }} make ci-cd-helm-sanitize
+          if [ -n "${{ inputs.INPUT_TAG }}" ]; then
+            git checkout tags/${{ inputs.INPUT_TAG }}
+            echo "tag checked out"
+          else
+            echo "tag not checked out"
+          fi
 
-  prod-build-push:
-    needs: update-chart
-    uses: ./.github/workflows/prod-build-push.yml
-    with:
-      TAG: refs/tags/prod/${{ github.event.inputs.HELM_VERSION }}
-    secrets:
-      AWS_ACCESS_ID: ${{ secrets.AWS_ACCESS_ID }}
-      AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+#  prod-build-push:
+#    needs: update-chart
+#    uses: ./.github/workflows/prod-build-push.yml
+#    with:
+#      TAG: refs/tags/prod/${{ github.event.inputs.HELM_VERSION }}
+#    secrets:
+#      AWS_ACCESS_ID: ${{ secrets.AWS_ACCESS_ID }}
+#      AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
 
 #  init:
 #    uses: zerok-ai/zk-git-actions/.github/workflows/zk-prod-init.yml@main
