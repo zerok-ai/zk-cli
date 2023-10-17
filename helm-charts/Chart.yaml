@@ -1,7 +1,6 @@
 apiVersion: v2
 name: zk-client
 description: A Helm chart for Kubernetes
-
 # A chart can be either an 'application' or a 'library' chart.
 #
 # Application charts are a collection of templates that can be packaged into versioned archives
@@ -11,55 +10,41 @@ description: A Helm chart for Kubernetes
 # a dependency of application charts to inject those utilities and functions into the rendering
 # pipeline. Library charts do not define any templates and therefore cannot be deployed.
 type: application
-
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 version: 0.1.0
-
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
 appVersion: "1.16.0"
-
 dependencies:
-
-#  - name: zk-app-init-container
-#    version: "0.1.1-alpha"
-#    repository: https://helm.zerok.ai/zk-client/zk-app-init-container
-
+  #  - name: zk-app-init-container
+  #    version: "0.1.1-alpha"
+  #    repository: https://helm.zerok.ai/zk-client/zk-app-init-container
   - name: zk-wsp-client
-    version: "0.1.1-alpha"
+    version: "0.1.5-alpha"
     repository: https://helm.zerok.ai/zk-client/zk-wsp-client
-
   - name: zk-operator
-    version: "0.1.1-alpha"
+    version: "0.1.5-alpha"
     repository: https://helm.zerok.ai/zk-client/zk-operator
-
   - name: zk-daemonset
-    version: "0.1.2-alpha"
+    version: "0.1.5-alpha"
     repository: https://helm.zerok.ai/zk-client/zk-daemonset
-
   - name: zk-otlp-receiver
-    version: "0.1.4-alpha"
+    version: "0.1.5-alpha"
     repository: https://helm.zerok.ai/zk-client/zk-otlp-receiver
-
   - name: zk-scenario-manager
-    version: "0.1.3-alpha"
+    version: "0.1.5-alpha"
     repository: https://helm.zerok.ai/zk-client/zk-scenario-manager
-
   - name: zk-axon
-    version: "0.1.2-alpha"
+    version: "0.1.5-alpha"
     repository: https://helm.zerok.ai/zk-client/zk-axon
-
   - name: zk-promtail
-    version: "0.1.4-alpha"
+    version: "0.1.5-alpha"
     repository: https://helm.zerok.ai/zk-client/zk-promtail
-
   - name: zk-gpt
     condition: global.gpt.enabled
-    version: "0.1.1-alpha"
+    version: "prod/0.1.5-alpha"
     repository: https://helm.zerok.ai/zk-client/zk-gpt
-
-
