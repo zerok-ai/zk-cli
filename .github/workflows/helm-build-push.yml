@@ -1,0 +1,73 @@
+name: helm-build-push-manual
+on:
+  workflow_dispatch:
+    inputs:
+      HELM_VERSION:
+        description: 'Helm Version'
+        required: true
+      GPT_VERSION:
+        description: 'Gpt Version'
+        default: ''
+      PROMTAIL_VERSION:
+        description: 'Promtail Version'
+        required: true
+        default: ''
+      AXON_VERSION:
+        description: 'Axon Version'
+        required: true
+        default: ''
+      SCENARIO_MANAGER_VERSION:
+        description: 'Scenario Manager Version'
+        required: true
+        default: ''
+      OTLP_RECIEVER_VERSION:
+        description: 'Otlp Reciever Version'
+        required: true
+        default: ''
+      DAEMONSET_VERSION:
+        description: 'Daemonset Version'
+        required: true
+        default: ''
+      OPERATOR_VERSION:
+        description: 'Operator Version'
+        required: true
+        default: ''
+      WSP_CLIENT_VERSION:
+        description: 'Wsp Client Version'
+        required: true
+        default: ''
+env:
+  APP_NAME: ${{ vars.APP_NAME }}
+  HELM_VERSION: ${{ github.event.inputs.HELM_VERSION }}
+  GPT_VERSION: ${{ github.event.inputs.GPT_VERSION }}
+  PROMTAIL_VERSION: ${{ github.event.inputs.PROMTAIL_VERSION }}
+  AXON_VERSION: ${{ github.event.inputs.AXON_VERSION }}
+  SCENARIO_MANAGER_VERSION: ${{ github.event.inputs.SCENARIO_MANAGER_VERSION }}
+  OTLP_RECIEVER_VERSION: ${{ github.event.inputs.OTLP_RECIEVER_VERSION }}
+  DAEMONSET_VERSION: ${{ github.event.inputs.DAEMONSET_VERSION }}
+  OPERATOR_VERSION: ${{ github.event.inputs.OPERATOR_VERSION }}
+  WSP_CLIENT_VERSION: ${{ github.event.inputs.WSP_CLIENT_VERSION }}
+
+jobs:
+  init:
+    uses: zerok-ai/zk-git-actions/.github/workflows/zk-prod-init.yml@main
+    with:
+      ENVIRONMENT: ${{ github.event.inputs.ENV }}
+      GIT_TAG: ${{ github.ref }}
+      DOCKER_TAG: ${{ github.event.inputs.DOCKER_TAG }}
+
+  # build helm charts and publish to helm repository
+  helm-push:
+    uses: zerok-ai/zk-git-actions/.github/workflows/zk-helm-publish.yml@main
+    with:
+      HELM_VERSION: ${{ inputs.HELM_VERSION }}
+      ENVIRONMENT: ${{ needs.init.outputs.ENVIRONMENT }}
+      DOCKER_IDENTIFIER: ${{ needs.init.outputs.ENVIRONMENT }}
+      HELM_BUCKET_NAME: ${{ needs.init.outputs.HELM_BUCKET_NAME }}
+      HELM_BUCKET_URL: ${{ needs.init.outputs.HELM_BUCKET_URL }}
+      PROJECT_ID: ${{ needs.init.outputs.PROJECT_ID }}
+      MAKE_TARGET_ARGS: ${{format('zkGptVersion={0} zkPromtailVersion={1} zkAxonVersion={2} zkScenarioManagerVersion={3} zkOtlpReceiverVersion={4} zkDaemonsetVersion={5} zkOperatorVersion={6} zkWspClientVersion={7} GIT_TAG=prod/{8}', inputs.GPT_VERSION, inputs.PROMTAIL_VERSION, inputs.AXON_VERSION, inputs.SCENARIO_MANAGER_VERSION, inputs.OTLP_RECIEVER_VERSION, inputs.DAEMONSET_VERSION, inputs.OPERATOR_VERSION, inputs.WSP_CLIENT_VERSION, inputs.HELM_VERSION)}}
+    secrets:
+      AWS_ACCESS_ID: ${{ secrets.AWS_ACCESS_ID }}
+      AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+    needs: init
