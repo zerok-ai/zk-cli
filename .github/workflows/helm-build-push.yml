@@ -54,7 +54,7 @@ jobs:
     with:
       ENVIRONMENT: ${{ github.event.inputs.ENV }}
       GIT_TAG: ${{ github.ref }}
-      DOCKER_TAG: ${{ github.event.inputs.DOCKER_TAG }}
+      DOCKER_TAG: ${{ github.event.inputs.HELM_VERSION }}
 
   # build helm charts and publish to helm repository
   helm-push:
