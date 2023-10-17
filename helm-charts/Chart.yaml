@@ -54,7 +54,7 @@ dependencies:
     repository: https://helm.zerok.ai/zk-client/zk-axon
 
   - name: zk-promtail
-    version: "0.1.3-alpha"
+    version: "0.1.4-alpha"
     repository: https://helm.zerok.ai/zk-client/zk-promtail
 
   - name: zk-gpt
