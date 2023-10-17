@@ -1,5 +1,8 @@
 name: prod-build-push
 on:
+  push:
+    tags: #r/<ENVIRONMENT>/<DOCKER-TAG-OR-VERSION>
+      - 'test/**'
   workflow_call:
     inputs:
       TAG:
