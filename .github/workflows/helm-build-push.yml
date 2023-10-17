@@ -63,6 +63,7 @@ jobs:
           zkGptVersion=${{ inputs.GPT_VERSION }} zkPromtailVersion=${{ inputs.PROMTAIL_VERSION }} zkAxonVersion=${{ inputs.AXON_VERSION }} zkScenarioManagerVersion=${{ inputs.SCENARIO_MANAGER_VERSION }} zkOtlpReceiverVersion=${{ inputs.OTLP_RECIEVER_VERSION }} zkDaemonsetVersion=${{ inputs.DAEMONSET_VERSION }} zkOperatorVersion=${{ inputs.OPERATOR_VERSION }} zkWspClientVersion=${{ inputs.WSP_CLIENT_VERSION }} GIT_TAG=prod/${{ inputs.HELM_VERSION }} make ci-cd-helm-sanitize
 
   prod-build-push:
+    needs: update-chart
     uses: ./.github/workflows/prod-build-push.yml
     with:
       TAG: refs/tags/prod/${{ github.event.inputs.HELM_VERSION }}

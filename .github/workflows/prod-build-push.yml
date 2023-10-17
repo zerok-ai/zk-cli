@@ -10,14 +10,14 @@ on:
         required: true
 env:
   APP_NAME: ${{ vars.APP_NAME }}
-  GIT_TAG: ${{ inputs.TAG || github.ref }}
+  TAG: ${{ inputs.TAG || github.ref }}
 
 jobs:
   init:
     uses: zerok-ai/zk-git-actions/.github/workflows/zk-prod-init.yml@main
     with:
       ENVIRONMENT: ${{ github.event.inputs.ENV }}
-      GIT_TAG: ${{ GIT_TAG }}
+      GIT_TAG: ${{ env.TAG }}
       DOCKER_TAG: ${{ github.event.inputs.DOCKER_TAG }}
 
   # build helm charts and publish to helm repository
