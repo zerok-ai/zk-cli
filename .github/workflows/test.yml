@@ -1,0 +1,21 @@
+name: prod-build-push
+on:
+  workflow_call:
+    inputs:
+      TAG:
+        type: string
+        required: true
+env:
+  APP_NAME: ${{ vars.APP_NAME }}
+  TAG: ${{ inputs.TAG }}
+  GIT_TAG: ${{ github.ref || inputs.TAG }}
+
+jobs:
+  test:
+    runs-on: zk-self-hosted
+    steps:
+      - name: Test
+        id: test
+        run: |
+          echo ${GIT_TAG}
+
