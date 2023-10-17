@@ -17,7 +17,7 @@ jobs:
     uses: zerok-ai/zk-git-actions/.github/workflows/zk-prod-init.yml@main
     with:
       ENVIRONMENT: ${{ github.event.inputs.ENV }}
-      GIT_TAG: ${{ env.TAG }}
+      GIT_TAG: ${{ inputs.TAG || github.ref }}
       DOCKER_TAG: ${{ github.event.inputs.DOCKER_TAG }}
 
   # build helm charts and publish to helm repository
