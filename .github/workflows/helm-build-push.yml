@@ -60,8 +60,7 @@ jobs:
         env:
           MAKE_TARGET_ARGS: ${{format('zkGptVersion={0} zkPromtailVersion={1} zkAxonVersion={2} zkScenarioManagerVersion={3} zkOtlpReceiverVersion={4} zkDaemonsetVersion={5} zkOperatorVersion={6} zkWspClientVersion={7} GIT_TAG=prod/{8}', inputs.GPT_VERSION, inputs.PROMTAIL_VERSION, inputs.AXON_VERSION, inputs.SCENARIO_MANAGER_VERSION, inputs.OTLP_RECIEVER_VERSION, inputs.DAEMONSET_VERSION, inputs.OPERATOR_VERSION, inputs.WSP_CLIENT_VERSION, inputs.HELM_VERSION)}}
         run: |
-          echo ${MAKE_TARGET_ARGS}
-          zkGptVersion=prod/${{ inputs.GPT_VERSION }} zkPromtailVersion=${{ inputs.PROMTAIL_VERSION }} zkAxonVersion=${{ inputs.AXON_VERSION }} zkScenarioManagerVersion=${{ inputs.SCENARIO_MANAGER_VERSION }} zkOtlpReceiverVersion=${{ inputs.OTLP_RECIEVER_VERSION }} zkDaemonsetVersion=${{ inputs.DAEMONSET_VERSION }} zkOperatorVersion=${{ inputs.OPERATOR_VERSION }} zkWspClientVersion=${{ inputs.WSP_CLIENT_VERSION }} GIT_TAG=prod/${{ inputs.HELM_VERSION }} make ci-cd-helm-sanitize make ci-cd-helm-sanitize
+          zkGptVersion=${{ inputs.GPT_VERSION }} zkPromtailVersion=${{ inputs.PROMTAIL_VERSION }} zkAxonVersion=${{ inputs.AXON_VERSION }} zkScenarioManagerVersion=${{ inputs.SCENARIO_MANAGER_VERSION }} zkOtlpReceiverVersion=${{ inputs.OTLP_RECIEVER_VERSION }} zkDaemonsetVersion=${{ inputs.DAEMONSET_VERSION }} zkOperatorVersion=${{ inputs.OPERATOR_VERSION }} zkWspClientVersion=${{ inputs.WSP_CLIENT_VERSION }} GIT_TAG=prod/${{ inputs.HELM_VERSION }} make ci-cd-helm-sanitize
 #  init:
 #    uses: zerok-ai/zk-git-actions/.github/workflows/zk-prod-init.yml@main
 #    with:
