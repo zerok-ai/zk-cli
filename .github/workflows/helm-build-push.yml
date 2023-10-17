@@ -61,7 +61,7 @@ jobs:
           MAKE_TARGET_ARGS: ${{format('zkGptVersion={0} zkPromtailVersion={1} zkAxonVersion={2} zkScenarioManagerVersion={3} zkOtlpReceiverVersion={4} zkDaemonsetVersion={5} zkOperatorVersion={6} zkWspClientVersion={7} GIT_TAG=prod/{8}', inputs.GPT_VERSION, inputs.PROMTAIL_VERSION, inputs.AXON_VERSION, inputs.SCENARIO_MANAGER_VERSION, inputs.OTLP_RECIEVER_VERSION, inputs.DAEMONSET_VERSION, inputs.OPERATOR_VERSION, inputs.WSP_CLIENT_VERSION, inputs.HELM_VERSION)}}
         run: |
           echo ${MAKE_TARGET_ARGS}
-          ${MAKE_TARGET_ARGS} make ci-cd-helm-sanitize
+          echo "${MAKE_TARGET_ARGS} make ci-cd-helm-sanitize"
 #  init:
 #    uses: zerok-ai/zk-git-actions/.github/workflows/zk-prod-init.yml@main
 #    with:
