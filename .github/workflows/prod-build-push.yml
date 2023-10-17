@@ -8,6 +8,9 @@ on:
       TAG:
         type: string
         required: true
+      INPUT_TAG:
+        type: string
+        default: ''
     secrets:
       AWS_ACCESS_ID:
         required: true
@@ -27,7 +30,7 @@ jobs:
 
   # build helm charts and publish to helm repository
   helm-push:
-    uses: zerok-ai/zk-git-actions/.github/workflows/zk-helm-publish.yml@main
+    uses: zerok-ai/zk-git-actions/.github/workflows/zk-helm-publish.yml@test
     with:
       HELM_VERSION: ${{ needs.init.outputs.VERSION }}
       ENVIRONMENT: ${{ needs.init.outputs.ENVIRONMENT }}
@@ -35,6 +38,7 @@ jobs:
       HELM_BUCKET_NAME: ${{ needs.init.outputs.HELM_BUCKET_NAME }}
       HELM_BUCKET_URL: ${{ needs.init.outputs.HELM_BUCKET_URL }}
       PROJECT_ID: ${{ needs.init.outputs.PROJECT_ID }}
+      INPUT_TAG: ${{ inputs.INPUT_TAG }}
     secrets:
       AWS_ACCESS_ID: ${{ secrets.AWS_ACCESS_ID }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
