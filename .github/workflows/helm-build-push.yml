@@ -58,7 +58,7 @@ jobs:
 
   # build helm charts and publish to helm repository
   helm-push:
-    uses: zerok-ai/zk-git-actions/.github/workflows/zk-helm-publish.yml@main
+    uses: zerok-ai/zk-git-actions/.github/workflows/zk-helm-publish.yml@test
     with:
       HELM_VERSION: ${{ inputs.HELM_VERSION }}
       ENVIRONMENT: ${{ needs.init.outputs.ENVIRONMENT }}
