@@ -170,7 +170,9 @@ func promptTaints(tolerationManager *k8s.TolerationManager, sentryKubeContext *s
 		return nil, err
 	}
 
-	allowedTaints := ui.GlobalWriter.MultiSelectPrompt("Do you want set tolerations to allow scheduling zerok on following taints:", taints, taints)
+	// Allowing all taints
+	//allowedTaints := ui.GlobalWriter.MultiSelectPrompt("Do you want set tolerations to allow scheduling zerok on following taints:", taints, taints)
+	allowedTaints := taints
 
 	sentryKubeContext.TolerationsAndTaintsRatio = fmt.Sprintf("%d/%d", len(allowedTaints), len(taints))
 	sentryKubeContext.SetOnCurrentScope()
