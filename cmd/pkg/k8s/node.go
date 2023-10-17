@@ -164,22 +164,23 @@ func (nodeRequirements *NodeMinimumRequirements) Validate(nodesSummeries []*Node
 			continue
 		}
 
-		if err = nodeRequirements.validateNodeSchedulable(nodeSummary); err != nil {
-			requirementErrors = append(requirementErrors, err.Error())
-			nodesReport.Schedulable.ErrorMessages = append(
-				nodesReport.Schedulable.ErrorMessages,
-				fmt.Sprintf("node: %s - %s", nodeSummary.Name, err.Error()),
-			)
-
-			nodesReport.TaintedNodes = append(
-				nodesReport.TaintedNodes,
-				&IncompatibleNode{
-					NodeSummary:       nodeSummary,
-					RequirementErrors: requirementErrors,
-				},
-			)
-			continue
-		}
+		//validating Taints
+		//if err = nodeRequirements.validateNodeSchedulable(nodeSummary); err != nil {
+		//	requirementErrors = append(requirementErrors, err.Error())
+		//	nodesReport.Schedulable.ErrorMessages = append(
+		//		nodesReport.Schedulable.ErrorMessages,
+		//		fmt.Sprintf("node: %s - %s", nodeSummary.Name, err.Error()),
+		//	)
+		//
+		//	nodesReport.TaintedNodes = append(
+		//		nodesReport.TaintedNodes,
+		//		&IncompatibleNode{
+		//			NodeSummary:       nodeSummary,
+		//			RequirementErrors: requirementErrors,
+		//		},
+		//	)
+		//	continue
+		//}
 
 		nodesReport.CompatibleNodes = append(nodesReport.CompatibleNodes, nodeSummary)
 	}
