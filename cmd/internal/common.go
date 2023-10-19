@@ -17,6 +17,9 @@ const (
 	DevKeyFlag    = "dev"
 	DevKeyEnvFlag = "ZK_DEV"
 
+	SpreadKeyFlag    = "spread"
+	SpreadKeyEnvFlag = "ZK_SPREAD"
+
 	GptKeyFlag    = "gpt"
 	GptKeyEnvFlag = "ZK_GPT"
 

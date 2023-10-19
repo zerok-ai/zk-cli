@@ -69,10 +69,11 @@ const (
 	VersionKeyFlag    = "zkVersion"
 	VersionKeyEnvFlag = "ZK_VERSION"
 
-	olmInstall         string = "scripts/install-olm.sh"
-	zkInstallClient    string = "scripts/install.sh"
-	zkInstallDevClient string = "helm-charts/install-dev.sh"
-	cliVizierYaml      string = "vizier/vizier.yaml"
+	olmInstall            string = "scripts/install-olm.sh"
+	zkInstallClient       string = "scripts/install.sh"
+	zkInstallDevClient    string = "helm-charts/install-dev.sh"
+	zkInstallSpreadClient string = "scripts/install-spread.sh"
+	cliVizierYaml         string = "vizier/vizier.yaml"
 
 	zkInstallStores string = "scripts/install-db.sh"
 )
@@ -391,6 +392,26 @@ func InstallZKServices(apiKey, clusterKey, clusterName string) error {
 			" PX_API_KEY=" + apiKey +
 			" PX_CLUSTER_KEY=" + clusterKey +
 			" PX_CLUSTER_ID=" + clusterName
+	} else if viper.Get(internal.SpreadKeyFlag) == true {
+		ui.GlobalWriter.Println("zerok spread mode is enabled")
+
+		//get the versions
+		versions := viper.Get(VersionKeyFlag).(string)
+		keyValueMap := internal.GetKVPairsFromCSV(versions)
+
+		shellFile = zkInstallSpreadClient
+		inputToShellFile = " ZK_CLOUD_ADDR=" + zkCloudAddr +
+			" ZK_SCENARIO_MANAGER_VERSION=" + keyValueMap["zk-scenario-manager"] +
+			" ZK_AXON_VERSION=" + keyValueMap["zk-axon"] +
+			" ZK_DAEMONSET_VERSION=" + keyValueMap["zk-daemonset"] +
+			" ZK_GPT_VERSION=" + keyValueMap["zk-gpt"] +
+			" ZK_WSP_CLIENT_VERSION=" + keyValueMap["zk-wsp-client"] +
+			" ZK_OPERATOR_VERSION=" + keyValueMap["zk-operator"] +
+			" ZK_OTLP_RECIEVER_VERSION=" + keyValueMap["zk-otlp-reciever"] +
+			" ZK_PROMTAIL_VERSION=" + keyValueMap["zk-promtail"] +
+			" PX_API_KEY=" + apiKey +
+			" PX_CLUSTER_KEY=" + clusterKey +
+			" PX_CLUSTER_ID=" + clusterName
 	} else {
 		shellFile = zkInstallClient
 		version, err := extractZkHelmVersion()
@@ -403,12 +424,13 @@ func InstallZKServices(apiKey, clusterKey, clusterName string) error {
 			" PX_CLUSTER_ID=" + clusterName +
 			" ZK_HELM_VERSION=" + *version +
 			" APP_NAME=zk-client"
-		if viper.Get(internal.GptKeyFlag) == true {
-			inputToShellFile += " GPT_ENABLED=true"
-		} else {
-			inputToShellFile += " GPT_ENABLED=false"
-		}
 	}
+	if viper.Get(internal.GptKeyFlag) == true {
+		inputToShellFile += " GPT_ENABLED=true"
+	} else {
+		inputToShellFile += " GPT_ENABLED=false"
+	}
+
 	if viper.Get(internal.EmbedKeyFlag) == false {
 		return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+"/"+shellFile, inputToShellFile, "installing zk operator", "zk_operator installed successfully", "failed to install zk_operator")
 	} else {

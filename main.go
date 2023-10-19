@@ -10,7 +10,6 @@ import (
 	"zkctl/cmd/pkg/utils"
 )
 
-//go:embed helm-charts/*
 //go:embed scripts/*
 //go:embed "vizier/vizier.yaml"
 var content embed.FS
