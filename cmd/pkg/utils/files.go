@@ -1,33 +1,48 @@
 package utils
 
 import (
+	"embed"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
-
-	"zkctl/cmd/pkg/shell"
+	"time"
 	"zkctl/cmd/pkg/ui"
 
 	"github.com/spf13/viper"
 )
 
 const (
-	ZEROK_DIR_PATH_FLAG 		= "zkdir"
-	BACKEND_CLI_NAME        	= "daemon"
-	BACKEND_CLI_AUTH_FILENAME   = "auth.json"
-	ERROR_DUMP_FILENAME        	= "dump"
+	ZEROK_DIR_PATH_FLAG       = "zkdir"
+	BACKEND_CLI_NAME          = "daemon"
+	BACKEND_CLI_AUTH_FILENAME = "auth.json"
+	ERROR_DUMP_FILENAME       = "dump"
 
 	px_dir_sym_name = ".pixie"
-	px_dir_name = "px"
-	pxrepo_dir  = "pxrepo"
+	px_dir_name     = "px"
+	pxrepo_dir      = "pxrepo"
 )
 
-func WriteTextToFile (text, filePath string) error {
-	d1 := []byte(text)
-    err := os.WriteFile(filePath, d1, 0644)
-    return err
+func WriteTextToFile(text, filePath string) error {
+	// Open the file for appending (or create if it doesn't exist)
+	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// Write the content to the file
+	_, err = file.WriteString(text)
+	return err
+}
+
+func DeleteFile(filePath string) error {
+	err := os.Remove(filePath)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // DownloadFile will download a url to a local file. It's efficient because it will
@@ -112,23 +127,9 @@ func DownloadExecutableFile(url string, filedDir string, filename string, showSp
 	return nil
 }
 
-func CloneGitRepo(url string, filePath string) error {
-	var err error
-	// check if dir already exists
-	if !Exists(filePath) {
-		_, err = shell.Shellout(fmt.Sprintf("git clone %s %s", url, filePath), false)
-		// _, err = shell.ExecWithLogsDurationAndSuccessM(commandStr, fmt.Sprintf("successfully cloned the repo %s", url))
-		if err != nil {
-			err = fmt.Errorf("unable to download the required files")
-			// send output to sentry
-		}
-	}
-	return err
-}
-
 func Exists(path string) bool {
 	_, err := os.Stat(path)
-	return err == nil 
+	return err == nil
 }
 
 func CreateDirAndSymLinkIfNotExists(oldname, newname string) error {
@@ -167,9 +168,26 @@ func InitializeFolders() error {
 	return nil
 }
 
-func DumpError (errorText string) (string, error) {
+func ResetErrorDumpfile() {
+	prettyTime := time.Now().Format("Monday, January 2, 2006 03:04:05 PM MST")
+	initLogString := "\n---------------------------------------------------------------\n"
+	initLogString = fmt.Sprintf("%sCli dump file appended at %s\n", initLogString, prettyTime)
 	dumpPath := GetErrorDumpPath()
-	return dumpPath, WriteTextToFile(errorText, dumpPath)
+	err := WriteTextToFile(initLogString, dumpPath)
+	if err != nil {
+		return
+	}
+}
+
+func DumpErrorAndPrintLocation(errorMessage string, printOnConsole bool) {
+	dumpPath := GetErrorDumpPath()
+	err := WriteTextToFile(errorMessage, dumpPath)
+	if err == nil && printOnConsole {
+		ui.GlobalWriter.PrintErrorMessage(fmt.Sprintf("Error:Check %s for details\n", dumpPath))
+	}
+	if printOnConsole {
+		ui.LogAndPrintError(fmt.Errorf(errorMessage+": %v\n", errorMessage))
+	}
 }
 
 func GetPxRepoDir(zkdir string) string {
@@ -191,7 +209,6 @@ func getPxDirSymbolicPath() string {
 
 	return fmt.Sprintf("%s%c%s", baseDir, os.PathSeparator, px_dir_sym_name)
 }
-
 
 func getBackendCLIDir() string {
 	return viper.GetString(ZEROK_DIR_PATH_FLAG)
@@ -218,3 +235,12 @@ func DownloadBackendCLI(url string) error {
 	return DownloadExecutableFile(url, getBackendCLIDir(), BACKEND_CLI_NAME, true)
 }
 
+func GetEmbeddedFileContents(filename string, content embed.FS) string {
+	data, err := content.ReadFile(filename)
+	if err != nil {
+		fmt.Println("Error reading embedded file:", err)
+		return ""
+	}
+	contentString := string(data)
+	return contentString
+}

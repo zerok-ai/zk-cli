@@ -4,11 +4,11 @@ import (
 	// "bytes"
 	"fmt"
 	"strings"
+	"zkctl/cmd/internal/shell"
 
 	"github.com/spf13/cobra"
 
 	client "zkctl/cmd/pkg/scenarios"
-	"zkctl/cmd/pkg/shell"
 	"zkctl/cmd/pkg/ui"
 )
 
@@ -30,12 +30,12 @@ func init() {
 func RunPxClientCmd(cmd *cobra.Command, args []string) error {
 
 	ui.GlobalWriter.Println("--> Authenticating user")
-	cloudAddress, err := shell.Shellout(fmt.Sprintf("%s/%s -c domain", shell.GetPWD(), pxConstants), false)
+	cloudAddress, err := shell.Shellout(fmt.Sprintf("%s/%s -c domain", shell.GetPWD(), pxConstants))
 	if err != nil {
 		return err
 	}
 
-	clusterId, err := shell.Shellout(fmt.Sprintf("%s/%s -c cluster", shell.GetPWD(), pxConstants), false)
+	clusterId, err := shell.Shellout(fmt.Sprintf("%s/%s -c cluster", shell.GetPWD(), pxConstants))
 	if err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func RunPxClientCmd(cmd *cobra.Command, args []string) error {
 	ui.GlobalWriter.PrintSuccessMessageln("User authenticated")
 	ui.GlobalWriter.Println("")
 
-	apikey, err := shell.Shellout(fmt.Sprintf("%s/%s -c apikey", shell.GetPWD(), pxConstants), false)
+	apikey, err := shell.Shellout(fmt.Sprintf("%s/%s -c apikey", shell.GetPWD(), pxConstants))
 	if err != nil {
 		return err
 	}

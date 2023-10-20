@@ -1,4 +1,4 @@
-# Default values for curbiq.
+# Default values for helm-charts.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 global:
@@ -6,19 +6,57 @@ global:
   zkcloud:
     host: ""
     port: 443
-  vizier:
-    tag: ""
-  data:
-    PX_API_KEY: ""
-    cluster_key: ""
+    clusterId: ""
+    keys:
+      PX_API_KEY: ""
+      cluster_key: ""
+  gpt:
+    enabled: false
 
-zk-wsp:
-  routes:
-    zkCloudAddr: "loadcloud01.getanton.com"
+zk-daemonset:
+  serviceConfigs:
+    logs:
+      color: true
+      level: ERROR
 
 zk-scenario-manager:
-  postgres:
-    password: ""
+  serviceConfigs:
+    logs:
+      color: true
+      level: ERROR
 
+zk-wsp-client:
+  serviceConfigs:
+    logs:
+      color: true
+      level: ERROR
 
+zk-operator:
+  serviceConfigs:
+    logs:
+      color: true
+      level: ERROR
 
+zk-otlp-receiver:
+  serviceConfigs:
+    logs:
+      color: true
+      level: ERROR
+
+zk-axon:
+  serviceConfigs:
+    logs:
+      color: true
+      level: ERROR
+
+zk-promtail:
+  serviceConfigs:
+    logs:
+      color: true
+      level: ERROR
+
+zk-gpt:
+  serviceConfigs:
+    logs:
+      color: true
+      level: ERROR

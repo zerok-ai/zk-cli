@@ -1,39 +1,26 @@
-# Install ZeroK
+# zerok CLI
 
-## Add alias (for development)
+## Install zkctl
 
-If you are running the code instead of the executable set the following alias
+### From Script
 
-``` sh
-alias zkctl="go run main.go"
-```
-
-## download zerok CLI
-
-Copy and run the command mentioned below to install the zerok CLI.
+CLI now has an installer script that will automatically grab the latest version and install it locally.
 
 ```sh
-bash -c "$(curl -fsSL https://zerok.ai/install.sh)"
+bash -c "$(curl -fsSL https://dl.zerok.ai/cli/install.sh)"
 ```
 
-## install zerok
+### From Script
 
-Run the following command to install zerok on the current cluster context
+CLI now has an installer script that will automatically grab the latest version and install it locally.
+
+
+## Install zerok
+
+Run the following command to install zerok in the current cluster context
 
 ```sh
-zkctl install 
+zkctl install --apikey [api-key]
 ```
 
-## activate zerok and do rolling restart
-
-Each namespace in the cluster has to be marked for ZeroK. Once marked, all the new pods will get activated for zerok. I can be done using the following command:
-
-```sh
-zkctl activate -n <namespace>
-```
-
-You have to restart the old pods. You can do both activation and restart using the following command:
-
-```sh
-zkctl activate -n <namespace> -r
-```
+The `api-key` is available through our [dashboard](http://dashboard.zerok.ai/api-key).

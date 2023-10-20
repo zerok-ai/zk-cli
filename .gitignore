@@ -1,3 +1,10 @@
 vendor
-
+.idea
 dist/
+builds
+db-helm-charts/charts/*.tgz
+db-helm-charts/*.lock
+helm-charts/charts/*.tgz
+helm-charts/*.lock
+zkctl
+Chart.lock

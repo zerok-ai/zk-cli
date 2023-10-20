@@ -1,13 +1,13 @@
 package ui
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"strings"
 	"time"
-	"context"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/fatih/color"
@@ -131,6 +131,11 @@ func (w *Writer) PrintWarningMessageln(message string) {
 	fmt.Printf("%s %s\n", statusWarning, message)
 }
 
+func (w *Writer) PrintlnWarningMessageln(message string) {
+	w.addMessage(fmt.Sprintf("%s %s", writenStatusWarn, message))
+	fmt.Printf("\n%s %s\n", statusWarning, message)
+}
+
 func (w *Writer) PrintNoticeMessage(message string) {
 	w.addMessage(message)
 	fmt.Printf("🚨 %s", message)
@@ -159,6 +164,28 @@ func (w *Writer) YesNoPrompt(message string, defaultValue bool) bool {
 	survey.AskOne(prompt, &answer)
 	w.addMessage(fmt.Sprintf("%s %t", message, answer))
 	return answer
+}
+
+func (w *Writer) QuestionPrompt(message string) string {
+
+	var qs = []*survey.Question{
+		{
+			Name:   "response",
+			Prompt: &survey.Input{Message: message},
+		},
+	}
+	answer := struct {
+		Response string // the name of the valiable is mapped with the name of the question
+	}{}
+
+	// ask the questions
+	err := survey.Ask(qs, &answer)
+	if err != nil {
+		return ""
+	}
+
+	w.addMessage(fmt.Sprintf("%s %s", message, answer.Response))
+	return answer.Response
 }
 
 func (w *Writer) MultiSelectPrompt(message string, options, defaults []string) []string {
@@ -208,18 +235,18 @@ func LogAndPrintError(err error) {
 
 // initialize the error reporter and return a `cleanup` function.
 // cleanup function should be ideally called at the end of the program
-func InitializeErrorReportor (ctx context.Context) (func()){
-	
+func InitializeErrorReportor(ctx context.Context) func() {
+
 	// Sets your Google Cloud Platform project ID.
 	projectID := "zerok-dev"
 
 	var err error
 	ErrorReporter, err = errorreporting.NewClient(ctx, projectID, errorreporting.Config{
-			ServiceName: "zkcli",
-			ServiceVersion: "v1.0",
-			OnError: func(err error) {
-				log.Printf("Could not log error: %v", err)
-			},
+		ServiceName:    "zkctl",
+		ServiceVersion: "v1.0",
+		OnError: func(err error) {
+			log.Printf("Could not log error: %v", err)
+		},
 	})
 	var cleanup func()
 	if err != nil {

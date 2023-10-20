@@ -1,0 +1,16 @@
+name: version-publish
+on:
+  push:
+    tags: #r/<ENVIRONMENT>/<DOCKER-TAG-OR-VERSION>
+      - 'installsh'
+jobs:
+  publish:
+    uses: zerok-ai/zk-git-actions/.github/workflows/zk-file-build-publish.yml@main
+    with:
+      ENVIRONMENT: "prod"
+      ARTIFACT_FOLDER_NAME: 'install'
+      VERSION: ""
+      MAKE_TARGET: 'ci-cd-artifact-install'
+    secrets:
+      AWS_ACCESS_ID: ${{ secrets.AWS_ACCESS_ID }}
+      AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}

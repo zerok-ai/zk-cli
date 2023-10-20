@@ -2,24 +2,44 @@ package main
 
 import (
 	"context"
+	"embed"
 	"os"
 	"os/signal"
 	"zkctl/cmd"
 	"zkctl/cmd/pkg/ui"
+	"zkctl/cmd/pkg/utils"
 )
 
+//go:embed scripts/*
+//go:embed "vizier/vizier.yaml"
+var content embed.FS
+
+var Version string
+
 func main() {
-	ui.GlobalWriter.Println("❄ lowering the temperature \n")
+	printPrePostText := true
+	//TODO: Better way to control this?
+	for _, arg := range os.Args {
+		if arg == "--precise" {
+			printPrePostText = false
+		}
+	}
+
+	if printPrePostText {
+		ui.GlobalWriter.Println("❄ lowering the temperature " + "\n")
+	}
+	utils.ResetErrorDumpfile()
 	ctx, cleanup := contextWithSignalInterrupt()
 	defer cleanup()
 
-	var cleanErrorReporter func()
-	cleanErrorReporter = ui.InitializeErrorReportor(ctx)
-	defer cleanErrorReporter()
+	//var cleanErrorReporter func()
+	//cleanErrorReporter = ui.InitializeErrorReportor(ctx)
+	//defer cleanErrorReporter()
 
-	cmd.ExecuteContext(ctx)
-
-	ui.GlobalWriter.Println("\n♨ thawing complete. back to room temperature")
+	cmd.ExecuteContext(ctx, content)
+	if printPrePostText {
+		ui.GlobalWriter.Println("\n♨ thawing complete. back to room temperature")
+	}
 }
 
 func contextWithSignalInterrupt() (context.Context, func()) {

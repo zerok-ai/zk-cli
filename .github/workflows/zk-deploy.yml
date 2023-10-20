@@ -2,6 +2,7 @@ name: deploy
 on:
   push:
     tags: #r/<ENVIRONMENT>/<DOCKER-TAG-OR-VERSION>
+<<<<<<< HEAD
       - 'r/**'
   workflow_dispatch:
     inputs:
@@ -13,6 +14,15 @@ on:
         description: 'Cluster Name'
         required: true
         default: 'pxclient02'
+=======
+      - 'dev/**'
+  workflow_dispatch:
+    inputs:
+      GKE_CLUSTER:
+        description: 'Cluster Name'
+        required: true
+        default: 'devclient03'
+>>>>>>> develop
       ZK_CLOUD_ADDRESS:
         description: 'Url of ZK_CLOUD cluster'
         required: true
@@ -21,6 +31,7 @@ on:
         description: 'API KEY - you can get it from px dashboard'
         required: true
         default: 'px-api-e0593597-de51-44cd-bc72-6cbdb881b2be'
+<<<<<<< HEAD
   workflow_call:
     inputs:
       VERSION:
@@ -96,6 +107,36 @@ jobs:
         env:
           STEPS_CONTEXT: ${{ toJson(steps) }}
         run: echo "$STEPS_CONTEXT"
+=======
+      ACTION:
+        type: choice
+        required: true
+        description: 'Choose action to perform'
+        options:
+          - install
+          - uninstall
+          - dev-install
+      VERSIONS:
+        description: 'All versions'
+        required: true
+        default: 'zk-scenario-manager=0.1.0-alpha,zk-axon=0.1.0-alpha,zk-daemonset=0.1.0-alpha,zk-gpt=0.1.0-alpha,zk-wsp-client=0.1.0-alpha,zk-operator=0.1.0-alpha,zk-app-init-containers=0.1.0-alpha'
+env:
+  GKE_CLUSTER: ${{ github.event.inputs.GKE_CLUSTER }}
+  ZK_CLOUD_ADDRESS: ${{ github.event.inputs.ZK_CLOUD_ADDRESS }}
+  ZK_API_KEY: ${{ github.event.inputs.ZK_API_KEY }}
+  ACTION: ${{ github.event.inputs.ACTION }}
+  VERSIONS: ${{ github.event.inputs.VERSIONS }}
+  GKE_SA_KEY: ${{ secrets.GKE_SA_KEY }}
+  GKE_ZONE: ${{ vars.GKE_ZONE }}
+
+jobs:
+  init:
+    uses: zerok-ai/zk-git-actions/.github/workflows/zk-dev-init.yml@main
+    with:
+      GKE_CLUSTER: ${{ github.event.inputs.GKE_CLUSTER }}
+      GIT_TAG: ${{ github.ref }}
+      DOCKER_TAG: '0.1.0'
+>>>>>>> develop
 
   deploy:
     needs: init
@@ -111,12 +152,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+<<<<<<< HEAD
+=======
+      - name: Configure git for private modules
+        run: git config --global url."https://$TOKEN:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+
+      - name: Configure giot submodules
+        run: git submodule update --init --recursive
+
+>>>>>>> develop
       - name: Check output
         run: |
           echo "GIT_TAG=$GIT_TAG"
           echo "DOCKER_TAG=$VERSION"
           echo "GITHUB_SHA=$GITHUB_SHA"
+<<<<<<< HEAD
           echo "DOCKER_REPO=$DOCKER_REPO"
+=======
+>>>>>>> develop
           echo "ENVIRONMENT=$ENVIRONMENT"
           echo "GKE_ZONE=$GKE_ZONE"
 
@@ -126,6 +179,7 @@ jobs:
         with:
           credentials_json: '${{ env.GKE_SA_KEY }}'
 
+<<<<<<< HEAD
       - id: 'get-credentials'
         uses: 'google-github-actions/get-gke-credentials@v1'
         with:
@@ -138,3 +192,33 @@ jobs:
           export CLUSTER_NAME=$CLUSTERNAME
           export ZK_CLOUD_ADDRESS=$ZK_CLOUD_ADDRESS
           zkctl install --apikey $ZK_API_KEY
+=======
+#      - id: 'get-credentials'
+#        uses: 'google-github-actions/get-gke-credentials@v1'
+#        with:
+#          cluster_name: '${{ needs.init.outputs.CLUSTERNAME }}'
+#          location: '${{ env.GKE_ZONE }}'
+
+      - name: Install
+        if: ${{ env.ACTION == 'install' }}
+        run: |-
+          gcloud container clusters --zone us-west1-b get-credentials ${{ needs.init.outputs.CLUSTERNAME }}
+          export CLUSTER_NAME=$CLUSTERNAME
+          export ZK_CLOUD_ADDRESS=$ZK_CLOUD_ADDRESS
+          export ZPIXIE_REPO=https://$TOKEN:x-oauth-basic@github.com/zerok-ai/zpixie.git
+          go run main.go install -y --apikey $ZK_API_KEY --verbose
+
+      - name: Dev Install
+        if: ${{ env.ACTION == 'dev-install' }}
+        run: |-
+          gcloud container clusters --zone us-west1-b get-credentials ${{ needs.init.outputs.CLUSTERNAME }}
+          export CLUSTER_NAME=$CLUSTERNAME
+          export ZK_CLOUD_ADDRESS=$ZK_CLOUD_ADDRESS
+          go run main.go install -y --apikey $ZK_API_KEY -d --zkVersion=$VERSIONS --verbose
+
+      - name: Uninstall
+        if: ${{ env.ACTION == 'uninstall' }}
+        run: |-
+          gcloud container clusters --zone us-west1-b get-credentials ${{ needs.init.outputs.CLUSTERNAME }}
+          go run main.go delete -y --verbose
+>>>>>>> develop

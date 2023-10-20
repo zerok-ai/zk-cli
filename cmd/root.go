@@ -2,14 +2,13 @@ package cmd
 
 import (
 	"context"
+	"embed"
 	"fmt"
-	"os"
-	"path/filepath"
-
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
+	"os"
+	"path/filepath"
+	"zkctl/cmd/internal"
 	"zkctl/cmd/pkg/ui"
 	"zkctl/cmd/pkg/utils"
 
@@ -21,10 +20,10 @@ import (
 const (
 	zerok_dir_name = ".zerok"
 
-	NAMESPACE_FLAG    = "namespace"
 	KUBECONFIG_FLAG   = "kubeconfig"
 	KUBECONTEXT_FLAG  = "kube-context"
 	CLUSTER_NAME_FLAG = "cluster-name"
+	PRECISE_FLAG      = "precise"
 )
 
 var (
@@ -46,36 +45,11 @@ var (
 	❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄❄
 	
 	 	`,
-		// Run: func(cmd *cobra.Command, args []string) {
-		// 	fmt.Fprintf(os.Stderr, "Nothing to run here. Use --help for details \n")
-		// },
-		// PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		// 	var err error
-	
-		// 	segment.SetScope(cmd.Name())
-		// 	sentry_utils.SetTransactionOnCurrentScope(cmd.Name())
-	
-		// 	event := segment.NewEvent(cmd.Name())
-		// 	defer event.Start()
-	
-		// 	if err = validateAuthentication(cmd, args); err != nil {
-		// 		return err
-		// 	}
-	
-		// 	if !viper.GetBool(SKIP_CLI_UPDATE_FLAG) {
-		// 		return checkAndUpgradeVersion(cmd.Context())
-		// 	}
-	
-		// 	return nil
-		// },
 	}
-
-	ErrExecutionAborted = errors.New("execution aborted")
-
-	ErrForceAborted = errors.New("force abort")
 )
 
-func ExecuteContext(ctx context.Context) error {
+func ExecuteContext(ctx context.Context, content embed.FS) error {
+	internal.EmbeddedContent = content
 	err := RootCmd.ExecuteContext(ctx)
 
 	if err == nil {
@@ -91,15 +65,16 @@ func init() {
 
 	cobra.OnInitialize(initConfigFromFile)
 
-	// cloud provider
-	RootCmd.PersistentFlags().String("cloudprovider", "P", "Name of a cloud provider. Allowed values gke|eks|minikube")
-	viper.BindPFlag("cloudprovider", RootCmd.PersistentFlags().Lookup("cloudprovider"))
-
 	RootCmd.PersistentFlags().String(utils.ZEROK_DIR_PATH_FLAG, getZerokDirDefaultPath(), "default location of zerok's directory on dev machine")
 	viper.BindPFlag(utils.ZEROK_DIR_PATH_FLAG, RootCmd.PersistentFlags().Lookup(utils.ZEROK_DIR_PATH_FLAG))
 
 	RootCmd.PersistentFlags().String(CLUSTER_NAME_FLAG, "", "cluster name")
 	viper.BindPFlag(CLUSTER_NAME_FLAG, RootCmd.PersistentFlags().Lookup(CLUSTER_NAME_FLAG))
+
+	internal.AddBoolFlag(RootCmd, PRECISE_FLAG, "", "", false, "for internal use only", true)
+
+	RootCmd.PersistentFlags().BoolP(internal.YesFlag, "y", false, "Automatic yes to prompts")
+	viper.BindPFlag(internal.YesFlag, RootCmd.PersistentFlags().Lookup(internal.YesFlag))
 
 	RootCmd.PersistentFlags().String(KUBECONTEXT_FLAG, "", "name of the kubeconfig context to use")
 	viper.BindPFlag(KUBECONTEXT_FLAG, RootCmd.PersistentFlags().Lookup(KUBECONTEXT_FLAG))
@@ -108,6 +83,19 @@ func init() {
 	RootCmd.PersistentFlags().String(KUBECONFIG_FLAG, filepath.Join(home, ".kube", "config"), "path to the kubeconfig file")
 	viper.BindPFlag(KUBECONFIG_FLAG, RootCmd.PersistentFlags().Lookup(KUBECONFIG_FLAG))
 	viper.BindEnv(KUBECONFIG_FLAG)
+
+	//internal flags
+	internal.AddBoolFlag(RootCmd, internal.VerboseKeyFlag, internal.VerboseKeyEnvFlag, "v", false, "for internal use only", true)
+	internal.AddBoolFlag(RootCmd, internal.DevKeyFlag, internal.DevKeyEnvFlag, "d", false, "for internal use only", true)
+	internal.AddBoolFlag(RootCmd, internal.GptKeyFlag, internal.GptKeyEnvFlag, "", false, "for internal use only", true)
+	internal.AddBoolFlag(RootCmd, internal.EmbedKeyFlag, internal.EmbedKeyEnvFlag, "", true, "for internal use only", true)
+	internal.AddBoolFlag(RootCmd, internal.EbpfKeyFlag, internal.EbpfKeyEnvFlag, "", true, "for internal use only", true)
+	internal.AddBoolFlag(RootCmd, internal.OlmKeyFlag, internal.OlmKeyEnvFlag, "", true, "for internal use only", true)
+	internal.AddBoolFlag(RootCmd, internal.PxKeyFlag, internal.PxKeyEnvFlag, "", true, "for internal use only", true)
+	internal.AddBoolFlag(RootCmd, internal.ZksKeyFlag, internal.ZksKeyEnvFlag, "", true, "for internal use only", true)
+	internal.AddBoolFlag(RootCmd, internal.ZkStoresKeyFlag, internal.ZkStoresKeyEnvFlag, "", true, "for internal use only", true)
+	internal.AddBoolFlag(RootCmd, internal.SpreadKeyFlag, internal.SpreadKeyEnvFlag, "", false, "for internal use only", true)
+
 }
 
 func initConfigFromFile() {
@@ -130,22 +118,7 @@ func initConfigFromFile() {
 	// 	panic(err)
 	// }
 
-	plc_cluster := viper.Get("CLUSTER_NAME")
-	if (plc_cluster == nil){
-		plc_cluster = "zkcloud01"
-	}
-
-	os.Setenv("PL_CLOUD_ADDR", fmt.Sprintf("%s.getanton.com", plc_cluster))
-
-	pl_cloud_addr := viper.Get("PL_CLOUD_ADDR") //, fmt.Sprintf("%s.getanton.com", plc_cluster))
-
-	if pl_cloud_addr == nil {
-		err := fmt.Errorf("PL_CLOUD_ADDR not set, set it to \n\nexport PL_CLOUD_ADDR=%s.getanton.com", plc_cluster)
-		ui.LogAndPrintError(err)
-		panic(err)
-	}
-
-	viper.Set("PLC_CLUSTER", fmt.Sprintf("gke_zerok-dev_us-west1-b_%s", plc_cluster))
+	// viper.Set("PLC_CLUSTER", fmt.Sprintf("gke_zerok-dev_us-west1-b_%s", plc_cluster))
 }
 
 func getZerokDirDefaultPath() string {
