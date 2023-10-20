@@ -389,6 +389,7 @@ func extractZkHelmVersion() (*string, error) {
 
 func InstallZKServices(apiKey, clusterKey, clusterName string) error {
 	var inputToShellFile, shellFile string
+	var helmVersion string = ""
 	zkCloudAddr := viper.Get(ZkCloudAddressFlag).(string)
 	if viper.Get(internal.DevKeyFlag) == true {
 		ui.GlobalWriter.Println("zerok dev mode is enabled")
@@ -431,6 +432,7 @@ func InstallZKServices(apiKey, clusterKey, clusterName string) error {
 			" PX_CLUSTER_KEY=" + clusterKey +
 			" PX_CLUSTER_ID=" + clusterName
 	} else {
+		ui.GlobalWriter.Println("zerok client mode is enabled")
 		shellFile = zkInstallClient
 		version, err := extractZkHelmVersion()
 		if err != nil {
@@ -442,11 +444,21 @@ func InstallZKServices(apiKey, clusterKey, clusterName string) error {
 			" PX_CLUSTER_ID=" + clusterName +
 			" ZK_HELM_VERSION=" + *version +
 			" APP_NAME=zk-client"
+		helmVersion = *version
 	}
 	if viper.Get(internal.GptKeyFlag) == true {
 		inputToShellFile += " GPT_ENABLED=true"
 	} else {
 		inputToShellFile += " GPT_ENABLED=false"
+	}
+
+	ui.GlobalWriter.Println("zerok client configs:\n" +
+		"    ZK_API_KEY=" + apiKey +
+		"    ZK_HELM_VERSION=" + helmVersion)
+	if inputToShellFile == "" {
+		ui.GlobalWriter.Println("zerok client args are empty")
+	} else {
+		ui.GlobalWriter.Println("zerok client args are available")
 	}
 
 	if viper.Get(internal.EmbedKeyFlag) == false {
