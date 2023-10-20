@@ -1,9 +1,9 @@
 #!/bin/bash
 THIS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-if [ "$#" -eq "0" ]; then
-  echo "Invalid cli arguments. ERR #1"
-  exit 1
-fi
+#if [ "$#" -eq "0" ]; then
+#  echo "Invalid cli arguments. ERR #1"
+#  exit 1
+#fi
 
 while [[ "$#" > "0" ]]
 do
