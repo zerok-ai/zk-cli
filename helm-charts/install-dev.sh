@@ -14,9 +14,16 @@ do
 shift
 done
 
-if [ -z "$ZK_SCENARIO_MANAGER_VERSION" ] || [ -z "$ZK_AXON_VERSION" ] || [ -z "$ZK_PROMTAIL_VERSION" ] || [ -z "$ZK_OTLP_RECIEVER_VERSION" ] || [ -z "$ZK_DAEMONSET_VERSION" ] || [ -z "$ZK_GPT_VERSION" ] || [ -z "$ZK_WSP_CLIENT_VERSION" ]  || [ -z "$ZK_OPERATOR_VERSION" ] || [ -z "$ZK_APP_INIT_CONTAINERS_VERSION" ] || [ -z "$ZK_CLOUD_ADDR" ] || [ -z "$PX_CLUSTER_KEY" ] || [ -z "$PX_API_KEY" ] || [ -z "$PX_CLUSTER_ID" ]
+if [ -z "$ZK_SCENARIO_MANAGER_VERSION" ] || [ -z "$ZK_AXON_VERSION" ] || [ -z "$ZK_PROMTAIL_VERSION" ] || [ -z "$ZK_OTLP_RECIEVER_VERSION" ] || [ -z "$ZK_DAEMONSET_VERSION" ] || [ -z "$ZK_WSP_CLIENT_VERSION" ]  || [ -z "$ZK_OPERATOR_VERSION" ] || [ -z "$ZK_APP_INIT_CONTAINERS_VERSION" ] || [ -z "$ZK_CLOUD_ADDR" ] || [ -z "$PX_CLUSTER_KEY" ] || [ -z "$PX_API_KEY" ] || [ -z "$PX_CLUSTER_ID" ]
 then
   echo "Invalid cli arguments. ERR #2"
+  exit 1
+fi
+
+# Check if GPT_ENABLED is true, then ZK_GPT_VERSION should be present
+if [ "$GPT_ENABLED" = "true" ] && [ -z "$ZK_GPT_VERSION" ]
+then
+  echo "Invalid cli arguments. ERR #3"
   exit 1
 fi
 
@@ -29,14 +36,17 @@ else
 fi
 
 # add all helm repos
-helm repo add zk-scenario-manager https://privatehelm.zerok.ai/zk-client/zk-scenario-manager
-helm repo add zk-axon https://privatehelm.zerok.ai/zk-client/zk-axon
-helm repo add zk-daemonset https://privatehelm.zerok.ai/zk-client/zk-daemonset
-helm repo add zk-wsp-client https://privatehelm.zerok.ai/zk-client/zk-wsp-client
-helm repo add zk-operator https://privatehelm.zerok.ai/zk-client/zk-operator
-helm repo add zk-gpt https://privatehelm.zerok.ai/zk-client/zk-gpt
-helm repo add zk-promtail https://privatehelm.zerok.ai/zk-client/zk-promtail
-helm repo add zk-otlp-receiver https://privatehelm.zerok.ai/zk-client/zk-otlp-receiver
+helm repo add zk-scenario-manager https://helm.zerok.ai/zk-client/zk-scenario-manager
+helm repo add zk-axon https://helm.zerok.ai/zk-client/zk-axon
+helm repo add zk-daemonset https://helm.zerok.ai/zk-client/zk-daemonset
+helm repo add zk-wsp-client https://helm.zerok.ai/zk-client/zk-wsp-client
+helm repo add zk-operator https://helm.zerok.ai/zk-client/zk-operator
+if [ "$GPT_ENABLED" = "true" ]
+then
+  helm repo add zk-gpt https://helm.zerok.ai/zk-client/zk-gpt
+fi
+helm repo add zk-promtail https://helm.zerok.ai/zk-client/zk-promtail
+helm repo add zk-otlp-receiver https://helm.zerok.ai/zk-client/zk-otlp-receiver
 
 # update
 helm repo update
@@ -47,7 +57,10 @@ helm upgrade zk-operator zk-operator/zk-operator --install --create-namespace --
 helm upgrade zk-scenario-manager zk-scenario-manager/zk-scenario-manager --install --create-namespace --namespace zk-client --version $ZK_SCENARIO_MANAGER_VERSION
 helm upgrade zk-axon zk-axon/zk-axon --install --create-namespace --namespace zk-client --version $ZK_AXON_VERSION
 helm upgrade zk-daemonset zk-daemonset/zk-daemonset --install --create-namespace --namespace zk-client --version $ZK_DAEMONSET_VERSION
-helm upgrade zk-gpt zk-gpt/zk-gpt --install --create-namespace --namespace zk-client --version $ZK_GPT_VERSION
+if [ "$GPT_ENABLED" = "true" ]
+then
+  helm upgrade zk-gpt zk-gpt/zk-gpt --install --create-namespace --namespace zk-client --version $ZK_GPT_VERSION
+fi
 helm upgrade zk-promtail zk-promtail/zk-promtail --install --create-namespace --namespace zk-client --version $ZK_PROMTAIL_VERSION --set=global.zkcloud.clusterId=$PX_CLUSTER_ID
 helm upgrade zk-otlp-receiver zk-otlp-receiver/zk-otlp-receiver --install --create-namespace --namespace zk-client --version $ZK_OTLP_RECIEVER_VERSION
 
