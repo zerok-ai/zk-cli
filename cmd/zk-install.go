@@ -16,6 +16,7 @@ import (
 var (
 	authAddress string
 	apiKey      string
+	ebpfMemory  string
 	clusterName string
 	clusterKey  string
 )
@@ -43,6 +44,7 @@ func init() {
 	RootCmd.AddCommand(installCmd)
 
 	// add flags
+	internal.AddStringFlag(RootCmd, install.EbpfMemoryFlag, install.EbpfMemoryEnvFlag, "", "", "ebpf memory. This can also be set through environment variable "+install.EbpfMemoryEnvFlag+" instead of passing the parameter", true)
 	internal.AddStringFlag(RootCmd, install.ApiKeyFlag, install.ApiKeyEnvFlag, "", "", "api key. This can also be set through environment variable "+install.ApiKeyEnvFlag+" instead of passing the parameter", false)
 	internal.AddStringFlag(RootCmd, install.VersionKeyFlag, install.VersionKeyEnvFlag, "", "", "version of the installation", false)
 }
@@ -98,7 +100,7 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 
 	// 4. Install default pixie - pl
 	if viper.Get(internal.PxKeyFlag) == true {
-		err = install.InstallPXOperator()
+		err = install.InstallPXOperator(ebpfMemory)
 		if err != nil {
 			return err
 		}
@@ -148,6 +150,9 @@ func LoadAndValidateFlags() error {
 	if apiKey == "" {
 		return errors.New(install.ApiKeyErrorMessage)
 	}
+
+	//Ebpf Memory
+	ebpfMemory = install.GetEbpfMemory()
 
 	// set cloud address as an env variable for shell scripts
 	zkCloudAddr := getCloudAddress()

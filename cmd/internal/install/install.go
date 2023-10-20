@@ -40,8 +40,12 @@ type OperatorToken struct {
 }
 
 const (
-	ApiKeyFlag           = "apikey"
-	ApiKeyEnvFlag        = "ZK_API_KEY"
+	EbpfMemoryFlag    = "ebpf-mem"
+	EbpfMemoryEnvFlag = "ZK_EBPF_MEM"
+
+	ApiKeyFlag    = "apikey"
+	ApiKeyEnvFlag = "ZK_API_KEY"
+
 	ApiKeyWarningMessage = "api key is not set. To continue, please get the apikey from zerok dashboard and paste below."
 	ApiKeyQuestion       = "enter api key"
 	ApiKeyErrorMessage   = "apikey is not set. Run the help command for more details"
@@ -91,6 +95,14 @@ func GetAPIKey() string {
 		}
 	}
 	return apiKey
+}
+
+func GetEbpfMemory() string {
+	var ebpfMemory string = ""
+	if viper.Get(EbpfMemoryFlag) != nil {
+		ebpfMemory = viper.Get(EbpfMemoryFlag).(string)
+	}
+	return ebpfMemory
 }
 
 func DownloadAndInstallPXCLI(ctx context.Context) error {
@@ -259,7 +271,7 @@ func InstallOlm() (err error) {
 	}
 }
 
-func InstallPXOperator() (err error) {
+func InstallPXOperator(ebpfMemory string) (err error) {
 
 	// start deployment in background
 	go func() {
@@ -277,7 +289,11 @@ func InstallPXOperator() (err error) {
 		}
 
 		var out string
-		cmd := utils.GetBackendCLIPath() + " deploy --deploy_olm=false"
+		ebpfArgs := " --deploy_olm=false"
+		if ebpfMemory != "" {
+			ebpfArgs = fmt.Sprintf(" --pem_memory_limit=%s", ebpfMemory)
+		}
+		cmd := utils.GetBackendCLIPath() + " deploy " + ebpfArgs
 		out, err = shell.ShelloutWithSpinner(cmd, diSpinnerText, diSuccessText, diFailureText)
 
 		if err != nil {
