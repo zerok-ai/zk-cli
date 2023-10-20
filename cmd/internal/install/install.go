@@ -162,7 +162,9 @@ func LoginToPX(authAddress, apiKey, clusterName string) (string, error) {
 	authPath := utils.GetBackendAuthPath()
 	err = os.Remove(authPath)
 	if err != nil {
-		return clusterKeyLocal, err
+		if !os.IsNotExist(err) {
+			return clusterKeyLocal, err
+		}
 	}
 	return clusterKeyLocal, utils.WriteTextToFile(string(authTokenPayloadBytes), authPath)
 }
