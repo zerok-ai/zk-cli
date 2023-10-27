@@ -17,46 +17,46 @@ zk-daemonset:
   serviceConfigs:
     logs:
       color: true
-      level: ERROR
+      level: INFO
 
 zk-scenario-manager:
   serviceConfigs:
     logs:
       color: true
-      level: ERROR
+      level: INFO
 
 zk-wsp-client:
   serviceConfigs:
     logs:
       color: true
-      level: ERROR
+      level: INFO
 
 zk-operator:
   serviceConfigs:
     logs:
       color: true
-      level: ERROR
+      level: INFO
 
 zk-otlp-receiver:
   serviceConfigs:
     logs:
       color: true
-      level: ERROR
+      level: INFO
 
 zk-axon:
   serviceConfigs:
     logs:
       color: true
-      level: ERROR
+      level: INFO
 
 zk-promtail:
   serviceConfigs:
     logs:
       color: true
-      level: ERROR
+      level: INFO
 
 zk-gpt:
   serviceConfigs:
     logs:
       color: true
-      level: ERROR
+      level: INFO

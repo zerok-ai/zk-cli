@@ -299,6 +299,10 @@ func InstallPXOperator(ebpfMemory string) (err error) {
 		out, err = shell.ShelloutWithSpinner(cmd, diSpinnerText, diSuccessText, diFailureText)
 
 		if err != nil {
+			//replace 'pl' with 'zk' in out
+			out = strings.ReplaceAll(out, "pl", "zk")
+			out = strings.ReplaceAll(out, "pixie", "ebpf")
+			out = strings.ReplaceAll(out, "px", "zk")
 			internal.DumpErrorAndPrintLocation(out)
 		}
 	}()
