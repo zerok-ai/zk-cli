@@ -1,7 +1,7 @@
 #!/bin/bash
 THIS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 if [ "$#" -eq "0" ]; then
-  echo "Invalid cli arguments. ERR #1"
+  echo "Invalid zk-client spread arguments. ERR #1"
   exit 1
 fi
 
@@ -15,7 +15,7 @@ done
 
 if [ -z "$PX_API_KEY" ] || [ -z "$PX_CLUSTER_KEY" ] || [ -z "$ZK_CLOUD_ADDR" ] || [ -z "$PX_CLUSTER_ID" ]
 then
-  echo "Invalid cli arguments. ERR #2"
+  echo "Invalid zk-client spread arguments. ERR #2"
   exit 1
 fi
 
@@ -24,7 +24,7 @@ echo "GPT_ENABLED=$GPT_ENABLED"
 
 if [ "$GPT_ENABLED" = "true" ] && [ -z "$ZK_GPT_VERSION" ]
 then
-  echo "Invalid cli arguments. ERR #3"
+  echo "Invalid zk-client spread arguments. ERR #3"
   exit 1
 else
   echo "GPT_ENABLED is true and version set"

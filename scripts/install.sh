@@ -9,9 +9,27 @@ do
 shift
 done
 
-if [ -z "$PX_API_KEY" ] || [ -z "$PX_CLUSTER_KEY" ] || [ -z "$ZK_CLOUD_ADDR" ] || [ -z "$PX_CLUSTER_ID" ]
+if [ -z "$PX_API_KEY" ]
 then
-  echo "Invalid cli arguments. ERR #2"
+  echo "Invalid zk-client arguments. ERR #2.1"
+  exit 1
+fi
+
+if [ -z "$PX_CLUSTER_KEY" ]
+then
+  echo "Invalid zk-client arguments. ERR #2.2"
+  exit 1
+fi
+
+if [ -z "$ZK_CLOUD_ADDR" ]
+then
+  echo "Invalid zk-client arguments. ERR #2.3"
+  exit 1
+fi
+
+if [ -z "$PX_CLUSTER_ID" ]
+then
+  echo "Invalid zk-client arguments. ERR #2.4"
   exit 1
 fi
 

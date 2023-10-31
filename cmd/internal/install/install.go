@@ -68,6 +68,10 @@ const (
 	diSuccessText = "zerok daemonset installed successfully"
 	diFailureText = "failed to install zerok daemonset"
 
+	zksSpinnerText = "installing zerok operator"
+	zksSuccessText = "zerok operator installed successfully"
+	zksFailureText = "failed to install zerok operator"
+
 	waitTimeForService = 160
 
 	VersionKeyFlag    = "zkVersion"
@@ -347,7 +351,7 @@ func InstallVizier() error {
 	return err
 }
 
-func extractZkHelmVersion() (*string, error) {
+func ExtractZkHelmVersion() (*string, error) {
 	passedVersionInterface := viper.Get(VersionKeyFlag)
 	if passedVersionInterface != "" {
 		passedVersion := passedVersionInterface.(string)
@@ -391,7 +395,7 @@ func extractZkHelmVersion() (*string, error) {
 
 }
 
-func InstallZKServices(apiKey, clusterKey, clusterName string) error {
+func InstallZKServices(apiKey, clusterKey, clusterName string, zkHelmVersion string) error {
 	var inputToShellFile, shellFile string
 	var helmVersion string = ""
 	zkCloudAddr := viper.Get(ZkCloudAddressFlag).(string)
@@ -438,17 +442,13 @@ func InstallZKServices(apiKey, clusterKey, clusterName string) error {
 	} else {
 		ui.GlobalWriter.Println("zerok client mode is enabled")
 		shellFile = zkInstallClient
-		version, err := extractZkHelmVersion()
-		if err != nil {
-			return err
-		}
 		inputToShellFile = " ZK_CLOUD_ADDR=" + zkCloudAddr +
 			" PX_API_KEY=" + apiKey +
 			" PX_CLUSTER_KEY=" + clusterKey +
 			" PX_CLUSTER_ID=" + clusterName +
-			" ZK_HELM_VERSION=" + *version +
+			" ZK_HELM_VERSION=" + zkHelmVersion +
 			" APP_NAME=zk-client"
-		helmVersion = *version
+		helmVersion = zkHelmVersion
 	}
 	if viper.Get(internal.GptKeyFlag) == true {
 		inputToShellFile += " GPT_ENABLED=true"
@@ -466,8 +466,8 @@ func InstallZKServices(apiKey, clusterKey, clusterName string) error {
 	}
 
 	if viper.Get(internal.EmbedKeyFlag) == false {
-		return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+"/"+shellFile, inputToShellFile, "installing zk operator", "zk_operator installed successfully", "failed to install zk_operator")
+		return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+"/"+shellFile, inputToShellFile, zksSpinnerText, zksSuccessText, zksFailureText)
 	} else {
-		return shell.ExecuteEmbeddedFileWithSpinner(internal.EmbeddedContent, shellFile, inputToShellFile, "installing zk operator", "zk_operator installed successfully", "failed to install zk_operator")
+		return shell.ExecuteEmbeddedFileWithSpinner(internal.EmbeddedContent, shellFile, inputToShellFile, zksSpinnerText, zksSuccessText, zksFailureText)
 	}
 }

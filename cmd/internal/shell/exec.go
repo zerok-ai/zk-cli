@@ -134,6 +134,10 @@ func GetPWD() string {
 	return mydir
 }
 
+func GetTempDir() string {
+	return os.TempDir()
+}
+
 func ExecuteShellFile(shellFile, inputParameters string) error {
 
 	// make the file executable
@@ -171,7 +175,9 @@ func ExecuteShellFileWithSpinner(shellFile, inputParameters, spinnerText, succes
 func ExecuteEmbeddedFileWithSpinner(content embed.FS, filePath, inputParameters, spinnerText, successMessage, errorMessage string) error {
 	installDbCode := utils.GetEmbeddedFileContents(filePath, content)
 
-	tmpScriptName := GetPWD() + "/tmp_install_zk_file.sh"
+	tmpScriptName := GetTempDir() + "tmp_install_zk_file.sh"
+	//Deleting existing temp file before generating a new one
+	DeleteFile(tmpScriptName)
 
 	defer DeleteFile(tmpScriptName)
 

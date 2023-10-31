@@ -73,6 +73,12 @@ func (w *Writer) PrintflnWithPrefixArrow(format string, args ...interface{}) {
 	fmt.Printf("%s\n", message)
 }
 
+func (w *Writer) PrintflnWithPrefixBullet(format string, args ...interface{}) {
+	message := fmt.Sprintf(Bullet+" "+format, args...)
+	w.addMessage(message)
+	fmt.Printf("%s\n", message)
+}
+
 func (w *Writer) PrintflnWithPrefixlnAndArrow(format string, args ...interface{}) {
 	message := fmt.Sprintf("→ "+format, args...)
 	w.addMessage(message)
