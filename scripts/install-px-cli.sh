@@ -183,6 +183,3 @@ if [[ ! -e "${INSTALL_PATH}" ]]; then
 fi
 
 echo "$(artifact_url)"
-# execute curl -fsSL "$(artifact_url)" -o "${INSTALL_PATH}"/px_new
-# execute chmod +x "${INSTALL_PATH}"/px_new
-# execute mv "${INSTALL_PATH}"/px_new "${INSTALL_PATH}"/px

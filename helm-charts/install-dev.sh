@@ -2,7 +2,7 @@
 THIS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 if [ "$#" -eq "0" ]; then
-  echo "Invalid cli arguments. ERR #1"
+  echo "Invalid zk-client dev arguments. ERR #1"
   exit 1
 fi
 
@@ -16,14 +16,14 @@ done
 
 if [ -z "$ZK_SCENARIO_MANAGER_VERSION" ] || [ -z "$ZK_AXON_VERSION" ] || [ -z "$ZK_PROMTAIL_VERSION" ] || [ -z "$ZK_OTLP_RECIEVER_VERSION" ] || [ -z "$ZK_DAEMONSET_VERSION" ] || [ -z "$ZK_WSP_CLIENT_VERSION" ]  || [ -z "$ZK_OPERATOR_VERSION" ] || [ -z "$ZK_APP_INIT_CONTAINERS_VERSION" ] || [ -z "$ZK_CLOUD_ADDR" ] || [ -z "$PX_CLUSTER_KEY" ] || [ -z "$PX_API_KEY" ] || [ -z "$PX_CLUSTER_ID" ]
 then
-  echo "Invalid cli arguments. ERR #2"
+  echo "Invalid zk-client dev arguments. ERR #2"
   exit 1
 fi
 
 # Check if GPT_ENABLED is true, then ZK_GPT_VERSION should be present
 if [ "$GPT_ENABLED" = "true" ] && [ -z "$ZK_GPT_VERSION" ]
 then
-  echo "Invalid cli arguments. ERR #3"
+  echo "Invalid zk-client dev arguments. ERR #3"
   exit 1
 fi
 

@@ -14,11 +14,12 @@ import (
 )
 
 var (
-	authAddress string
-	apiKey      string
-	ebpfMemory  string
-	clusterName string
-	clusterKey  string
+	authAddress   string
+	apiKey        string
+	ebpfMemory    string
+	clusterName   string
+	clusterKey    string
+	zkHelmVersion string
 )
 
 type ContextKey struct {
@@ -49,6 +50,28 @@ func init() {
 	internal.AddStringFlag(RootCmd, install.VersionKeyFlag, install.VersionKeyEnvFlag, "", "", "version of the installation", false)
 }
 
+func PrintVersionsAndOptions() {
+	ui.GlobalWriter.Println("Versions:")
+	ui.GlobalWriter.PrintflnWithPrefixBullet("zkctl version: %s", BinaryVersion)
+	ui.GlobalWriter.PrintflnWithPrefixBullet("zerok services version: %s", zkHelmVersion)
+	if viper.Get(internal.PxKeyFlag) == false {
+		ui.GlobalWriter.PrintflnWithPrefixBullet("ebpf: %s", "false")
+	}
+	if ebpfMemory != "" {
+		ui.GlobalWriter.PrintflnWithPrefixBullet("ebpf memory: %s", ebpfMemory)
+	}
+	if viper.Get(internal.ZksKeyFlag) == false {
+		ui.GlobalWriter.PrintflnWithPrefixBullet("zerok services: %s", "false")
+	}
+	if viper.Get(internal.OlmKeyFlag) == false {
+		ui.GlobalWriter.PrintflnWithPrefixBullet("olm: %s", "false")
+	}
+	if viper.Get(internal.EbpfKeyFlag) == false {
+		ui.GlobalWriter.PrintflnWithPrefixBullet("ebpf probes: %s", "false")
+	}
+	ui.GlobalWriter.Println("")
+}
+
 func RunInstallPreCmd(cmd *cobra.Command, args []string) error {
 	ctx := cmd.Context()
 
@@ -61,6 +84,8 @@ func RunInstallPreCmd(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
+	PrintVersionsAndOptions()
 
 	clusterName, err = install.ValidateClusterAndTakeConsent(ctx)
 	ui.GlobalWriter.PrintflnWithPrefixArrow("running pre-installation checks")
@@ -88,6 +113,8 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
+	} else {
+		ui.GlobalWriter.Println("Skipping stores installation")
 	}
 
 	// 3 Install olm
@@ -96,6 +123,8 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
+	} else {
+		ui.GlobalWriter.Println("Skipping olm installation")
 	}
 
 	// 4. Install default pixie - pl
@@ -104,14 +133,18 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
+	} else {
+		ui.GlobalWriter.Println("Skipping ebpf installation")
 	}
 
 	// 5. Install zeroK services
 	if viper.Get(internal.ZksKeyFlag) == true {
-		err = install.InstallZKServices(apiKey, clusterKey, clusterName)
+		err = install.InstallZKServices(apiKey, clusterKey, clusterName, zkHelmVersion)
 		if err != nil {
 			return err
 		}
+	} else {
+		ui.GlobalWriter.Println("Skipping zk client services installation")
 	}
 
 	// 6. install the kustomization for vizier over the default code -- doing it later as it needs the redis instance to come up
@@ -120,6 +153,8 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
+	} else {
+		ui.GlobalWriter.Println("Skipping ebpf probe installation")
 	}
 
 	// 7. print success message
@@ -161,6 +196,12 @@ func LoadAndValidateFlags() error {
 	plCloudAddr := "px." + zkCloudAddr
 	os.Setenv("PL_CLOUD_ADDR", plCloudAddr)
 	authAddress = fmt.Sprintf("https://api.%s", zkCloudAddr)
+
+	zkHelmVersionLocal, err := install.ExtractZkHelmVersion()
+	if err != nil {
+		return err
+	}
+	zkHelmVersion = *zkHelmVersionLocal
 
 	return nil
 }

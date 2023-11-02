@@ -68,6 +68,10 @@ const (
 	diSuccessText = "zerok daemonset installed successfully"
 	diFailureText = "failed to install zerok daemonset"
 
+	zksSpinnerText = "installing zerok operator"
+	zksSuccessText = "zerok operator installed successfully"
+	zksFailureText = "failed to install zerok operator"
+
 	waitTimeForService = 160
 
 	VersionKeyFlag    = "zkVersion"
@@ -162,7 +166,9 @@ func LoginToPX(authAddress, apiKey, clusterName string) (string, error) {
 	authPath := utils.GetBackendAuthPath()
 	err = os.Remove(authPath)
 	if err != nil {
-		return clusterKeyLocal, err
+		if !os.IsNotExist(err) {
+			return clusterKeyLocal, err
+		}
 	}
 	return clusterKeyLocal, utils.WriteTextToFile(string(authTokenPayloadBytes), authPath)
 }
@@ -297,6 +303,10 @@ func InstallPXOperator(ebpfMemory string) (err error) {
 		out, err = shell.ShelloutWithSpinner(cmd, diSpinnerText, diSuccessText, diFailureText)
 
 		if err != nil {
+			//replace 'pl' with 'zk' in out
+			out = strings.ReplaceAll(out, "pl", "zk")
+			out = strings.ReplaceAll(out, "pixie", "ebpf")
+			out = strings.ReplaceAll(out, "px", "zk")
 			internal.DumpErrorAndPrintLocation(out)
 		}
 	}()
@@ -341,7 +351,7 @@ func InstallVizier() error {
 	return err
 }
 
-func extractZkHelmVersion() (*string, error) {
+func ExtractZkHelmVersion() (*string, error) {
 	passedVersionInterface := viper.Get(VersionKeyFlag)
 	if passedVersionInterface != "" {
 		passedVersion := passedVersionInterface.(string)
@@ -385,8 +395,9 @@ func extractZkHelmVersion() (*string, error) {
 
 }
 
-func InstallZKServices(apiKey, clusterKey, clusterName string) error {
+func InstallZKServices(apiKey, clusterKey, clusterName string, zkHelmVersion string) error {
 	var inputToShellFile, shellFile string
+	var helmVersion string = ""
 	zkCloudAddr := viper.Get(ZkCloudAddressFlag).(string)
 	if viper.Get(internal.DevKeyFlag) == true {
 		ui.GlobalWriter.Println("zerok dev mode is enabled")
@@ -429,17 +440,15 @@ func InstallZKServices(apiKey, clusterKey, clusterName string) error {
 			" PX_CLUSTER_KEY=" + clusterKey +
 			" PX_CLUSTER_ID=" + clusterName
 	} else {
+		ui.GlobalWriter.Println("zerok client mode is enabled")
 		shellFile = zkInstallClient
-		version, err := extractZkHelmVersion()
-		if err != nil {
-			return err
-		}
 		inputToShellFile = " ZK_CLOUD_ADDR=" + zkCloudAddr +
 			" PX_API_KEY=" + apiKey +
 			" PX_CLUSTER_KEY=" + clusterKey +
 			" PX_CLUSTER_ID=" + clusterName +
-			" ZK_HELM_VERSION=" + *version +
+			" ZK_HELM_VERSION=" + zkHelmVersion +
 			" APP_NAME=zk-client"
+		helmVersion = zkHelmVersion
 	}
 	if viper.Get(internal.GptKeyFlag) == true {
 		inputToShellFile += " GPT_ENABLED=true"
@@ -447,9 +456,18 @@ func InstallZKServices(apiKey, clusterKey, clusterName string) error {
 		inputToShellFile += " GPT_ENABLED=false"
 	}
 
-	if viper.Get(internal.EmbedKeyFlag) == false {
-		return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+"/"+shellFile, inputToShellFile, "installing zk operator", "zk_operator installed successfully", "failed to install zk_operator")
+	ui.GlobalWriter.Println("zerok client configs:\n" +
+		"    ZK_API_KEY=" + apiKey +
+		"    ZK_HELM_VERSION=" + helmVersion)
+	if inputToShellFile == "" {
+		ui.GlobalWriter.Println("zerok client args are empty")
 	} else {
-		return shell.ExecuteEmbeddedFileWithSpinner(internal.EmbeddedContent, shellFile, inputToShellFile, "installing zk operator", "zk_operator installed successfully", "failed to install zk_operator")
+		ui.GlobalWriter.Println("zerok client args are available")
+	}
+
+	if viper.Get(internal.EmbedKeyFlag) == false {
+		return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+"/"+shellFile, inputToShellFile, zksSpinnerText, zksSuccessText, zksFailureText)
+	} else {
+		return shell.ExecuteEmbeddedFileWithSpinner(internal.EmbeddedContent, shellFile, inputToShellFile, zksSpinnerText, zksSuccessText, zksFailureText)
 	}
 }

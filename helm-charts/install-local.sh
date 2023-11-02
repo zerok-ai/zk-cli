@@ -1,7 +1,7 @@
 #!/bin/bash
 THIS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 if [ "$#" -eq "0" ]; then
-  echo "Invalid cli arguments. ERR #1"
+  echo "Invalid zk-client local arguments. ERR #1"
   exit 1
 fi
 
@@ -15,7 +15,7 @@ done
 
 if [ -z "$PX_API_KEY" ] || [ -z "$PX_CLUSTER_KEY" ] || [ -z "$ZK_CLOUD_ADDR" ]
 then
-  echo "Invalid cli arguments. ERR #2"
+  echo "Invalid zk-client local arguments. ERR #2"
   exit 1
 fi
 
