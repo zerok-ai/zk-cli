@@ -63,6 +63,9 @@ func PrintVersionsAndOptions() {
 	if viper.Get(internal.ZksKeyFlag) == false {
 		ui.GlobalWriter.PrintflnWithPrefixBullet("zerok services: %s", "false")
 	}
+	if viper.Get(internal.ZkStoresKeyFlag) == false {
+		ui.GlobalWriter.PrintflnWithPrefixBullet("zerok stores: %s", "false")
+	}
 	if viper.Get(internal.OlmKeyFlag) == false {
 		ui.GlobalWriter.PrintflnWithPrefixBullet("olm: %s", "false")
 	}
