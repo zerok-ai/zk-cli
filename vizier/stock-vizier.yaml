@@ -70,6 +70,8 @@ spec:
                     operator: In
                     values:
                       - linux
+#      nodeSelector:
+#        beta.kubernetes.io/instance-type: e2-standard-16
       containers:
         - args: []
           env:
@@ -256,6 +258,7 @@ spec:
 #                      - arm64
 #      nodeSelector:
 #        beta.kubernetes.io/arch: arm64
+#        beta.kubernetes.io/instance-type: e2-standard-16
 #      containers:
 #        - args: []
 #          env:

@@ -59,7 +59,7 @@ dependencies:
 
   - name: zk-gpt
     condition: global.gpt.enabled
-    version: "0.1.1-alpha"
+    version: "0.0.1-alpha"
     repository: https://helm.zerok.ai/zk-client/zk-gpt
 
 
