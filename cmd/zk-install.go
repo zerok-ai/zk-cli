@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"os"
+	"os/exec"
+	"strings"
 	"zkctl/cmd/internal"
 	"zkctl/cmd/internal/install"
 	"zkctl/cmd/pkg/ui"
@@ -54,7 +56,33 @@ func init() {
 	internal.AddStringFlag(RootCmd, install.RedisVersionKeyFlag, install.RedisVersionKeyEnvFlag, "", "0.1.1-alpha", "redis version to be installed", true)
 }
 
-func PrintVersionsAndOptions() {
+func isHelmInstalled() bool {
+	cmd := exec.Command("helm", "version", "--short")
+	output, err := cmd.CombinedOutput()
+
+	if err != nil {
+		return false
+	}
+
+	// Convert output to string and check if it contains the version information
+	outputStr := string(output)
+	return strings.Contains(outputStr, "v")
+}
+
+func validateRequiredTools() error {
+	ui.GlobalWriter.Println("Validating tools:")
+	//Validate helm
+	isHelmInstalled := isHelmInstalled()
+	if !isHelmInstalled {
+		return errors.New("helm is not installed. Please install helm and try again")
+	} else {
+		ui.GlobalWriter.PrintSuccessMessageln("helm is installed")
+		ui.GlobalWriter.Println("")
+	}
+	return nil
+}
+
+func printVersionsAndOptions() {
 	ui.GlobalWriter.Println("Versions:")
 	ui.GlobalWriter.PrintflnWithPrefixBullet("zkctl version: %s", BinaryVersion)
 	ui.GlobalWriter.PrintflnWithPrefixBullet("zerok services version: %s", zkHelmVersion)
@@ -92,7 +120,12 @@ func RunInstallPreCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	PrintVersionsAndOptions()
+	printVersionsAndOptions()
+
+	err = validateRequiredTools()
+	if err != nil {
+		return err
+	}
 
 	clusterName, err = install.ValidateClusterAndTakeConsent(ctx)
 	ui.GlobalWriter.PrintflnWithPrefixArrow("running pre-installation checks")
