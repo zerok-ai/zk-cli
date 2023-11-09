@@ -14,12 +14,14 @@ import (
 )
 
 var (
-	authAddress   string
-	apiKey        string
-	ebpfMemory    string
-	clusterName   string
-	clusterKey    string
-	zkHelmVersion string
+	authAddress     string
+	apiKey          string
+	ebpfMemory      string
+	postgresVersion string
+	redisVersion    string
+	clusterName     string
+	clusterKey      string
+	zkHelmVersion   string
 )
 
 type ContextKey struct {
@@ -48,6 +50,8 @@ func init() {
 	internal.AddStringFlag(RootCmd, install.EbpfMemoryFlag, install.EbpfMemoryEnvFlag, "", "", "ebpf memory. This can also be set through environment variable "+install.EbpfMemoryEnvFlag+" instead of passing the parameter", true)
 	internal.AddStringFlag(RootCmd, install.ApiKeyFlag, install.ApiKeyEnvFlag, "", "", "api key. This can also be set through environment variable "+install.ApiKeyEnvFlag+" instead of passing the parameter", false)
 	internal.AddStringFlag(RootCmd, install.VersionKeyFlag, install.VersionKeyEnvFlag, "", "", "version of the installation", false)
+	internal.AddStringFlag(RootCmd, install.PostgresVersionKeyFlag, install.PostgresVersionKeyEnvFlag, "", "0.1.1-alpha", "postgres version to be installed", true)
+	internal.AddStringFlag(RootCmd, install.RedisVersionKeyFlag, install.RedisVersionKeyEnvFlag, "", "0.1.1-alpha", "redis version to be installed", true)
 }
 
 func PrintVersionsAndOptions() {
@@ -112,7 +116,7 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 
 	// 2. Install zk-client data stores
 	if viper.Get(internal.ZkStoresKeyFlag) == true {
-		err = install.InstallDataStores()
+		err = install.InstallDataStores(postgresVersion, redisVersion)
 		if err != nil {
 			return err
 		}
@@ -181,6 +185,22 @@ func getCloudAddress() string {
 	return zkCloudAddr.(string)
 }
 
+func getPostgresVersion() string {
+	postgresVersion := viper.Get(install.PostgresVersionKeyFlag)
+	if postgresVersion == nil {
+		postgresVersion = "0.1.1-alpha"
+	}
+	return postgresVersion.(string)
+}
+
+func getRedisVersion() string {
+	redisVersion := viper.Get(install.RedisVersionKeyFlag)
+	if redisVersion == nil {
+		redisVersion = "0.1.1-alpha"
+	}
+	return redisVersion.(string)
+}
+
 func LoadAndValidateFlags() error {
 
 	//Get API Key
@@ -191,6 +211,10 @@ func LoadAndValidateFlags() error {
 
 	//Ebpf Memory
 	ebpfMemory = install.GetEbpfMemory()
+
+	//Stores' versions
+	postgresVersion = getPostgresVersion()
+	redisVersion = getRedisVersion()
 
 	// set cloud address as an env variable for shell scripts
 	zkCloudAddr := getCloudAddress()

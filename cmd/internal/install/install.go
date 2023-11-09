@@ -46,6 +46,12 @@ const (
 	ApiKeyFlag    = "apikey"
 	ApiKeyEnvFlag = "ZK_API_KEY"
 
+	PostgresVersionKeyFlag    = "postgres-version"
+	PostgresVersionKeyEnvFlag = "ZK_POSTGRES_VERSION_KEY"
+
+	RedisVersionKeyFlag    = "redis-version"
+	RedisVersionKeyEnvFlag = "ZK_REDIS_VERSION_KEY"
+
 	ApiKeyWarningMessage = "api key is not set. To continue, please get the apikey from zerok dashboard and paste below."
 	ApiKeyQuestion       = "enter api key"
 	ApiKeyErrorMessage   = "apikey is not set. Run the help command for more details"
@@ -256,15 +262,18 @@ func copyConfigmaps() error {
 	return nil
 }
 
-func InstallDataStores() error {
+func InstallDataStores(postgresVersion string, redisVersion string) error {
 	// Install zk-client data stores
+	inputToShellFile := ""
+	inputToShellFile += " POSTGRES_VERSION=" + postgresVersion
+	inputToShellFile += " REDIS_VERSION=" + redisVersion
 
 	//Scenario where the project is being run locally.
 	if viper.Get(internal.EmbedKeyFlag) == false {
-		return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+"/"+zkInstallStores, " ", installDataStore, installDataStoreSuccessText, installDataStoreFailureText)
+		return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+"/"+zkInstallStores, inputToShellFile, installDataStore, installDataStoreSuccessText, installDataStoreFailureText)
 	} else {
 		//Production scenario.
-		return shell.ExecuteEmbeddedFileWithSpinner(internal.EmbeddedContent, zkInstallStores, " ", installDataStore, installDataStoreSuccessText, installDataStoreFailureText)
+		return shell.ExecuteEmbeddedFileWithSpinner(internal.EmbeddedContent, zkInstallStores, inputToShellFile, installDataStore, installDataStoreSuccessText, installDataStoreFailureText)
 	}
 }
 
