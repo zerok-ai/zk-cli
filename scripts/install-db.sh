@@ -19,9 +19,9 @@ done
 
 helm repo add zk-redis https://helm.zerok.ai/zk-client/zk-redis
 helm repo update
-helm upgrade zk-redis zk-redis/zk-redis --install --create-namespace --namespace zk-client --version 0.1.0-alpha --wait
+helm upgrade zk-redis zk-redis/zk-redis --install --create-namespace --namespace zk-client --version 0.1.1-alpha --wait
 
 helm repo add zk-postgres https://helm.zerok.ai/zk-client/zk-postgres
 helm repo update
-helm upgrade zk-postgres zk-postgres/zk-postgres --install --create-namespace --namespace zk-client --version 0.1.0-alpha --wait
+helm upgrade zk-postgres zk-postgres/zk-postgres --install --create-namespace --namespace zk-client --version 0.1.1-alpha --wait
 

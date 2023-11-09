@@ -33,7 +33,7 @@ artifact:
 	echo "building for version = $(VERSION)"
 	GOARCH=amd64 GOOS=darwin  go build -o ./$(ARTIFACT_FOLDER_NAME)/$(VERSION)/$(NAME)-$(VERSION)-darwin  -ldflags="-X 'zkctl/cmd.BinaryVersion=$(VERSION)' -X 'zkctl/cmd.prodCloudAddress=$(CLOUD_ADDRESS)'" main.go
 	GOARCH=amd64 GOOS=linux   go build -o ./$(ARTIFACT_FOLDER_NAME)/$(VERSION)/$(NAME)-$(VERSION)-linux   -ldflags="-X 'zkctl/cmd.BinaryVersion=$(VERSION)' -X 'zkctl/cmd.prodCloudAddress=$(CLOUD_ADDRESS)'" main.go
-	GOARCH=amd64 GOOS=windows go build -o ./$(ARTIFACT_FOLDER_NAME)/$(VERSION)/$(NAME)-$(VERSION)-windows -ldflags="-X 'zkctl/cmd.BinaryVersion=$(VERSION)' -X 'zkctl/cmd.prodCloudAddress=$(CLOUD_ADDRESS)'" main.go
+	#GOARCH=amd64 GOOS=windows go build -o ./$(ARTIFACT_FOLDER_NAME)/$(VERSION)/$(NAME)-$(VERSION)-windows -ldflags="-X 'zkctl/cmd.BinaryVersion=$(VERSION)' -X 'zkctl/cmd.prodCloudAddress=$(CLOUD_ADDRESS)'" main.go
 
 delete:
 	go run main.go delete -y
