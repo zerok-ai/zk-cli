@@ -95,6 +95,7 @@ func init() {
 	internal.AddBoolFlag(RootCmd, internal.ZksKeyFlag, internal.ZksKeyEnvFlag, "", true, "for internal use only", true)
 	internal.AddBoolFlag(RootCmd, internal.ZkStoresKeyFlag, internal.ZkStoresKeyEnvFlag, "", true, "for internal use only", true)
 	internal.AddBoolFlag(RootCmd, internal.SpreadKeyFlag, internal.SpreadKeyEnvFlag, "", false, "for internal use only", true)
+	internal.AddBoolFlag(RootCmd, internal.ObfuscateKeyFlag, internal.ObfuscateKeyEnvFlag, "", false, "for internal use only", true)
 
 }
 

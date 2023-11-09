@@ -23,6 +23,9 @@ const (
 	GptKeyFlag    = "gpt"
 	GptKeyEnvFlag = "ZK_GPT"
 
+	ObfuscateKeyFlag    = "obfuscate"
+	ObfuscateKeyEnvFlag = "ZK_OBFUSCATE"
+
 	VerboseKeyFlag    = "verbose"
 	VerboseKeyEnvFlag = "VERBOSE"
 

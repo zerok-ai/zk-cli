@@ -20,6 +20,7 @@ zk-daemonset:
       level: INFO
 
 zk-scenario-manager:
+  obfuscate: false
   serviceConfigs:
     logs:
       color: true

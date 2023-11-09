@@ -456,6 +456,12 @@ func InstallZKServices(apiKey, clusterKey, clusterName string, zkHelmVersion str
 		inputToShellFile += " GPT_ENABLED=false"
 	}
 
+	if viper.Get(internal.ObfuscateKeyFlag) == true {
+		inputToShellFile += " OBFUSCATE_ENABLED=true"
+	} else {
+		inputToShellFile += " OBFUSCATE_ENABLED=false"
+	}
+
 	ui.GlobalWriter.Println("zerok client configs:\n" +
 		"    ZK_API_KEY=" + apiKey +
 		"    ZK_HELM_VERSION=" + helmVersion)
