@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"zkctl/cmd/internal"
 	"zkctl/cmd/internal/shell"
 )
@@ -61,13 +62,22 @@ func RunDebugInstallCmd(cmd *cobra.Command, args []string) error {
 	urlPostgresBase64 := base64.StdEncoding.EncodeToString([]byte(urlPostgres))
 
 	inputToShellFile := fmt.Sprintf("install=%s pgurl=%s redisAuth=%s", "true", urlPostgresBase64, redisPwd)
-	return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+"/"+debugShellFile, inputToShellFile, zksSpinnerInstallationText, zksDebugInstallationSuccessText, zksDebugInstallationFailureText)
+	if viper.Get(internal.EmbedKeyFlag) == false {
+		return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+"/"+debugShellFile, inputToShellFile, zksSpinnerInstallationText, zksDebugInstallationSuccessText, zksDebugInstallationFailureText)
+	} else {
+		return shell.ExecuteEmbeddedFileWithSpinner(internal.EmbeddedContent, debugShellFile, inputToShellFile, zksSpinnerInstallationText, zksDebugInstallationSuccessText, zksDebugInstallationFailureText)
+	}
+
 }
 
 func RunDebugDeleteCmd(cmd *cobra.Command, args []string) error {
 	fmt.Println("Running debug delete command")
 	inputToShellFile := "delete=true"
-	return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+"/"+debugShellFile, inputToShellFile, zksSpinnerDeletionText, zksDebugDeletionSuccessText, zksDebugDeletionFailureText)
+	if viper.Get(internal.EmbedKeyFlag) == false {
+		return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+"/"+debugShellFile, inputToShellFile, zksSpinnerDeletionText, zksDebugDeletionSuccessText, zksDebugDeletionFailureText)
+	} else {
+		return shell.ExecuteEmbeddedFileWithSpinner(internal.EmbeddedContent, debugShellFile, inputToShellFile, zksSpinnerDeletionText, zksDebugDeletionSuccessText, zksDebugDeletionFailureText)
+	}
 }
 
 func init() {
