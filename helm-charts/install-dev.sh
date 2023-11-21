@@ -47,6 +47,7 @@ then
 fi
 helm repo add zk-promtail https://helm.zerok.ai/zk-client/zk-promtail
 helm repo add zk-otlp-receiver https://helm.zerok.ai/zk-client/zk-otlp-receiver
+helm repo add zk-debug https://helm.zerok.ai/zk-client/zk-debug
 
 # update
 helm repo update
@@ -63,5 +64,6 @@ then
 fi
 helm upgrade zk-promtail zk-promtail/zk-promtail --install --create-namespace --namespace zk-client --version $ZK_PROMTAIL_VERSION --set=global.zkcloud.clusterId=$PX_CLUSTER_ID
 helm upgrade zk-otlp-receiver zk-otlp-receiver/zk-otlp-receiver --install --create-namespace --namespace zk-client --version $ZK_OTLP_RECIEVER_VERSION
+helm upgrade zk-debug zk-debug/zk-debug --install --create-namespace --namespace zk-client --version $ZK_DEBUG_VERSION
 
 

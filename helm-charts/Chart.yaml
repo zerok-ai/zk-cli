@@ -57,6 +57,10 @@ dependencies:
     version: "0.1.4-alpha"
     repository: https://helm.zerok.ai/zk-client/zk-promtail
 
+  - name: zk-debug
+    version: "0.1.0-alpha"
+    repository: https://helm.zerok.ai/zk-client/zk-debug
+
   - name: zk-gpt
     condition: global.gpt.enabled
     version: "0.0.1-alpha"

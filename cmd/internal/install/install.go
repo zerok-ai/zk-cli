@@ -425,6 +425,7 @@ func InstallZKServices(apiKey, clusterKey, clusterName string, zkHelmVersion str
 			" ZK_OPERATOR_VERSION=" + keyValueMap["zk-operator"] +
 			" ZK_OTLP_RECIEVER_VERSION=" + keyValueMap["zk-otlp-reciever"] +
 			" ZK_PROMTAIL_VERSION=" + keyValueMap["zk-promtail"] +
+			" ZK_DEBUG_VERSION=" + keyValueMap["zk-debug"] +
 			" PX_API_KEY=" + apiKey +
 			" PX_CLUSTER_KEY=" + clusterKey +
 			" PX_CLUSTER_ID=" + clusterName
@@ -445,6 +446,7 @@ func InstallZKServices(apiKey, clusterKey, clusterName string, zkHelmVersion str
 			" ZK_OPERATOR_VERSION=" + keyValueMap["zk-operator"] +
 			" ZK_OTLP_RECIEVER_VERSION=" + keyValueMap["zk-otlp-reciever"] +
 			" ZK_PROMTAIL_VERSION=" + keyValueMap["zk-promtail"] +
+			" ZK_DEBUG_VERSION=" + keyValueMap["zk-debug"] +
 			" PX_API_KEY=" + apiKey +
 			" PX_CLUSTER_KEY=" + clusterKey +
 			" PX_CLUSTER_ID=" + clusterName
