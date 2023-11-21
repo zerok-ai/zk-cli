@@ -164,7 +164,7 @@ func ExecuteShellFileWithSpinner(shellFile, inputParameters, spinnerText, succes
 		return err
 	}
 
-	out, err = ShelloutWithSpinner(shellFile+inputParameters, spinnerText, successMessage, errorMessage)
+	out, err = ShelloutWithSpinner(shellFile+" "+inputParameters, spinnerText, successMessage, errorMessage)
 	if err != nil {
 		internal.DumpErrorAndPrintLocation(out)
 		return err
