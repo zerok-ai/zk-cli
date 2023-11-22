@@ -16,7 +16,7 @@ if [ -n "$install" ] && [ "$install" = "true" ]; then
     echo "Install debug helm"
     helm repo add zk-debug https://helm.zerok.ai/zk-client/zk-debug
     helm repo update
-    helm upgrade zk-debug zk-debug/zk-debug --install --create-namespace --namespace zk-client --set=zkDebug.redisAuth=$redisAuth --set=zkdebug.postgrest.postgresUri=$pgurl
+    helm upgrade zk-debug zk-debug/zk-debug --version=0.1.1-alpha --install --create-namespace --namespace zk-client --set=zkDebug.redisAuth=$redisAuth --set=zkdebug.postgrest.postgresUri=$pgurl
   else
     echo "Invalid zk-client debug arguments. ERR #1"
     exit 1
