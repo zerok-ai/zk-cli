@@ -50,7 +50,7 @@ dependencies:
     repository: https://helm.zerok.ai/zk-client/zk-scenario-manager
 
   - name: zk-axon
-    version: "0.1.8-alpha"
+    version: "0.1.9-alpha"
     repository: https://helm.zerok.ai/zk-client/zk-axon
 
   - name: zk-promtail
@@ -59,6 +59,6 @@ dependencies:
 
   - name: zk-gpt
     condition: global.gpt.enabled
-    version: "0.1.0-alpha"
+    version: "0.1.1-alpha"
     repository: https://helm.zerok.ai/zk-client/zk-gpt
 
