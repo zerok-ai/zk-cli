@@ -140,15 +140,21 @@ func DownloadAndInstallPXCLI(ctx context.Context) error {
 	return err
 }
 
-func LoginToPX(authAddress, apiKey, clusterName string) (string, error) {
+type ClusterMetadata struct {
+	ClientVersions map[string]string `json:"clientVersion"`
+	NumOfNodes     int64             `json:"numNodes"`
+}
+
+func LoginToPX(authAddress, apiKey, clusterName string, clusterMetadata ClusterMetadata) (string, error) {
 
 	ui.GlobalWriter.PrintflnWithPrefixArrow("trying to authenticate")
 	path := "v1/p/auth/login"
+	//authAddress = "http://localhost:80"
 	urlToBeCalled := fmt.Sprintf("%s/%s?apikey=%s&clusterName=%s", authAddress, path, apiKey, clusterName)
 
 	// download from server
 	jsonResponse := new(AuthPayload)
-	err := GetHTTPGETResponse(urlToBeCalled, jsonResponse)
+	err := GetHTTPPOSTResponse(urlToBeCalled, clusterMetadata, jsonResponse)
 	// ui.GlobalWriter.PrintflnWithPrefixlnAndArrow("urlToBeCalled = %s\njsonResponse=%v", urlToBeCalled, jsonResponse)
 	if err != nil {
 		return "", fmt.Errorf("error in auth %v", err)

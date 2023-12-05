@@ -143,7 +143,19 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 	var err error
 
 	// 1. login to px
-	if clusterKey, err = install.LoginToPX(authAddress, apiKey, clusterName); err != nil {
+	clusterMetadata := install.ClusterMetadata{
+		ClientVersions: map[string]string{
+			"cli":                 "",
+			"zk-client":           "",
+			"zk-axon":             "",
+			"zk-scenario-manager": "",
+			"zk-gpt":              "",
+			"zk-operator":         "",
+			"zk-daemonset":        "",
+			"zk-wsp-client":       "",
+		},
+	}
+	if clusterKey, err = install.LoginToPX(authAddress, apiKey, clusterName, clusterMetadata); err != nil {
 		return err
 	}
 
