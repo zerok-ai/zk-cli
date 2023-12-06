@@ -30,11 +30,11 @@ dependencies:
 #    repository: https://helm.zerok.ai/zk-client/zk-app-init-container
 
   - name: zk-wsp-client
-    version: "0.1.2-alpha"
+    version: "0.1.3-test"
     repository: https://helm.zerok.ai/zk-client/zk-wsp-client
 
   - name: zk-operator
-    version: "0.1.3-alpha"
+    version: "0.1.4-test"
     repository: https://helm.zerok.ai/zk-client/zk-operator
 
   - name: zk-daemonset
@@ -42,7 +42,7 @@ dependencies:
     repository: https://helm.zerok.ai/zk-client/zk-daemonset
 
   - name: zk-otlp-receiver
-    version: "0.1.9-alpha"
+    version: "0.1.10-test"
     repository: https://helm.zerok.ai/zk-client/zk-otlp-receiver
 
   - name: zk-scenario-manager
