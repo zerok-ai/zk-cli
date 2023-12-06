@@ -19,7 +19,7 @@ const (
 	BACKEND_CLI_AUTH_FILENAME = "auth.json"
 	ERROR_DUMP_FILENAME       = "dump"
 
-	px_dir_sym_name = ".pixie"
+	px_dir_sym_name = ".zk"
 	px_dir_name     = "px"
 	pxrepo_dir      = "pxrepo"
 )

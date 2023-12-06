@@ -135,7 +135,8 @@ func RunInstallPreCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// download and install px cli
-	return install.DownloadAndInstallPXCLI(ctx)
+	//return install.DownloadAndInstallPXCLI(ctx)
+	return nil
 }
 
 func RunInstallCmd(cmd *cobra.Command, args []string) error {
@@ -180,14 +181,14 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// 4. Install default pixie - pl
-	if viper.Get(internal.PxKeyFlag) == true {
-		err = install.InstallPXOperator(ebpfMemory)
-		if err != nil {
-			return err
-		}
-	} else {
-		ui.GlobalWriter.Println("Skipping ebpf installation")
-	}
+	//if viper.Get(internal.PxKeyFlag) == true {
+	//	err = install.InstallPXOperator(ebpfMemory)
+	//	if err != nil {
+	//		return err
+	//	}
+	//} else {
+	//	ui.GlobalWriter.Println("Skipping ebpf installation")
+	//}
 
 	// 5. Install zeroK services
 	if viper.Get(internal.ZksKeyFlag) == true {
