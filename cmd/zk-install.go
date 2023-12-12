@@ -171,14 +171,14 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// 3 Install olm
-	if viper.Get(internal.OlmKeyFlag) == true {
-		err = install.InstallOlm()
-		if err != nil {
-			return err
-		}
-	} else {
-		ui.GlobalWriter.Println("Skipping olm installation")
-	}
+	//if viper.Get(internal.OlmKeyFlag) == true {
+	//	err = install.InstallOlm()
+	//	if err != nil {
+	//		return err
+	//	}
+	//} else {
+	//	ui.GlobalWriter.Println("Skipping olm installation")
+	//}
 
 	// 4. Install default pixie - pl
 	//if viper.Get(internal.PxKeyFlag) == true {
@@ -201,14 +201,14 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// 6. install the kustomization for vizier over the default code -- doing it later as it needs the redis instance to come up
-	if viper.Get(internal.EbpfKeyFlag) == true {
-		err = install.InstallVizier()
-		if err != nil {
-			return err
-		}
-	} else {
-		ui.GlobalWriter.Println("Skipping ebpf probe installation")
-	}
+	//if viper.Get(internal.EbpfKeyFlag) == true {
+	//	err = install.InstallVizier()
+	//	if err != nil {
+	//		return err
+	//	}
+	//} else {
+	//	ui.GlobalWriter.Println("Skipping ebpf probe installation")
+	//}
 
 	// 7. print success message
 	if err == nil {
