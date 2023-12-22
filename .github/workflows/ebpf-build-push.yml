@@ -35,6 +35,7 @@ jobs:
       HELM_BUCKET_URL: ${{ needs.init.outputs.HELM_BUCKET_URL }}
       PROJECT_ID: ${{ needs.init.outputs.PROJECT_ID }}
       HELM_CHARTS_DIRECTORY: 'zk-ebpf-chart'
+      APP_NAME_VAR: 'APP_NAME_EBPF'
     secrets:
       AWS_ACCESS_ID: ${{ secrets.AWS_ACCESS_ID }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
