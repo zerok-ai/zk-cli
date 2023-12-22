@@ -1,16 +1,16 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ include "zk-ebpf-chart.fullname" . }}-pl-vizier-crd-metadata-binding
+  name: {{ include "zk-ebpf.fullname" . }}-pl-vizier-crd-metadata-binding
   labels:
     app: pl-monitoring
     component: vizier
-  {{- include "zk-ebpf-chart.labels" . | nindent 4 }}
+  {{- include "zk-ebpf.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: pl-vizier-crd-role
 subjects:
 - kind: ServiceAccount
-  name: '{{ include "zk-ebpf-chart.fullname" . }}-metadata-service-account'
+  name: '{{ include "zk-ebpf.fullname" . }}-metadata-service-account'
   namespace: '{{ .Release.Namespace }}'

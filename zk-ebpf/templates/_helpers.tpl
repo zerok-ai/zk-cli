@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "zk-ebpf-chart.name" -}}
+{{- define "zk-ebpf.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "zk-ebpf-chart.fullname" -}}
+{{- define "zk-ebpf.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "zk-ebpf-chart.chart" -}}
+{{- define "zk-ebpf.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "zk-ebpf-chart.labels" -}}
-helm.sh/chart: {{ include "zk-ebpf-chart.chart" . }}
-{{ include "zk-ebpf-chart.selectorLabels" . }}
+{{- define "zk-ebpf.labels" -}}
+helm.sh/chart: {{ include "zk-ebpf.chart" . }}
+{{ include "zk-ebpf.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,17 +45,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "zk-ebpf-chart.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "zk-ebpf-chart.name" . }}
+{{- define "zk-ebpf.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "zk-ebpf.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "zk-ebpf-chart.serviceAccountName" -}}
+{{- define "zk-ebpf.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "zk-ebpf-chart.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "zk-ebpf.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}

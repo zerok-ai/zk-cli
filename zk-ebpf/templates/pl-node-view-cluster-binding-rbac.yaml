@@ -1,15 +1,15 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ include "zk-ebpf-chart.fullname" . }}-pl-node-view-cluster-binding
+  name: {{ include "zk-ebpf.fullname" . }}-pl-node-view-cluster-binding
   labels:
     app: pl-monitoring
     component: vizier
-  {{- include "zk-ebpf-chart.labels" . | nindent 4 }}
+  {{- include "zk-ebpf.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: '{{ include "zk-ebpf-chart.fullname" . }}-pl-node-view'
+  name: '{{ include "zk-ebpf.fullname" . }}-pl-node-view'
 subjects:
 - kind: ServiceAccount
   name: default

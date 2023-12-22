@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "zk-ebpf-chart.fullname" . }}-zk-redis-config
+  name: {{ include "zk-ebpf.fullname" . }}-zk-redis-config
   labels:
-  {{- include "zk-ebpf-chart.labels" . | nindent 4 }}
+  {{- include "zk-ebpf.labels" . | nindent 4 }}
   annotations:
     meta.helm.sh/release-name: zk-redis
     meta.helm.sh/release-namespace: zk-client

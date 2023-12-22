@@ -1,16 +1,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "zk-ebpf-chart.fullname" . }}-pl-nats-mgmt
+  name: {{ include "zk-ebpf.fullname" . }}-pl-nats-mgmt
   labels:
     app: pl-monitoring
     name: pl-nats
-  {{- include "zk-ebpf-chart.labels" . | nindent 4 }}
+  {{- include "zk-ebpf.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.plNatsMgmt.type }}
   selector:
     app: pl-monitoring
     name: pl-nats
-  {{- include "zk-ebpf-chart.selectorLabels" . | nindent 4 }}
+  {{- include "zk-ebpf.selectorLabels" . | nindent 4 }}
   ports:
 	{{- .Values.plNatsMgmt.ports | toYaml | nindent 2 -}}

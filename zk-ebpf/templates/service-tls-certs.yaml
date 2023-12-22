@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: {{ include "zk-ebpf-chart.fullname" . }}-service-tls-certs
+  name: {{ include "zk-ebpf.fullname" . }}-service-tls-certs
   labels:
     vizier-name: pixie
-  {{- include "zk-ebpf-chart.labels" . | nindent 4 }}
+  {{- include "zk-ebpf.labels" . | nindent 4 }}
   annotations:
     vizier-name: pixie
 data:

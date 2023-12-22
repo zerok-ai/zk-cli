@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "zk-ebpf-chart.fullname" . }}-pl-nats
+  name: {{ include "zk-ebpf.fullname" . }}-pl-nats
   labels:
     app: pl-monitoring
     name: pl-nats
-  {{- include "zk-ebpf-chart.labels" . | nindent 4 }}
+  {{- include "zk-ebpf.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.plNats.replicas }}
   selector:
     matchLabels:
       app: pl-monitoring
       name: pl-nats
-  serviceName: {{ include "zk-ebpf-chart.fullname" . }}-pl-nats
+  serviceName: {{ include "zk-ebpf.fullname" . }}-pl-nats
   template:
     metadata:
       labels:
@@ -110,9 +110,9 @@ spec:
       volumes:
       - name: nats-server-tls-volume
         secret:
-          secretName: {{ include "zk-ebpf-chart.fullname" . }}-service-tls-certs
+          secretName: {{ include "zk-ebpf.fullname" . }}-service-tls-certs
       - configMap:
-          name: {{ include "zk-ebpf-chart.fullname" . }}-nats-config
+          name: {{ include "zk-ebpf.fullname" . }}-nats-config
         name: config-volume
       - emptyDir: {}
         name: pid
@@ -121,11 +121,11 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "zk-ebpf-chart.fullname" . }}-metadata
+  name: {{ include "zk-ebpf.fullname" . }}-metadata
   labels:
     app: pl-monitoring
     component: vizier
-  {{- include "zk-ebpf-chart.labels" . | nindent 4 }}
+  {{- include "zk-ebpf.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.metadata.replicas }}
   selector:
@@ -133,7 +133,7 @@ spec:
       app: pl-monitoring
       component: vizier
       name: vizier-metadata
-  serviceName: {{ include "zk-ebpf-chart.fullname" . }}-metadata
+  serviceName: {{ include "zk-ebpf.fullname" . }}-metadata
   template:
     metadata:
       annotations:
@@ -169,7 +169,7 @@ spec:
           valueFrom:
             secretKeyRef:
               key: jwt-signing-key
-              name: {{ include "zk-ebpf-chart.fullname" . }}-pl-cluster-secrets
+              name: {{ include "zk-ebpf.fullname" . }}-pl-cluster-secrets
         - name: PL_POD_NAMESPACE
           valueFrom:
             fieldRef:
@@ -184,7 +184,7 @@ spec:
           value: {{ quote .Values.kubernetesClusterDomain }}
         envFrom:
         - configMapRef:
-            name: {{ include "zk-ebpf-chart.fullname" . }}-pl-tls-config
+            name: {{ include "zk-ebpf.fullname" . }}-pl-tls-config
         image: {{ .Values.metadata.app.image.repository }}:{{ .Values.metadata.app.image.tag
           | default .Chart.AppVersion }}
         livenessProbe:
@@ -242,7 +242,7 @@ spec:
         runAsUser: 10100
         seccompProfile:
           type: RuntimeDefault
-      serviceAccountName: {{ include "zk-ebpf-chart.fullname" . }}-metadata-service-account
+      serviceAccountName: {{ include "zk-ebpf.fullname" . }}-metadata-service-account
       tolerations:
       - effect: NoSchedule
         key: kubernetes.io/arch
@@ -263,9 +263,9 @@ spec:
       volumes:
       - name: certs
         secret:
-          secretName: {{ include "zk-ebpf-chart.fullname" . }}-service-tls-certs
+          secretName: {{ include "zk-ebpf.fullname" . }}-service-tls-certs
       - name: metadata-volume
         persistentVolumeClaim:
-          claimName: {{ include "zk-ebpf-chart.fullname" . }}-metadata-pv-claim
+          claimName: {{ include "zk-ebpf.fullname" . }}-metadata-pv-claim
   updateStrategy:
     type: RollingUpdate

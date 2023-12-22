@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "zk-ebpf-chart.fullname" . }}-metadata-pv-claim
+  name: {{ include "zk-ebpf.fullname" . }}-metadata-pv-claim
   labels:
     app: pl-monitoring
     component: vizier
-  {{- include "zk-ebpf-chart.labels" . | nindent 4 }}
+  {{- include "zk-ebpf.labels" . | nindent 4 }}
 spec:
   accessModes:
   - ReadWriteOnce

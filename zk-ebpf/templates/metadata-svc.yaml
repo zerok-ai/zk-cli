@@ -1,17 +1,17 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "zk-ebpf-chart.fullname" . }}-metadata-svc
+  name: {{ include "zk-ebpf.fullname" . }}-metadata-svc
   labels:
     app: pl-monitoring
     component: vizier
-  {{- include "zk-ebpf-chart.labels" . | nindent 4 }}
+  {{- include "zk-ebpf.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.metadataSvc.type }}
   selector:
     app: pl-monitoring
     component: vizier
     name: vizier-metadata
-  {{- include "zk-ebpf-chart.selectorLabels" . | nindent 4 }}
+  {{- include "zk-ebpf.selectorLabels" . | nindent 4 }}
   ports:
 	{{- .Values.metadataSvc.ports | toYaml | nindent 2 -}}
