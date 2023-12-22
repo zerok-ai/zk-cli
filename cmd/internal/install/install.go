@@ -37,6 +37,7 @@ type AuthRefreshToken struct {
 
 type OperatorToken struct {
 	ClusterKey string `json:"cluster_key"`
+	ClusterID  string `json:"cluster_id"`
 }
 
 const (
@@ -145,7 +146,7 @@ type ClusterMetadata struct {
 	NumOfNodes     int64             `json:"numNodes"`
 }
 
-func LoginToPX(authAddress, apiKey, clusterName string, clusterMetadata ClusterMetadata) (string, error) {
+func LoginToPX(authAddress, apiKey, clusterName string, clusterMetadata ClusterMetadata) (string, string, error) {
 
 	ui.GlobalWriter.PrintflnWithPrefixArrow("trying to authenticate")
 	path := "v1/p/auth/login"
@@ -157,21 +158,27 @@ func LoginToPX(authAddress, apiKey, clusterName string, clusterMetadata ClusterM
 	err := GetHTTPPOSTResponse(urlToBeCalled, clusterMetadata, jsonResponse)
 	// ui.GlobalWriter.PrintflnWithPrefixlnAndArrow("urlToBeCalled = %s\njsonResponse=%v", urlToBeCalled, jsonResponse)
 	if err != nil {
-		return "", fmt.Errorf("error in auth %v", err)
+		return "", "", fmt.Errorf("error in auth %v", err)
 	}
 
 	if jsonResponse.Payload.CliAuthPayload.Token == "" {
 		//TODO:AVIN Put a proper error message
-		return "", errors.New("error in auth")
+		return "", "", errors.New("error in auth")
 	}
 	authTokenPayloadBytes, err := json.Marshal(jsonResponse.Payload.CliAuthPayload)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	clusterKeyLocal := jsonResponse.Payload.OperatorAuthPayload.ClusterKey
 	if clusterKeyLocal == "" {
 		//TODO:AVIN Put proper error message
-		return "", errors.New("error in auth")
+		return "", "", errors.New("error in auth")
+	}
+
+	clusterIdLocal := jsonResponse.Payload.OperatorAuthPayload.ClusterID
+	if clusterIdLocal == "" {
+		//TODO:AVIN Put proper error message
+		return "", "", errors.New("error in auth")
 	}
 
 	//write to file
@@ -179,10 +186,10 @@ func LoginToPX(authAddress, apiKey, clusterName string, clusterMetadata ClusterM
 	err = os.Remove(authPath)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			return clusterKeyLocal, err
+			return clusterKeyLocal, clusterIdLocal, err
 		}
 	}
-	return clusterKeyLocal, utils.WriteTextToFile(string(authTokenPayloadBytes), authPath)
+	return clusterKeyLocal, clusterIdLocal, utils.WriteTextToFile(string(authTokenPayloadBytes), authPath)
 }
 
 func copySecrets() error {
@@ -410,7 +417,7 @@ func ExtractZkHelmVersion() (*string, error) {
 
 }
 
-func InstallZKServices(apiKey, clusterKey, clusterName string, zkHelmVersion string) error {
+func InstallZKServices(apiKey, clusterKey, clusterId, clusterName string, zkHelmVersion string) error {
 	var inputToShellFile, shellFile string
 	var helmVersion string = ""
 	zkCloudAddr := viper.Get(ZkCloudAddressFlag).(string)
@@ -433,6 +440,7 @@ func InstallZKServices(apiKey, clusterKey, clusterName string, zkHelmVersion str
 			" ZK_PROMTAIL_VERSION=" + keyValueMap["zk-promtail"] +
 			" PX_API_KEY=" + apiKey +
 			" PX_CLUSTER_KEY=" + clusterKey +
+			" ZK_CLUSTER_ID=" + clusterId +
 			" PX_CLUSTER_ID=" + clusterName
 	} else if viper.Get(internal.SpreadKeyFlag) == true {
 		ui.GlobalWriter.Println("zerok spread mode is enabled")
@@ -453,6 +461,7 @@ func InstallZKServices(apiKey, clusterKey, clusterName string, zkHelmVersion str
 			" ZK_PROMTAIL_VERSION=" + keyValueMap["zk-promtail"] +
 			" PX_API_KEY=" + apiKey +
 			" PX_CLUSTER_KEY=" + clusterKey +
+			" ZK_CLUSTER_ID=" + clusterId +
 			" PX_CLUSTER_ID=" + clusterName
 	} else {
 		ui.GlobalWriter.Println("zerok client mode is enabled")
@@ -460,6 +469,7 @@ func InstallZKServices(apiKey, clusterKey, clusterName string, zkHelmVersion str
 		inputToShellFile = " ZK_CLOUD_ADDR=" + zkCloudAddr +
 			" PX_API_KEY=" + apiKey +
 			" PX_CLUSTER_KEY=" + clusterKey +
+			" ZK_CLUSTER_ID=" + clusterId +
 			" PX_CLUSTER_ID=" + clusterName +
 			" ZK_HELM_VERSION=" + zkHelmVersion +
 			" APP_NAME=zk-client"

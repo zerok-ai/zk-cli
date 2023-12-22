@@ -23,6 +23,7 @@ var (
 	redisVersion    string
 	clusterName     string
 	clusterKey      string
+	clusterId       string
 	zkHelmVersion   string
 )
 
@@ -156,7 +157,7 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 			"zk-wsp-client":       "",
 		},
 	}
-	if clusterKey, err = install.LoginToPX(authAddress, apiKey, clusterName, clusterMetadata); err != nil {
+	if clusterKey, clusterId, err = install.LoginToPX(authAddress, apiKey, clusterName, clusterMetadata); err != nil {
 		return err
 	}
 
@@ -192,7 +193,7 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 
 	// 5. Install zeroK services
 	if viper.Get(internal.ZksKeyFlag) == true {
-		err = install.InstallZKServices(apiKey, clusterKey, clusterName, zkHelmVersion)
+		err = install.InstallZKServices(apiKey, clusterKey, clusterId, clusterName, zkHelmVersion)
 		if err != nil {
 			return err
 		}
