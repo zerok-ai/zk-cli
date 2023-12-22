@@ -1,0 +1,153 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "zk-ebpf-chart.fullname" . }}-pem
+  labels:
+    app: pl-monitoring
+    component: vizier
+  {{- include "zk-ebpf-chart.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app: pl-monitoring
+      component: vizier
+      name: vizier-pem
+    {{- include "zk-ebpf-chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: pl-monitoring
+        component: vizier
+        name: vizier-pem
+        plane: data
+      {{- include "zk-ebpf-chart.selectorLabels" . | nindent 8 }}
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/os
+                operator: Exists
+              - key: kubernetes.io/os
+                operator: In
+                values:
+                - linux
+            - matchExpressions:
+              - key: beta.kubernetes.io/os
+                operator: Exists
+              - key: beta.kubernetes.io/os
+                operator: In
+                values:
+                - linux
+      containers:
+      - env:
+        - name: TCMALLOC_SAMPLE_PARAMETER
+          value: {{ quote .Values.pem.pem.env.tcmallocSampleParameter }}
+        - name: PL_CLIENT_TLS_CERT
+          value: {{ quote .Values.pem.pem.env.plClientTlsCert }}
+        - name: PL_CLIENT_TLS_KEY
+          value: {{ quote .Values.pem.pem.env.plClientTlsKey }}
+        - name: PL_TLS_CA_CERT
+          value: {{ quote .Values.pem.pem.env.plTlsCaCert }}
+        - name: PL_DISABLE_SSL
+          value: {{ quote .Values.pem.pem.env.plDisableSsl }}
+        - name: PL_HOST_PATH
+          value: {{ quote .Values.pem.pem.env.plHostPath }}
+        - name: PL_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: PL_POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: PL_HOST_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: PL_JWT_SIGNING_KEY
+          valueFrom:
+            secretKeyRef:
+              key: jwt-signing-key
+              name: {{ include "zk-ebpf-chart.fullname" . }}-pl-cluster-secrets
+        - name: PL_REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: redis-password
+              name: {{ include "zk-ebpf-chart.fullname" . }}-redis
+        - name: PL_REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              key: redisHost
+              name: {{ include "zk-ebpf-chart.fullname" . }}-zk-redis-config
+        - name: PL_VIZIER_ID
+          valueFrom:
+            secretKeyRef:
+              key: cluster-id
+              name: {{ include "zk-ebpf-chart.fullname" . }}-pl-cluster-secrets
+              optional: true
+        - name: PL_VIZIER_NAME
+          valueFrom:
+            secretKeyRef:
+              key: cluster-name
+              name: {{ include "zk-ebpf-chart.fullname" . }}-pl-cluster-secrets
+              optional: true
+        - name: PL_CLOCK_CONVERTER
+          value: {{ quote .Values.pem.pem.env.plClockConverter }}
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.pem.pem.image.repository }}:{{ .Values.pem.pem.image.tag | default
+          .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.pem.pem.imagePullPolicy }}
+        name: pem
+        resources: {}
+        securityContext: {{- toYaml .Values.pem.pem.containerSecurityContext | nindent
+          10 }}
+        volumeMounts:
+        - mountPath: /host
+          name: host-root
+          readOnly: true
+        - mountPath: /sys
+          name: sys
+          readOnly: true
+        - mountPath: /certs
+          name: certs
+        - mountPath: /opt/zk-client-db-configmap.yaml
+          name: zk-client-db-configmap
+          subPath: zk-client-db-configmap.yaml
+        - mountPath: /opt/zpixie-configmap.yaml
+          name: zpixie-configmap
+          subPath: zpixie-configmap.yaml
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      hostPID: true
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      terminationGracePeriodSeconds: 10
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+      - effect: NoExecute
+        operator: Exists
+      - effect: NoSchedule
+        operator: Exists
+      volumes:
+      - hostPath:
+          path: /
+          type: Directory
+        name: host-root
+      - hostPath:
+          path: /sys
+          type: Directory
+        name: sys
+      - name: certs
+        secret:
+          secretName: {{ include "zk-ebpf-chart.fullname" . }}-service-tls-certs
+      - configMap:
+          name: {{ include "zk-ebpf-chart.fullname" . }}-zk-client-db-configmap
+        name: zk-client-db-configmap
+      - configMap:
+          name: {{ include "zk-ebpf-chart.fullname" . }}-zpixie-configmap
+        name: zpixie-configmap
