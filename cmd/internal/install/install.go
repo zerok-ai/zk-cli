@@ -79,13 +79,19 @@ const (
 	zksSuccessText = "zerok operator installed successfully"
 	zksFailureText = "failed to install zerok operator"
 
+	zkEbpfSpinnerText = "installing zerok ebpf layer"
+	zkEbpfSuccessText = "zerok ebpf layer installed successfully"
+	zkEbpfFailureText = "failed to install zerok ebpf layer"
+
 	waitTimeForService = 160
 
 	VersionKeyFlag    = "zkVersion"
 	VersionKeyEnvFlag = "ZK_VERSION"
 
-	olmInstall            string = "scripts/install-olm.sh"
-	zkInstallClient       string = "scripts/install.sh"
+	olmInstall      string = "scripts/install-olm.sh"
+	zkInstallClient string = "scripts/install.sh"
+	//zkInstallEbpf         string = "scripts/install-ebpf.sh"
+	zkInstallEbpf         string = "zk-ebpf/install-local.sh"
 	zkInstallDevClient    string = "helm-charts/install-dev.sh"
 	zkInstallSpreadClient string = "scripts/install-spread.sh"
 	cliVizierYaml         string = "vizier/vizier.yaml"
@@ -415,6 +421,34 @@ func ExtractZkHelmVersion() (*string, error) {
 
 	return &version, nil
 
+}
+
+func InstallZKEbpf(clusterId, clusterName string, zkHelmVersion string) error {
+	var inputToShellFile, shellFile string
+	var zkEbpfJwtKey string = "9e21b08a50004a740e3ffc972c410e935da595ac570415f15a20870a0aebe68a8a0ca7791fdcaea76c8694a76b7451ae142b5f4f54673b4cb4f4407ef6dcf105"
+
+	shellFile = zkInstallEbpf
+	inputToShellFile = " ZK_CLUSTER_ID=" + clusterId +
+		" ZK_CLUSTER_NAME=" + clusterName +
+		" ZK_HELM_VERSION=" + zkHelmVersion +
+		" ZK_EBPF_JWT_KEY=" + zkEbpfJwtKey
+
+	fmt.Println("@Debug01")
+	yamlSecret, err := GenerateCloudCertYAMLs("pl")
+	if err != nil {
+		fmt.Println("@Debug02")
+		fmt.Println("Error ", err)
+		return err
+	}
+	fmt.Println("yamlSecret", yamlSecret)
+
+	//if viper.Get(internal.EmbedKeyFlag) == false {
+	//	fmt.Println("@Debug04")
+	return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+"/"+shellFile, inputToShellFile, zkEbpfSpinnerText, zkEbpfSuccessText, zkEbpfFailureText)
+	//} else {
+	//	fmt.Println("@Debug05")
+	//	return shell.ExecuteEmbeddedFileWithSpinner(internal.EmbeddedContent, shellFile, inputToShellFile, zkEbpfSpinnerText, zkEbpfSuccessText, zkEbpfFailureText)
+	//}
 }
 
 func InstallZKServices(apiKey, clusterKey, clusterId, clusterName string, zkHelmVersion string) error {

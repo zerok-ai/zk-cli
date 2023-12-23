@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "zk-ebpf.fullname" . }}-nats-config
+  name: nats-config
   labels:
     app: pl-monitoring
   {{- include "zk-ebpf.labels" . | nindent 4 }}

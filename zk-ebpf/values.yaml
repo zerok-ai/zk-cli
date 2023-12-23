@@ -128,13 +128,7 @@ pvc:
   metadataPvClaim:
     storageRequest: 16Gi
 redis:
-  redisPassword: ""
-serviceTlsCerts:
-  caCrt: ""
-  clientCrt: ""
-  clientKey: ""
-  serverCrt: ""
-  serverKey: ""
+  redisPassword: "hellopassword"
 zkClientDbConfigmap:
   zkClientDbConfigmapYaml: |-
     redis:

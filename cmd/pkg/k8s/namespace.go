@@ -39,7 +39,7 @@ type ZkNamespace ZkResource
 
 func NewZkNamespace(name string) *ZkNamespace {
 
-	clientsetLocal, errClient := getKubeClientSet()
+	clientsetLocal, errClient := GetKubeClientSet()
 	if errClient != nil {
 		panic(errClient)
 	}
@@ -57,7 +57,7 @@ func NewZkNamespaceWithClientSet(name string, clientsetExt *kubernetes.Clientset
 	return ns
 }
 
-func getKubeClientSet() (*kubernetes.Clientset, error) {
+func GetKubeClientSet() (*kubernetes.Clientset, error) {
 	var kubeconfig *string
 	if home := homedir.HomeDir(); home != "" {
 		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
@@ -207,7 +207,7 @@ func (ns *ZkNamespace) Delete() error {
 }
 
 func DeleteNamespaces(namespace []string) error {
-	clientsetLocal, errClient := getKubeClientSet()
+	clientsetLocal, errClient := GetKubeClientSet()
 	if errClient != nil {
 		panic(errClient)
 	}
@@ -217,11 +217,11 @@ func DeleteNamespaces(namespace []string) error {
 	size := len(namespace)
 	for i = 0; i < size; i++ {
 		err = clientsetLocal.CoreV1().Namespaces().Delete(context.Background(), namespace[i], metav1.DeleteOptions{})
-		if err !=nil {
+		if err != nil {
 			return err
 		}
 		ui.GlobalWriter.PrintflnWithPrefixArrow("namespace '%s' deleted", namespace[i])
 	}
-	
+
 	return nil
 }

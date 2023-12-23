@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: {{ include "zk-ebpf.fullname" . }}-pem
+  name: vizier-pem
   labels:
     app: pl-monitoring
     component: vizier
@@ -12,7 +12,6 @@ spec:
       app: pl-monitoring
       component: vizier
       name: vizier-pem
-    {{- include "zk-ebpf.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
@@ -20,7 +19,6 @@ spec:
         component: vizier
         name: vizier-pem
         plane: data
-      {{- include "zk-ebpf.selectorLabels" . | nindent 8 }}
     spec:
       affinity:
         nodeAffinity:
@@ -70,28 +68,28 @@ spec:
           valueFrom:
             secretKeyRef:
               key: jwt-signing-key
-              name: {{ include "zk-ebpf.fullname" . }}-pl-cluster-secrets
+              name: pl-cluster-secrets
         - name: PL_REDIS_PASSWORD
           valueFrom:
             secretKeyRef:
               key: redis-password
-              name: {{ include "zk-ebpf.fullname" . }}-redis
+              name: redis
         - name: PL_REDIS_HOST
           valueFrom:
             configMapKeyRef:
               key: redisHost
-              name: {{ include "zk-ebpf.fullname" . }}-zk-redis-config
+              name: zk-redis-config
         - name: PL_VIZIER_ID
           valueFrom:
             secretKeyRef:
               key: cluster-id
-              name: {{ include "zk-ebpf.fullname" . }}-pl-cluster-secrets
+              name: pl-cluster-secrets
               optional: true
         - name: PL_VIZIER_NAME
           valueFrom:
             secretKeyRef:
               key: cluster-name
-              name: {{ include "zk-ebpf.fullname" . }}-pl-cluster-secrets
+              name: pl-cluster-secrets
               optional: true
         - name: PL_CLOCK_CONVERTER
           value: {{ quote .Values.pem.pem.env.plClockConverter }}
@@ -144,10 +142,10 @@ spec:
         name: sys
       - name: certs
         secret:
-          secretName: {{ include "zk-ebpf.fullname" . }}-service-tls-certs
+          secretName: service-tls-certs
       - configMap:
-          name: {{ include "zk-ebpf.fullname" . }}-zk-client-db-configmap
+          name: zk-client-db-configmap
         name: zk-client-db-configmap
       - configMap:
-          name: {{ include "zk-ebpf.fullname" . }}-zpixie-configmap
+          name: zpixie-configmap
         name: zpixie-configmap

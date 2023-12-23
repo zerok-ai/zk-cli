@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "zk-ebpf.fullname" . }}-pl-nats
+  name: pl-nats
   labels:
     app: pl-monitoring
     name: pl-nats
@@ -12,7 +12,7 @@ spec:
     matchLabels:
       app: pl-monitoring
       name: pl-nats
-  serviceName: {{ include "zk-ebpf.fullname" . }}-pl-nats
+  serviceName: pl-nats
   template:
     metadata:
       labels:
@@ -110,9 +110,9 @@ spec:
       volumes:
       - name: nats-server-tls-volume
         secret:
-          secretName: {{ include "zk-ebpf.fullname" . }}-service-tls-certs
+          secretName: service-tls-certs
       - configMap:
-          name: {{ include "zk-ebpf.fullname" . }}-nats-config
+          name: nats-config
         name: config-volume
       - emptyDir: {}
         name: pid
@@ -121,7 +121,7 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "zk-ebpf.fullname" . }}-metadata
+  name: vizier-metadata
   labels:
     app: pl-monitoring
     component: vizier
@@ -133,7 +133,7 @@ spec:
       app: pl-monitoring
       component: vizier
       name: vizier-metadata
-  serviceName: {{ include "zk-ebpf.fullname" . }}-metadata
+  serviceName: vizier-metadata
   template:
     metadata:
       annotations:
@@ -169,7 +169,7 @@ spec:
           valueFrom:
             secretKeyRef:
               key: jwt-signing-key
-              name: {{ include "zk-ebpf.fullname" . }}-pl-cluster-secrets
+              name: pl-cluster-secrets
         - name: PL_POD_NAMESPACE
           valueFrom:
             fieldRef:
@@ -184,7 +184,7 @@ spec:
           value: {{ quote .Values.kubernetesClusterDomain }}
         envFrom:
         - configMapRef:
-            name: {{ include "zk-ebpf.fullname" . }}-pl-tls-config
+            name: pl-tls-config
         image: {{ .Values.metadata.app.image.repository }}:{{ .Values.metadata.app.image.tag
           | default .Chart.AppVersion }}
         livenessProbe:
@@ -242,7 +242,7 @@ spec:
         runAsUser: 10100
         seccompProfile:
           type: RuntimeDefault
-      serviceAccountName: {{ include "zk-ebpf.fullname" . }}-metadata-service-account
+      serviceAccountName: vizier-metadata-service-account
       tolerations:
       - effect: NoSchedule
         key: kubernetes.io/arch
@@ -263,9 +263,9 @@ spec:
       volumes:
       - name: certs
         secret:
-          secretName: {{ include "zk-ebpf.fullname" . }}-service-tls-certs
+          secretName: service-tls-certs
       - name: metadata-volume
         persistentVolumeClaim:
-          claimName: {{ include "zk-ebpf.fullname" . }}-metadata-pv-claim
+          claimName: metadata-pv-claim
   updateStrategy:
     type: RollingUpdate

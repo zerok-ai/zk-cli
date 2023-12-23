@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "zk-ebpf.fullname" . }}-pl-nats
+  name: pl-nats
   labels:
     app: pl-monitoring
     name: pl-nats
@@ -11,6 +11,5 @@ spec:
   selector:
     app: pl-monitoring
     name: pl-nats
-  {{- include "zk-ebpf.selectorLabels" . | nindent 4 }}
   ports:
 	{{- .Values.plNats.ports | toYaml | nindent 2 -}}

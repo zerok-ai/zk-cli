@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ include "zk-ebpf.fullname" . }}-pl-vizier-crd-metadata-binding
+  name: pl-vizier-crd-metadata-binding
   labels:
     app: pl-monitoring
     component: vizier
@@ -12,5 +12,5 @@ roleRef:
   name: pl-vizier-crd-role
 subjects:
 - kind: ServiceAccount
-  name: '{{ include "zk-ebpf.fullname" . }}-metadata-service-account'
+  name: 'vizier-metadata-service-account'
   namespace: '{{ .Release.Namespace }}'

@@ -171,26 +171,6 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 		ui.GlobalWriter.Println("Skipping stores installation")
 	}
 
-	// 3 Install olm
-	//if viper.Get(internal.OlmKeyFlag) == true {
-	//	err = install.InstallOlm()
-	//	if err != nil {
-	//		return err
-	//	}
-	//} else {
-	//	ui.GlobalWriter.Println("Skipping olm installation")
-	//}
-
-	// 4. Install default pixie - pl
-	//if viper.Get(internal.PxKeyFlag) == true {
-	//	err = install.InstallPXOperator(ebpfMemory)
-	//	if err != nil {
-	//		return err
-	//	}
-	//} else {
-	//	ui.GlobalWriter.Println("Skipping ebpf installation")
-	//}
-
 	// 5. Install zeroK services
 	if viper.Get(internal.ZksKeyFlag) == true {
 		err = install.InstallZKServices(apiKey, clusterKey, clusterId, clusterName, zkHelmVersion)
@@ -201,15 +181,18 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 		ui.GlobalWriter.Println("Skipping zk client services installation")
 	}
 
-	// 6. install the kustomization for vizier over the default code -- doing it later as it needs the redis instance to come up
-	//if viper.Get(internal.EbpfKeyFlag) == true {
-	//	err = install.InstallVizier()
-	//	if err != nil {
-	//		return err
-	//	}
-	//} else {
-	//	ui.GlobalWriter.Println("Skipping ebpf probe installation")
-	//}
+	// 6. Install zeroK ebpf
+	if viper.Get(internal.EbpfKeyFlag) == true {
+		//clusterId = "e38ee038-32af-43a0-8e1b-510d31b0e8c9"
+		//clusterName = "gke_zerok-dev_us-west1-b_devclient03"
+		zkHelmVersion = "0.0.1"
+		err = install.InstallZKEbpf(clusterId, clusterName, zkHelmVersion)
+		if err != nil {
+			return err
+		}
+	} else {
+		ui.GlobalWriter.Println("Skipping zk ebpf installation")
+	}
 
 	// 7. print success message
 	if err == nil {

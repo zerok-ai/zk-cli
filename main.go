@@ -11,6 +11,7 @@ import (
 )
 
 //go:embed scripts/*
+//go:embed zk-ebpf/*
 //go:embed "vizier/vizier.yaml"
 var content embed.FS
 
