@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: vizier-pem
+  name: zk-ebpf-pem
   labels:
     app: pl-monitoring
     component: vizier
@@ -11,13 +11,13 @@ spec:
     matchLabels:
       app: pl-monitoring
       component: vizier
-      name: vizier-pem
+      name: zk-ebpf-pem
   template:
     metadata:
       labels:
         app: pl-monitoring
         component: vizier
-        name: vizier-pem
+        name: zk-ebpf-pem
         plane: data
     spec:
       affinity:

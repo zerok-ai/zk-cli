@@ -433,14 +433,11 @@ func InstallZKEbpf(clusterId, clusterName string, zkHelmVersion string) error {
 		" ZK_HELM_VERSION=" + zkHelmVersion +
 		" ZK_EBPF_JWT_KEY=" + zkEbpfJwtKey
 
-	fmt.Println("@Debug01")
-	yamlSecret, err := GenerateCloudCertYAMLs("zk-client")
+	_, err := GenerateCloudCertYAMLs("zk-client")
 	if err != nil {
-		fmt.Println("@Debug02")
 		fmt.Println("Error ", err)
 		return err
 	}
-	fmt.Println("yamlSecret", yamlSecret)
 
 	//if viper.Get(internal.EmbedKeyFlag) == false {
 	//	fmt.Println("@Debug04")
