@@ -14,7 +14,7 @@ metadata:
       plRenewPeriod: "7500"
     image:
       repository: us-west1-docker.pkg.dev/black-scope-358204/zk-client/vizier-metadata_server_image
-      tag: 0.0.10-sunset-v2
+      tag: 0.0.1-rebranding
   natsWait:
     containerSecurityContext:
       allowPrivilegeEscalation: false
@@ -26,7 +26,7 @@ metadata:
     env:
       healthPath: ""
       protocol: http
-      serviceName: pl-nats-mgmt
+      serviceName: zk-ebpf-nats-mgmt
       servicePort: "8222"
     image:
       repository: gcr.io/pixie-oss/pixie-dev-public/curl:multiarch-7.87.0@sha256
@@ -73,7 +73,7 @@ pem:
       tcmallocSampleParameter: "1048576"
     image:
       repository: us-west1-docker.pkg.dev/black-scope-358204/zk-client/vizier-pem_image
-      tag: 0.0.10-sunset-v2
+      tag: 0.0.1-rebranding
     imagePullPolicy: Always
 plClusterSecrets:
   clusterId: ""
@@ -81,6 +81,7 @@ plClusterSecrets:
   jwtSigningKey: ""
   sentryDsn: ""
 plNats:
+  nameOverride: "zk-ebpf-nats"
   plNats:
     containerSecurityContext:
       allowPrivilegeEscalation: false
@@ -90,7 +91,7 @@ plNats:
       seccompProfile:
         type: RuntimeDefault
     env:
-      clusterAdvertise: $(POD_NAME).pl-nats.$(POD_NAMESPACE).svc
+      clusterAdvertise: $(POD_NAME).zk-ebpf-nats.$(POD_NAMESPACE).svc
     image:
       repository: gcr.io/pixie-oss/pixie-prod/vizier-deps/nats:2.9.19-scratch@sha256
       tag: 5de59286eb54ead4d4a9279846098d4097b9c17a3c0588182398a7250cde1af9

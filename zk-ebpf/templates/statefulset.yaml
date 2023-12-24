@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: pl-nats
+  name: zk-ebpf-nats
   labels:
     app: pl-monitoring
-    name: pl-nats
+    name: zk-ebpf-nats
   {{- include "zk-ebpf.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.plNats.replicas }}
   selector:
     matchLabels:
       app: pl-monitoring
-      name: pl-nats
-  serviceName: pl-nats
+      name: zk-ebpf-nats
+  serviceName: zk-ebpf-nats
   template:
     metadata:
       labels:
         app: pl-monitoring
-        name: pl-nats
+        name: zk-ebpf-nats
         plane: control
     spec:
       containers:
@@ -53,7 +53,7 @@ spec:
             port: 8222
           initialDelaySeconds: 10
           timeoutSeconds: 5
-        name: pl-nats
+        name: zk-ebpf-nats
         ports:
         - containerPort: 4222
           name: client

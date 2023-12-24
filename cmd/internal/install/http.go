@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -41,7 +40,7 @@ func GetHTTPPOSTResponse(url string, body interface{}, target interface{}) error
 		return errors.New("Cluster metadata is not valid")
 	}
 
-	log.Println("url=%s", url)
+	//log.Println("url=%s", url)
 	// Create an io.Reader from the JSON data
 	bodyReader := strings.NewReader(string(jsonData))
 
