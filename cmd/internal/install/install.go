@@ -434,7 +434,7 @@ func InstallZKEbpf(clusterId, clusterName string, zkHelmVersion string) error {
 		" ZK_EBPF_JWT_KEY=" + zkEbpfJwtKey
 
 	fmt.Println("@Debug01")
-	yamlSecret, err := GenerateCloudCertYAMLs("pl")
+	yamlSecret, err := GenerateCloudCertYAMLs("zk-client")
 	if err != nil {
 		fmt.Println("@Debug02")
 		fmt.Println("Error ", err)

@@ -127,8 +127,6 @@ plTlsConfig:
 pvc:
   metadataPvClaim:
     storageRequest: 16Gi
-redis:
-  redisPassword: "hellopassword"
 zkClientDbConfigmap:
   zkClientDbConfigmapYaml: |-
     redis:
@@ -140,8 +138,6 @@ zkClientDbConfigmap:
       user: postgres
       password: abc
       dbname: 1
-zkRedisConfig:
-  redisHost: redis-master.zk-client.svc.cluster.local
 zpixieConfigmap:
   zpixieConfigmapYaml: |-
     allowNonTraced: false

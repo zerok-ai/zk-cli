@@ -83,4 +83,4 @@ echo "ZK_EBPF_JWT_KEY=$ZK_EBPF_JWT_KEY"
 
 helm dependency build $THIS_DIR
 helm dependency update $THIS_DIR
-helm upgrade zk-ebpf $THIS_DIR/ --install --create-namespace --namespace pl --version $ZK_HELM_VERSION --set=plClusterSecrets.clusterId=$ZK_CLUSTER_ID --set=plClusterSecrets.clusterName=$ZK_CLUSTER_NAME --set=plClusterSecrets.jwtSigningKey=$ZK_EBPF_JWT_KEY
+helm upgrade zk-ebpf $THIS_DIR/ --install --create-namespace --namespace zk-client --version $ZK_HELM_VERSION --set=plClusterSecrets.clusterId=$ZK_CLUSTER_ID --set=plClusterSecrets.clusterName=$ZK_CLUSTER_NAME --set=plClusterSecrets.jwtSigningKey=$ZK_EBPF_JWT_KEY

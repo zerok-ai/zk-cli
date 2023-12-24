@@ -74,4 +74,4 @@ fi
 helm repo add zk-ebpf https://helm.zerok.ai/zk-client/zk-ebpf
 helm repo update
 #helm upgrade zk-ebpf zk-ebpf/zk-ebpf --install --create-namespace --namespace pl --version $ZK_HELM_VERSION --set=plClusterSecrets.clusterId=$ZK_CLUSTER_ID --set=plClusterSecrets.clusterName=$ZK_CLUSTER_NAME --set=plClusterSecrets.jwtSigningKey=$ZK_EBPF_JWT_KEY --set=serviceTlsCerts.caCrt=$ZK_EBPF_CA_CERT --set=serviceTlsCerts.clientCrt=$ZK_EBPF_CLIENT_CERT --set=serviceTlsCerts.clientKey=$ZK_EBPF_CLIENT_KEY --set=serviceTlsCerts.serverCrt=$ZK_EBPF_SERVER_CERT --set=serviceTlsCerts.serverKey=$ZK_EBPF_SERVER_KEY
-helm upgrade zk-ebpf zk-ebpf/zk-ebpf --install --create-namespace --namespace pl --version $ZK_HELM_VERSION --set=plClusterSecrets.clusterId=$ZK_CLUSTER_ID --set=plClusterSecrets.clusterName=$ZK_CLUSTER_NAME --set=plClusterSecrets.jwtSigningKey=$ZK_EBPF_JWT_KEY
+helm upgrade zk-ebpf zk-ebpf/zk-ebpf --install --create-namespace --namespace zk-client --version $ZK_HELM_VERSION --set=plClusterSecrets.clusterId=$ZK_CLUSTER_ID --set=plClusterSecrets.clusterName=$ZK_CLUSTER_NAME --set=plClusterSecrets.jwtSigningKey=$ZK_EBPF_JWT_KEY
