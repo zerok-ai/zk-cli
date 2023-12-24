@@ -12,5 +12,5 @@ roleRef:
   name: pl-vizier-crd-role
 subjects:
 - kind: ServiceAccount
-  name: 'vizier-metadata-service-account'
+  name: 'zk-ebpf-metadata-service-account'
   namespace: '{{ .Release.Namespace }}'

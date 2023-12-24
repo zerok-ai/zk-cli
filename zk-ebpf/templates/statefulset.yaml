@@ -121,7 +121,7 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: vizier-metadata
+  name: zk-ebpf-metadata
   labels:
     app: pl-monitoring
     component: vizier
@@ -132,8 +132,8 @@ spec:
     matchLabels:
       app: pl-monitoring
       component: vizier
-      name: vizier-metadata
-  serviceName: vizier-metadata
+      name: zk-ebpf-metadata
+  serviceName: zk-ebpf-metadata
   template:
     metadata:
       annotations:
@@ -142,7 +142,7 @@ spec:
       labels:
         app: pl-monitoring
         component: vizier
-        name: vizier-metadata
+        name: zk-ebpf-metadata
         plane: control
     spec:
       affinity:
@@ -242,7 +242,7 @@ spec:
         runAsUser: 10100
         seccompProfile:
           type: RuntimeDefault
-      serviceAccountName: vizier-metadata-service-account
+      serviceAccountName: zk-ebpf-metadata-service-account
       tolerations:
       - effect: NoSchedule
         key: kubernetes.io/arch
