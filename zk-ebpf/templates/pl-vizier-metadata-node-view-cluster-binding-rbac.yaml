@@ -9,7 +9,7 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: 'pl-node-view'
+  name: 'zk-ebpf-node-view'
 subjects:
 - kind: ServiceAccount
   name: 'zk-ebpf-metadata-service-account'

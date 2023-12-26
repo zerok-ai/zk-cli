@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: pl-node-view-cluster-binding
+  name: zk-ebpf-node-view-cluster-binding
   labels:
     app: pl-monitoring
     component: vizier
@@ -9,7 +9,7 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: 'pl-node-view'
+  name: 'zk-ebpf-node-view'
 subjects:
 - kind: ServiceAccount
   name: default
