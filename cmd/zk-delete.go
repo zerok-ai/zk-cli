@@ -23,10 +23,10 @@ const (
 )
 
 var (
-	namespacesToDelete  = []string{"pl", "zk-client", "px-operator"}
+	namespacesToDelete  = []string{"zk-client"}
 	crdsToDelete        = []string{"zerokops.operator.zerok.ai", "zerokinstrumentations.operator.zerok.ai"}
-	clusterRoles        = []string{"zk-daemonset", "zk-operator-metrics-reader", "zk-operator-proxy-role", "zk-operator-role"}
-	clusterRoleBindings = []string{"zk-daemonset", "zk-operator-proxy-rolebinding", "zk-operator-rolebinding"}
+	clusterRoles        = []string{"zk-daemonset", "zk-operator-metrics-reader", "zk-operator-proxy-role", "zk-operator-role", "zk-ebpf-metadata", "zk-ebpf-node-view"}
+	clusterRoleBindings = []string{"zk-daemonset", "zk-operator-proxy-rolebinding", "zk-operator-rolebinding", "zk-ebpf-metadata-cluster-binding", "zk-ebpf-metadata-node-view-cluster-binding", "zk-ebpf-node-view-cluster-binding"}
 
 	deleteCmd = &cobra.Command{
 		Use:   "delete",
