@@ -16,7 +16,7 @@ jobs:
         run: |-
           file_name="./.github/scripts/find_cli_tags.sh"
           chmod +x "$file_name"
-          result=$("$file_name" "latest" "prod")
+          result=$("$file_name" "latest" "ebpf")
           echo "latest tag=$result"
           echo "tag=$result" >> $GITHUB_OUTPUT
   init:
