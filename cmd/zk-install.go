@@ -88,6 +88,7 @@ func printVersionsAndOptions() {
 	ui.GlobalWriter.Println("Versions:")
 	ui.GlobalWriter.PrintflnWithPrefixBullet("zkctl version: %s", BinaryVersion)
 	ui.GlobalWriter.PrintflnWithPrefixBullet("zerok services version: %s", zkHelmVersion)
+	ui.GlobalWriter.PrintflnWithPrefixBullet("zerok ebpf version: %s", zkEbpfHelmVersion)
 	if viper.Get(internal.PxKeyFlag) == false {
 		ui.GlobalWriter.PrintflnWithPrefixBullet("ebpf: %s", "false")
 	}
