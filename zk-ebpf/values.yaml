@@ -14,7 +14,7 @@ metadata:
       plRenewPeriod: "7500"
     image:
       repository: us-west1-docker.pkg.dev/black-scope-358204/zk-client/vizier-metadata_server_image
-      tag: 0.0.1-rebranding
+      tag: 0.0.3-rebranding
   natsWait:
     containerSecurityContext:
       allowPrivilegeEscalation: false
@@ -73,7 +73,7 @@ pem:
       tcmallocSampleParameter: "1048576"
     image:
       repository: us-west1-docker.pkg.dev/black-scope-358204/zk-client/vizier-pem_image
-      tag: 0.0.1-rebranding
+      tag: 0.0.3-rebranding
     imagePullPolicy: Always
 plClusterSecrets:
   clusterId: ""
