@@ -2,7 +2,7 @@ name: version-publish
 on:
   push:
     tags: #r/<ENVIRONMENT>/<DOCKER-TAG-OR-VERSION>
-      - 'ebpf'
+      - 'ebpfversion'
 jobs:
   get-prod-tag:
     runs-on: zk-self-hosted
