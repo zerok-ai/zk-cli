@@ -90,8 +90,8 @@ const (
 
 	olmInstall      string = "scripts/install-olm.sh"
 	zkInstallClient string = "scripts/install.sh"
-	//zkInstallEbpf         string = "scripts/install-ebpf.sh"
-	zkInstallEbpf         string = "zk-ebpf/install-local.sh"
+	zkInstallEbpf   string = "scripts/install-ebpf.sh"
+	//zkInstallEbpf         string = "zk-ebpf/install-local.sh"
 	zkInstallDevClient    string = "helm-charts/install-dev.sh"
 	zkInstallSpreadClient string = "scripts/install-spread.sh"
 	cliVizierYaml         string = "vizier/vizier.yaml"
@@ -450,7 +450,7 @@ func ExtractZkEbpfHelmVersion() (*string, error) {
 	bodyStr := string(body)
 
 	// Find the index of "prod" in the string
-	index := strings.Index(bodyStr, "prod/")
+	index := strings.Index(bodyStr, "ebpf/")
 	if index == -1 {
 		fmt.Println("String 'prod' not found in response")
 		return nil, err
@@ -481,13 +481,13 @@ func InstallZKEbpf(clusterId, clusterName string, zkHelmVersion string) error {
 		return err
 	}
 
-	//if viper.Get(internal.EmbedKeyFlag) == false {
-	//	fmt.Println("@Debug04")
-	return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+"/"+shellFile, inputToShellFile, zkEbpfSpinnerText, zkEbpfSuccessText, zkEbpfFailureText)
-	//} else {
-	//	fmt.Println("@Debug05")
-	//	return shell.ExecuteEmbeddedFileWithSpinner(internal.EmbeddedContent, shellFile, inputToShellFile, zkEbpfSpinnerText, zkEbpfSuccessText, zkEbpfFailureText)
-	//}
+	if viper.Get(internal.EmbedKeyFlag) == false {
+		fmt.Println("@Debug04")
+		return shell.ExecuteShellFileWithSpinner(shell.GetPWD()+"/"+shellFile, inputToShellFile, zkEbpfSpinnerText, zkEbpfSuccessText, zkEbpfFailureText)
+	} else {
+		fmt.Println("@Debug05")
+		return shell.ExecuteEmbeddedFileWithSpinner(internal.EmbeddedContent, shellFile, inputToShellFile, zkEbpfSpinnerText, zkEbpfSuccessText, zkEbpfFailureText)
+	}
 }
 
 func InstallZKServices(apiKey, clusterKey, clusterId, clusterName string, zkHelmVersion string) error {
