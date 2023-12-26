@@ -71,6 +71,10 @@ ci-cd-helm-version: delete-artifact-folder
 	mkdir -p $(ARTIFACT_FOLDER_NAME)
 	printf "${VERSION}" > $(ARTIFACT_FOLDER_NAME)/helmversion.txt
 
+ci-cd-ebpf-helm-version: delete-artifact-folder
+	mkdir -p $(ARTIFACT_FOLDER_NAME)
+	printf "${VERSION}" > $(ARTIFACT_FOLDER_NAME)/ebpfversion.txt
+
 ci-cd-artifact-install: delete-artifact-folder
 	mkdir -p $(ARTIFACT_FOLDER_NAME)
 	cp ./install.sh $(ARTIFACT_FOLDER_NAME)/install.sh

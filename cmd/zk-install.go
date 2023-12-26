@@ -16,15 +16,16 @@ import (
 )
 
 var (
-	authAddress     string
-	apiKey          string
-	ebpfMemory      string
-	postgresVersion string
-	redisVersion    string
-	clusterName     string
-	clusterKey      string
-	clusterId       string
-	zkHelmVersion   string
+	authAddress       string
+	apiKey            string
+	ebpfMemory        string
+	postgresVersion   string
+	redisVersion      string
+	clusterName       string
+	clusterKey        string
+	clusterId         string
+	zkHelmVersion     string
+	zkEbpfHelmVersion string
 )
 
 type ContextKey struct {
@@ -185,8 +186,8 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 	if viper.Get(internal.EbpfKeyFlag) == true {
 		//clusterId = "e38ee038-32af-43a0-8e1b-510d31b0e8c9"
 		//clusterName = "gke_zerok-dev_us-west1-b_devclient03"
-		zkHelmVersion = "0.0.1"
-		err = install.InstallZKEbpf(clusterId, clusterName, zkHelmVersion)
+		//zkHelmVersion = "0.0.1"
+		err = install.InstallZKEbpf(clusterId, clusterName, zkEbpfHelmVersion)
 		if err != nil {
 			return err
 		}
@@ -259,6 +260,12 @@ func LoadAndValidateFlags() error {
 		return err
 	}
 	zkHelmVersion = *zkHelmVersionLocal
+
+	zkEbpfHelmVersionLocal, err := install.ExtractZkEbpfHelmVersion()
+	if err != nil {
+		return err
+	}
+	zkEbpfHelmVersion = *zkEbpfHelmVersionLocal
 
 	return nil
 }

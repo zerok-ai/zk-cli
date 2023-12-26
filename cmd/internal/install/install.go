@@ -420,7 +420,49 @@ func ExtractZkHelmVersion() (*string, error) {
 	version = strings.TrimSpace(version)
 
 	return &version, nil
+}
 
+func ExtractZkEbpfHelmVersion() (*string, error) {
+	passedVersionInterface := viper.Get(VersionKeyFlag)
+	if passedVersionInterface != "" {
+		passedVersion := passedVersionInterface.(string)
+		if passedVersion != "" {
+			return &passedVersion, nil
+		}
+	}
+	url := "https://dl.zerok.ai/cli/ebpfversion.txt"
+
+	// Make an HTTP GET request to the URL
+	response, err := http.Get(url)
+	if err != nil {
+		fmt.Println("Error making HTTP request:", err)
+		return nil, err
+	}
+	defer response.Body.Close()
+	// Read the response body
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		fmt.Println("Error reading response body:", err)
+		return nil, err
+	}
+
+	// Convert the response body to a string
+	bodyStr := string(body)
+
+	// Find the index of "prod" in the string
+	index := strings.Index(bodyStr, "prod/")
+	if index == -1 {
+		fmt.Println("String 'prod' not found in response")
+		return nil, err
+	}
+
+	// Extract the version substring after "prod"
+	version := bodyStr[index+len("prod/"):]
+
+	// Trim any leading/trailing whitespaces
+	version = strings.TrimSpace(version)
+
+	return &version, nil
 }
 
 func InstallZKEbpf(clusterId, clusterName string, zkHelmVersion string) error {
