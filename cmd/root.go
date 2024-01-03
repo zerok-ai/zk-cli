@@ -90,8 +90,6 @@ func init() {
 	internal.AddBoolFlag(RootCmd, internal.GptKeyFlag, internal.GptKeyEnvFlag, "", false, "for internal use only", true)
 	internal.AddBoolFlag(RootCmd, internal.EmbedKeyFlag, internal.EmbedKeyEnvFlag, "", true, "for internal use only", true)
 	internal.AddBoolFlag(RootCmd, internal.EbpfKeyFlag, internal.EbpfKeyEnvFlag, "", true, "for internal use only", true)
-	internal.AddBoolFlag(RootCmd, internal.OlmKeyFlag, internal.OlmKeyEnvFlag, "", true, "for internal use only", true)
-	internal.AddBoolFlag(RootCmd, internal.PxKeyFlag, internal.PxKeyEnvFlag, "", true, "for internal use only", true)
 	internal.AddBoolFlag(RootCmd, internal.ZksKeyFlag, internal.ZksKeyEnvFlag, "", true, "for internal use only", true)
 	internal.AddBoolFlag(RootCmd, internal.ZkStoresKeyFlag, internal.ZkStoresKeyEnvFlag, "", true, "for internal use only", true)
 	internal.AddBoolFlag(RootCmd, internal.SpreadKeyFlag, internal.SpreadKeyEnvFlag, "", false, "for internal use only", true)

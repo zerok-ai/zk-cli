@@ -32,12 +32,6 @@ const (
 	EbpfKeyFlag    = "ebpf"
 	EbpfKeyEnvFlag = "ZK_EBPF"
 
-	OlmKeyFlag    = "olm"
-	OlmKeyEnvFlag = "ZK_OLM"
-
-	PxKeyFlag    = "px"
-	PxKeyEnvFlag = "ZK_PX"
-
 	ZksKeyFlag    = "zks"
 	ZksKeyEnvFlag = "ZK_ZKS"
 

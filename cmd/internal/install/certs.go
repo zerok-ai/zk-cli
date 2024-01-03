@@ -29,6 +29,7 @@ import (
 )
 
 var x509Name = pkix.Name{
+	//TODO:PIXIE Chaqnge this to ZEROK
 	Organization: []string{"Pixie Labs Inc."},
 	Country:      []string{"US"},
 	Province:     []string{"California"},

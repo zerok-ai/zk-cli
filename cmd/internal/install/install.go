@@ -1,7 +1,6 @@
 package install
 
 import (
-	"context"
 	_ "embed"
 	"encoding/json"
 	"errors"
@@ -10,9 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"runtime"
 	"strings"
-	"time"
 	"zkctl/cmd/internal"
 	"zkctl/cmd/internal/shell"
 	"zkctl/cmd/pkg/ui"
@@ -122,37 +119,12 @@ func GetEbpfMemory() string {
 	return ebpfMemory
 }
 
-func DownloadAndInstallPXCLI(ctx context.Context) error {
-
-	useVersion := "latest"
-	artifactBucket := "pixie-dev-public"
-	if strings.Contains(useVersion, "-") {
-		artifactBucket = "pixie-prod-artifacts"
-	}
-	artifactBasePath := fmt.Sprintf("https://storage.googleapis.com/%s/cli", artifactBucket)
-
-	err := utils.BackendCLIExists()
-	if err != nil {
-		ui.GlobalWriter.PrintflnWithPrefixArrow("installing full CLI support")
-
-		artifactName := "cli_darwin_universal"
-		if runtime.GOOS == "linux" {
-			artifactName = "cli_linux_amd64"
-		}
-		url := fmt.Sprintf("%s/%s/%s", artifactBasePath, useVersion, artifactName)
-		err = utils.DownloadBackendCLI(url)
-	} else {
-		ui.GlobalWriter.PrintSuccessMessage("full CLI support already installed\n")
-	}
-	return err
-}
-
 type ClusterMetadata struct {
 	ClientVersions map[string]string `json:"clientVersion"`
 	NumOfNodes     int64             `json:"numNodes"`
 }
 
-func LoginToPX(authAddress, apiKey, clusterName string, clusterMetadata ClusterMetadata) (string, string, error) {
+func LoginToZerok(authAddress, apiKey, clusterName string, clusterMetadata ClusterMetadata) (string, string, error) {
 
 	ui.GlobalWriter.PrintflnWithPrefixArrow("trying to authenticate")
 	path := "v1/p/auth/login"
@@ -303,80 +275,6 @@ func InstallOlm() (err error) {
 		//Production scenario.
 		return shell.ExecuteEmbeddedFileWithSpinner(internal.EmbeddedContent, olmInstall, " v0.25.0", installOlm, installOlmSuccessText, installOlmFailureText)
 	}
-}
-
-func InstallPXOperator(ebpfMemory string) (err error) {
-
-	// start deployment in background
-	go func() {
-
-		ui.GlobalWriter.PrintflnWithPrefixArrow("installing operator for managing data store")
-
-		_, err = shell.RunWithSpinner(copySecrets, preInstCreatingCopyOfSecret, preInstSuccessText, preInstFailureText)
-		if err != nil {
-			return
-		}
-
-		_, err = shell.RunWithSpinner(copyConfigmaps, preInstCreatingCopyOfSecret, preInstSuccessText, preInstFailureText)
-		if err != nil {
-			return
-		}
-
-		var out string
-		ebpfArgs := " --deploy_olm=false"
-		if ebpfMemory != "" {
-			ebpfArgs = fmt.Sprintf(" --pem_memory_limit=%s", ebpfMemory)
-		}
-		cmd := utils.GetBackendCLIPath() + " deploy " + ebpfArgs
-		out, err = shell.ShelloutWithSpinner(cmd, diSpinnerText, diSuccessText, diFailureText)
-
-		if err != nil {
-			//replace 'pl' with 'zk' in out
-			out = strings.ReplaceAll(out, "pl", "zk")
-			out = strings.ReplaceAll(out, "pixie", "ebpf")
-			out = strings.ReplaceAll(out, "px", "zk")
-			internal.DumpErrorAndPrintLocation(out)
-		}
-	}()
-
-	// wait for `waitTimeForService` seconds for the service
-	// TODO: replace this code with proper health check
-	for i := 0; i <= waitTimeForService; i++ {
-		time.Sleep(1 * time.Second)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func InstallVizier() error {
-	vizierYamlPath := shell.GetPWD() + "/" + cliVizierYaml
-	if viper.Get(internal.EmbedKeyFlag) == true {
-		yamlString := utils.GetEmbeddedFileContents(cliVizierYaml, internal.EmbeddedContent)
-		vizierYamlPath = shell.GetPWD() + "/tmp_yaml_file.yaml"
-
-		defer shell.DeleteFile(vizierYamlPath)
-
-		err := utils.WriteTextToFile(yamlString, vizierYamlPath)
-		if err != nil {
-			return err
-		}
-	}
-	patch := func() error {
-		out, err := shell.Shellout("kubectl apply -f " + vizierYamlPath)
-		if err != nil {
-			internal.DumpErrorAndPrintLocation(fmt.Sprintf("vizier install failed, %s", out))
-		}
-		return err
-	}
-
-	out, err := shell.RunWithSpinner(patch, "applying final patches", "patches applied successfully", "patches failed")
-	if err != nil {
-		internal.DumpErrorAndPrintLocation(out)
-	}
-	return err
 }
 
 func ExtractZkHelmVersion() (*string, error) {

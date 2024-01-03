@@ -89,9 +89,6 @@ func printVersionsAndOptions() {
 	ui.GlobalWriter.PrintflnWithPrefixBullet("zkctl version: %s", BinaryVersion)
 	ui.GlobalWriter.PrintflnWithPrefixBullet("zerok services version: %s", zkHelmVersion)
 	ui.GlobalWriter.PrintflnWithPrefixBullet("zerok ebpf version: %s", zkEbpfHelmVersion)
-	if viper.Get(internal.PxKeyFlag) == false {
-		ui.GlobalWriter.PrintflnWithPrefixBullet("ebpf: %s", "false")
-	}
 	if ebpfMemory != "" {
 		ui.GlobalWriter.PrintflnWithPrefixBullet("ebpf memory: %s", ebpfMemory)
 	}
@@ -100,9 +97,6 @@ func printVersionsAndOptions() {
 	}
 	if viper.Get(internal.ZkStoresKeyFlag) == false {
 		ui.GlobalWriter.PrintflnWithPrefixBullet("zerok stores: %s", "false")
-	}
-	if viper.Get(internal.OlmKeyFlag) == false {
-		ui.GlobalWriter.PrintflnWithPrefixBullet("olm: %s", "false")
 	}
 	if viper.Get(internal.EbpfKeyFlag) == false {
 		ui.GlobalWriter.PrintflnWithPrefixBullet("ebpf probes: %s", "false")
@@ -137,8 +131,6 @@ func RunInstallPreCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// download and install px cli
-	//return install.DownloadAndInstallPXCLI(ctx)
 	return nil
 }
 
@@ -146,7 +138,7 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 
 	var err error
 
-	// 1. login to px
+	// 1. login to zerok
 	clusterMetadata := install.ClusterMetadata{
 		ClientVersions: map[string]string{
 			"cli":                 "",
@@ -159,7 +151,7 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 			"zk-wsp-client":       "",
 		},
 	}
-	if clusterKey, clusterId, err = install.LoginToPX(authAddress, apiKey, clusterName, clusterMetadata); err != nil {
+	if clusterKey, clusterId, err = install.LoginToZerok(authAddress, apiKey, clusterName, clusterMetadata); err != nil {
 		return err
 	}
 
@@ -173,7 +165,7 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 		ui.GlobalWriter.Println("Skipping stores installation")
 	}
 
-	// 5. Install zeroK services
+	// 3. Install zeroK services
 	if viper.Get(internal.ZksKeyFlag) == true {
 		err = install.InstallZKServices(apiKey, clusterKey, clusterId, clusterName, zkHelmVersion)
 		if err != nil {
@@ -183,11 +175,8 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 		ui.GlobalWriter.Println("Skipping zk client services installation")
 	}
 
-	// 6. Install zeroK ebpf
+	// 4. Install zeroK ebpf
 	if viper.Get(internal.EbpfKeyFlag) == true {
-		//clusterId = "e38ee038-32af-43a0-8e1b-510d31b0e8c9"
-		//clusterName = "gke_zerok-dev_us-west1-b_devclient03"
-		//zkHelmVersion = "0.0.1"
 		err = install.InstallZKEbpf(clusterId, clusterName, zkEbpfHelmVersion)
 		if err != nil {
 			return err
@@ -196,7 +185,7 @@ func RunInstallCmd(cmd *cobra.Command, args []string) error {
 		ui.GlobalWriter.Println("Skipping zk ebpf installation")
 	}
 
-	// 7. print success message
+	// 5. print success message
 	if err == nil {
 		ui.GlobalWriter.PrintlnSuccessMessageln("installation done")
 	}
