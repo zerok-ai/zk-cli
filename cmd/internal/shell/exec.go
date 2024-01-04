@@ -175,7 +175,9 @@ func ExecuteShellFileWithSpinner(shellFile, inputParameters, spinnerText, succes
 func ExecuteEmbeddedFileWithSpinner(content embed.FS, filePath, inputParameters, spinnerText, successMessage, errorMessage string) error {
 	installDbCode := utils.GetEmbeddedFileContents(filePath, content)
 
-	tmpScriptName := GetTempDir() + "tmp_install_zk_file.sh"
+	//tmpScriptName := GetTempDir() + os.PathSeparator + "tmp_install_zk_file.sh"
+	tmpScriptName := fmt.Sprintf("%s%c%s", GetTempDir(), os.PathSeparator, "tmp_install_zk_file.sh")
+
 	//Deleting existing temp file before generating a new one
 	DeleteFile(tmpScriptName)
 
