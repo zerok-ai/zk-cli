@@ -1,5 +1,5 @@
 apiVersion: v2
-name: zk-client
+name: zk-clientonly
 description: A Helm chart for Kubernetes
 
 # A chart can be either an 'application' or a 'library' chart.
@@ -25,7 +25,7 @@ appVersion: "1.0.0"
 
 dependencies:
   - name: zk-operator
-    version: "0.0.1-clientonly"
+    version: "0.0.2-clientonly"
     repository: https://helm.zerok.ai/zk-client/zk-operator
 
   - name: zk-otlp-receiver
@@ -33,11 +33,12 @@ dependencies:
     repository: https://helm.zerok.ai/zk-client/zk-otlp-receiver
 
   - name: zk-scenario-manager
-    version: "0.1.24-debug"
+    version: "0.1.26-debug"
     repository: https://helm.zerok.ai/zk-client/zk-scenario-manager
 
-  - name: redis
+  - name: zk-redis
     condition: redis.enabled
-    version: 17.11.6
+    version: "0.1.0-alpha"
+    repository: https://helm.zerok.ai/zk-client/zk-redis
 
 
