@@ -39,8 +39,8 @@ helm repo add zk-redis https://helm.zerok.ai/zk-client/zk-redis
 helm repo update
 
 # install
+helm upgrade zk-redis zk-redis/zk-redis --install --create-namespace --namespace zk-client --version 0.1.0-alpha --wait
 helm upgrade zk-operator zk-operator/zk-operator --install --create-namespace --namespace zk-client --version $ZK_OPERATOR_VERSION
 helm upgrade zk-scenario-manager zk-scenario-manager/zk-scenario-manager --install --create-namespace --namespace zk-client --version $ZK_SCENARIO_MANAGER_VERSION
 helm upgrade zk-otlp-receiver zk-otlp-receiver/zk-otlp-receiver --install --create-namespace --namespace zk-client --version $ZK_OTLP_RECIEVER_VERSION
-helm upgrade zk-redis zk-redis/zk-redis --install --create-namespace --namespace zk-client --version 0.1.0-alpha --wait
 
