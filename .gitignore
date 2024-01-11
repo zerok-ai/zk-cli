@@ -8,3 +8,5 @@ helm-charts/charts/*.tgz
 helm-charts/*.lock
 zkctl
 Chart.lock
+helm-charts-clientonly/charts/zk-*
+helm-charts-clientonly/*.lock

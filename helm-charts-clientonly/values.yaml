@@ -1,0 +1,26 @@
+# Default values for helm-charts.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+global:
+  namespace: zk-client
+
+redis:
+  enabled: true
+
+zk-scenario-manager:
+  serviceConfigs:
+    logs:
+      color: true
+      level: ERROR
+
+zk-operator:
+  serviceConfigs:
+    logs:
+      color: true
+      level: ERROR
+
+zk-otlp-receiver:
+  serviceConfigs:
+    logs:
+      color: true
+      level: ERROR
