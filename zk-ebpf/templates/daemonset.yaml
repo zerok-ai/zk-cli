@@ -117,6 +117,16 @@ spec:
         - mountPath: /opt/zpixie-configmap.yaml
           name: zpixie-configmap
           subPath: zpixie-configmap.yaml
+      - name: zk-ebpf-collector
+        image: {{ .Values.collector.image.repository }}:{{ .Values.collector.image.tag
+          | default .Values.collector.imagePullPolicy }}
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 80
+        volumeMounts:
+          - name: collector-config
+            mountPath: /zk/config
+            readOnly: true
       dnsPolicy: ClusterFirstWithHostNet
       hostNetwork: true
       hostPID: true
@@ -132,6 +142,9 @@ spec:
       - effect: NoSchedule
         operator: Exists
       volumes:
+      - name: collector-config
+        configMap:
+          name: zk-socket-server
       - hostPath:
           path: /
           type: Directory
